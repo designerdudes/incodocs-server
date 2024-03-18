@@ -1,5 +1,5 @@
 import express from 'express';
-import { addUser, getUserByIdAndPopulateAll, loginUser, updateUser } from '../controllers/user.js';
+import { addUser, getCurrentUser, getUserByIdAndPopulateAll, loginUser, updateUser } from '../controllers/user.js';
 
 const router = express.Router();
 
@@ -7,6 +7,9 @@ const router = express.Router();
 router.post('/add', addUser);  
 
 router.post('/login', loginUser);  
+
+
+router.get('/currentUser', getCurrentUser);
 
 
 // Route to update an existing user
