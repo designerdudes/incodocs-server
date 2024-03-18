@@ -6,19 +6,19 @@ export const addOrganization = async (req, res) => {
     try {
         const newOrganization = await Organization.create(req.body);
 
-        const { ownerId } = req.body;
+        const { owner } = req.body;
 
-        const user = await User.findById(ownerId);
+        const user = await User.findById(owner);
 
         if (!user) {
-            return res.status(404).json({ message: `User with ID ${ownerId} not found` }); // Return 404 if user with the given ID is not found
+            return res.status(404).json({ message: `User with ID ${owner} not found` }); // Return 404 if user with the given ID is not found
         }
 
         user.owner.push(newOrganization._id);
 
         await user.save();
 
-        newOrganization.owner = ownerId;
+        newOrganization.owner = owner;
 
         await newOrganization.save();
 
