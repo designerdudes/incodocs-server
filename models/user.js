@@ -13,9 +13,12 @@ const addressSchema = new mongoose.Schema({
         },
     },
     pincode: String,
+    addressType: String  
 });
 
-addressSchema.index({ coordinates: '2dsphere' });
+// Remove the unique constraint from the index definition
+addressSchema.index({ coordinates: '2dsphere', addressType: 1 });  
+
 
 const userSchema = new mongoose.Schema({
     fullName: {
