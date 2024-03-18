@@ -89,7 +89,29 @@ export const loginUser = async (req, res) => {
     }
 };
 
+// Controller function to get the current user
+export const getCurrentUser = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Bearer token not provided' });
+        }
+        const token = authHeader.split(' ')[1]; 
 
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
+        const userId = decodedToken.id;
+
+        const user = await User.findById(userId).populate('owner').populate('member');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 // Controller function to update an existing user
 export const updateUser = async (req, res) => {
