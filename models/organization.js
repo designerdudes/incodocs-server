@@ -37,7 +37,7 @@ const organizationSchema = new mongoose.Schema({
         ref: 'User',
     }],
     address: {
-        type: [addressSchema],  
+        type: addressSchema,  
         sparse: true,
     },shipments: [{
         type: mongoose.Schema.Types.ObjectId,
