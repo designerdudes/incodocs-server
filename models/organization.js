@@ -23,7 +23,7 @@ addressSchema.index({ coordinates: '2dsphere' });
 const organizationSchema = new mongoose.Schema({
     name: {
         type: String,
-        unique: true,
+        unique: true, // Ensures uniqueness of the name field
         required: true
     },
     description: String,
@@ -39,13 +39,15 @@ const organizationSchema = new mongoose.Schema({
     address: {
         type: addressSchema,  
         sparse: true,
-    },shipments: [{
+    },
+    shipments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Shipment',
     }],
 }, {
     timestamps: true,
 });
+
 
 const Organization = mongoose.model('Organization', organizationSchema);
 
