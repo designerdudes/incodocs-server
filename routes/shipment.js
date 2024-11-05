@@ -10,7 +10,8 @@ import {
     getAllShipments,
     getShipmentById,
     getShipmentsByOrganizationId,
-    deleteShipmentById
+    deleteShipmentById,
+    addContainer
 } from '../controllers/shipments.js'; 
 
 
@@ -27,6 +28,7 @@ router.post('/shipping-details', addOrUpdateShippingDetails);
 router.post('/shipping-bill-details', addOrUpdateShippingBillDetails);
 router.post('/sale-invoice-details', addOrUpdateSaleInvoiceDetails);
 router.post('/bl-details', addOrUpdateBlDetails);
+router.post('/add-container', addContainer)
 
 // Routes for fetching shipments
 router.get('/getAll', getAllShipments);
