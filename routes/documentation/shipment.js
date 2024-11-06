@@ -12,7 +12,7 @@ import {
     getShipmentsByOrganizationId,
     deleteShipmentById,
     addContainer
-} from '../controllers/shipments.js'; 
+} from '../../controllers/shipments.js'; 
 
 
 const router = express.Router();

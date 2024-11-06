@@ -8,8 +8,8 @@ import cors from "cors";
 
 import errorHandler from "./middleware/error.js";
 import userRouter from "./routes/user.js";
-import organizationRouter from "./routes/organization.js";
-import shipmentRouter from "./routes/shipment.js";
+import organizationRouter from "./routes/documentation/organization.js";
+import shipmentRouter from "./routes/documentation/shipment.js";
 
 dotenv.config();
 

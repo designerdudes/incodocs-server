@@ -11,7 +11,6 @@ router.post('/login', loginUser);
 
 router.get('/currentUser', getCurrentUser);
 
-
 // Route to update an existing user
 router.put('/:id', updateUser);
 
