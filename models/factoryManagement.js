@@ -1,5 +1,20 @@
-import mongoose from 'mongoose'
+import mongoose from "mongoose";
 
-const inventorySchmea = new mongoose.Schema({
+const inventorySchema = new mongoose.Schema(
+  {
+    materialName: String,
+    weight: Number,
+    length: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "ft" },
+    },
+    breadth: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "ft" },
+    },
+  },
+  { timestamps: true }
+);
 
-},{ timestamps: true })
+const Inventory = mongoose.model("Inventory", inventorySchema);
+export default Inventory;
