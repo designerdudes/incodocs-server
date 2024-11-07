@@ -1,33 +1,35 @@
 import Inventory from "../models/factoryManagement.js";
+const { rawInventory, finishedInventory } = Inventory;
 
-export const getAllRawSlabs = async (req, res) => {
+// Raw Inventory APIs
+export const getAllRawBlocks = async (req, res) => {
   try {
-    const rawSlabs = await Inventory.find({}, { __v: 0 });
-    if (rawSlabs.length === 0) {
+    const rawBlocks = await rawInventory.find({}, { __v: 0 });
+    if (rawBlocks.length === 0) {
       res.status(404).send("No Records Found");
     } else {
-      res.status(200).send(rawSlabs);
+      res.status(200).send(rawBlocks);
     }
   } catch (err) {
     res.status(500).send("Internal server error");
   }
 };
 
-export const getSingleRawSlabs = async (req, res) => {
+export const getSingleRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
-    const rawSlabs = await Inventory.findById(id);
-    if (!rawSlabs) {
+    const rawBlock = await rawInventory.findById(id);
+    if (!rawBlock) {
       res.status(404).send("No Records Found");
     } else {
-      res.status(200).send(rawSlabs);
+      res.status(200).send(rawBlock);
     }
   } catch (err) {
     res.status(500).send("Internal server error");
   }
 };
 
-export const addRawSlabs = async (req, res) => {
+export const addRawBlock = async (req, res) => {
   try {
     const body = req.body;
     console.log(body);
@@ -35,14 +37,14 @@ export const addRawSlabs = async (req, res) => {
       res.status(400).send("enter all the required fields");
       return;
     }
-    const addinventory = await Inventory.create(body);
-    res.status(200).send(addinventory);
+    const addRawBlock = await rawInventory.create(body);
+    res.status(200).send(addRawBlock);
   } catch (err) {
     res.status(500).send("Internal server error");
   }
 };
 
-export const updateRawSlabs = async (req, res) => {
+export const updateRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const body = req.body;
@@ -51,11 +53,11 @@ export const updateRawSlabs = async (req, res) => {
       res.status(400).send("Enter all the required fields");
       return;
     }
-    const updatedSlab = await Inventory.findByIdAndUpdate(id, body, {
+    const updatedBlock = await rawInventory.findByIdAndUpdate(id, body, {
       new: true,
     });
-    if (!updatedSlab) {
-      res.status(404).send("Slab Not Found");
+    if (!updatedBlock) {
+      res.status(404).send("Block Not Found");
       return;
     }
 
@@ -65,17 +67,19 @@ export const updateRawSlabs = async (req, res) => {
   }
 };
 
-export const removeRawSlabs = async (req, res) => {
+export const removeRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
-    const findSlab = await Inventory.findById(id);
-    if (!findSlab) {
-      res.status(404).json({ message: "slab not found" });
+    const findBlock = await rawInventory.findById(id);
+    if (!findBlock) {
+      res.status(404).json({ message: "Block not found" });
       return;
     }
-    await Inventory.findByIdAndDelete(id);
-    res.status(200).send("slab removed successfully");
+    await rawInventory.findByIdAndDelete(id);
+    res.status(200).send("Block removed successfully");
   } catch (err) {
     res.status(500).send("Internal server error");
   }
 };
+
+// Finished Inventory APIs

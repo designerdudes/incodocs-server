@@ -1,17 +1,18 @@
 import express from 'express'
-import { addRawSlabs, getAllRawSlabs, getSingleRawSlabs, removeRawSlabs, updateRawSlabs } from '../../controllers/factoryManagement.js';
+import { addRawBlock, getAllRawBlocks, getSingleRawBlock, removeRawBlock, updateRawBlock } from '../../controllers/factoryManagement.js';
 
 const router = express.Router();
 
-router.get('/get', getAllRawSlabs);
+//Raw Blocks
+router.get('/inventory/raw/get', getAllRawBlocks);
 
-router.get('/get/:id', getSingleRawSlabs);
+router.get('/inventory/raw/get/:id', getSingleRawBlock);
 
-router.post('/add', addRawSlabs);
+router.post('/inventory/raw/add', addRawBlock);
 
-router.put('/put/:id', updateRawSlabs);
+router.put('/inventory/raw/put/:id', updateRawBlock);
 
-router.delete('/delete/:id', removeRawSlabs);
+router.delete('/inventory/raw/delete/:id', removeRawBlock);
 
 
 export default router;

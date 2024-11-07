@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 
-const inventorySchema = new mongoose.Schema(
+const rawInventorySchema = new mongoose.Schema(
   {
     materialName: String,
-    weight: Number,
+    weight: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "tons" },
+    },
     length: {
       value: { type: Number, required: true },
       units: { type: String, default: "ft" },
@@ -16,5 +19,33 @@ const inventorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Inventory = mongoose.model("Inventory", inventorySchema);
-export default Inventory;
+const finishedInventorySchema = new mongoose.Schema(
+  {
+    productName: String,
+    quantity: { type: Number, required: true },
+    weight: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "tons" },
+    },
+    thickness: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "cm" },
+    },
+    length: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "ft" },
+    },
+    breadth: {
+      value: { type: Number, required: true },
+      units: { type: String, default: "ft" },
+    },
+  },
+  { timestamps: true }
+);
+
+const rawInventory = mongoose.model("Inventory", rawInventorySchema);
+const finishedInventory = mongoose.model(
+  "finishedInventory",
+  finishedInventorySchema
+);
+export default { rawInventory, finishedInventory };
