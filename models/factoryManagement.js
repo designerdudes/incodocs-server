@@ -4,15 +4,15 @@ const rawInventorySchema = new mongoose.Schema(
   {
     materialName: String,
     weight: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "tons" },
     },
     length: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "ft" },
     },
     breadth: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "ft" },
     },
   },
@@ -24,19 +24,19 @@ const finishedInventorySchema = new mongoose.Schema(
     productName: String,
     quantity: { type: Number, required: true },
     weight: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "tons" },
     },
     thickness: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "cm" },
     },
     length: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "ft" },
     },
     breadth: {
-      value: { type: Number, required: true },
+      value: { type: Number },
       units: { type: String, default: "ft" },
     },
   },
