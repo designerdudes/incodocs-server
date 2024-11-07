@@ -1,5 +1,5 @@
 import express from 'express'
-import { addRawBlock, getAllRawBlocks, getSingleRawBlock, removeRawBlock, updateRawBlock } from '../../controllers/factoryManagement.js';
+import { addFinishedSlab, addRawBlock, getAllFinishedSlabs, getAllRawBlocks, getSingleFinishedSlab, getSingleRawBlock, removeFinishedSlab, removeRawBlock, updateFinishedSlab, updateRawBlock } from '../../controllers/factoryManagement.js';
 
 const router = express.Router();
 
@@ -14,5 +14,15 @@ router.put('/inventory/raw/put/:id', updateRawBlock);
 
 router.delete('/inventory/raw/delete/:id', removeRawBlock);
 
+//Finished Slabs
+router.get('/inventory/finished/get', getAllFinishedSlabs);
+
+router.get('/inventory/finished/get/:id', getSingleFinishedSlab);
+
+router.post('/inventory/finished/add', addFinishedSlab);
+
+router.put('/inventory/finished/put/:id', updateFinishedSlab);
+
+router.delete('/inventory/finished/delete/:id', removeFinishedSlab);
 
 export default router;
