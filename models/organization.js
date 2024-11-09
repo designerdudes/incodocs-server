@@ -1,54 +1,65 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const addressSchema = new mongoose.Schema({
-  
-    location: String,
+export const addressSchema = new mongoose.Schema({
+  location: String,
+  coordinates: {
+    type: {
+      type: String,
+      default: "Point",
+    },
     coordinates: {
-        type: {
-            type: String,
-            default: 'Point',
-        },
-        coordinates: {
-            type: [Number],
-            default: [0, 0],
-        },
+      type: [Number],
+      default: [0, 0],
     },
-    pincode: {
-        type: String
-    },
+  },
+  pincode: {
+    type: String,
+  },
 });
 
-addressSchema.index({ coordinates: '2dsphere' });
+addressSchema.index({ coordinates: "2dsphere" });
 
-const organizationSchema = new mongoose.Schema({
+const organizationSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        unique: true, // Ensures uniqueness of the name field
-        required: true
+      type: String,
+      unique: true, // Ensures uniqueness of the name field
+      required: true,
     },
     description: String,
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    members: [{
+    members: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    }],
+        ref: "User",
+      },
+    ],
     address: {
-        type: addressSchema,  
-        sparse: true,
+      type: addressSchema,
+      sparse: true,
     },
-    shipments: [{
+    shipments: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Shipment',
-    }],
-}, {
+        ref: "Shipment",
+      },
+    ],
+    factory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "factory",
+      },
+    ],
+  },
+  {
     timestamps: true,
-});
+  }
+);
 
-
-const Organization = mongoose.model('Organization', organizationSchema);
+const Organization = mongoose.model("Organization", organizationSchema);
 
 export default Organization;

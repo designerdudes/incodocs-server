@@ -1,4 +1,5 @@
 import Inventory from "../models/factoryManagement.js";
+import factory from "../models/factory.js";
 const { rawInventory, finishedInventory } = Inventory;
 
 // Raw Inventory APIs
@@ -33,10 +34,15 @@ export const addRawBlock = async (req, res) => {
   try {
     const body = req.body;
     console.log(body);
-    if (!body.materialName || !body.weight) {
+    if (!body.materialName || !body.weight || !body.factoryId) {
       res.status(400).send("enter all the required fields");
       return;
     }
+    await factory.findByIdAndUpdate(
+      rawInventory.factoryId,
+      { $push: { rawBlocksId: id } },
+      { new: true }
+    );
     const addRawBlock = await rawInventory.create(body);
     res.status(200).send(addRawBlock);
   } catch (err) {
@@ -47,11 +53,20 @@ export const addRawBlock = async (req, res) => {
 export const updateRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
+    const { factoryId } = req.body;
     const body = req.body;
 
     if (!body.materialName || !body.weight) {
       res.status(400).send("Enter all the required fields");
       return;
+    }
+    const isfactoryId = await rawInventory.findById(factoryId);
+    if(!isfactoryId){
+      await factory.findByIdAndUpdate(
+        rawInventory.factoryId,
+        { $push: { rawBlocksId: id } },
+        { new: true }
+      );
     }
     const updatedBlock = await rawInventory.findByIdAndUpdate(id, body, {
       new: true,
@@ -75,6 +90,11 @@ export const removeRawBlock = async (req, res) => {
       res.status(404).json({ message: "Block not found" });
       return;
     }
+    await factory.findByIdAndUpdate(
+      rawInventory.factoryId,
+      { $pull: { rawBlocksId: id } },
+      { new: true }
+    );
     await rawInventory.findByIdAndDelete(id);
     res.status(200).send("Block removed successfully");
   } catch (err) {
@@ -114,7 +134,12 @@ export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
     console.log(body);
-    if (!body.productName || !body.weight || !body.quantity) {
+    if (
+      !body.productName ||
+      !body.weight ||
+      !body.quantity ||
+      !rawInventoryId
+    ) {
       res.status(400).send("enter all the required fields");
       return;
     }
