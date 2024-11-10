@@ -1,19 +1,20 @@
-import factory from "../models/factory";
-import Organization from "../models/organization";
+import factory from "../models/factory.js";
+import Organization from "../models/organization.js";
 
 export const addFactoryToOrg = async (req, res) => {
   try {
     const body = req.body;
+    const { organizationId } = body;
     if (!body.organizationId || !body.factoryName) {
       res.status(400).send("Enter all the required fields");
       return;
     }
-    await Organization.findByIdAndUpdate(
-        factory.organizationId,
-        { $push: { factory: id } },
-        { new: true }
-      );
     const newFactory = await factory.create(body);
+    await Organization.findByIdAndUpdate(
+      organizationId,
+      { $push: { factory: newFactory._id } },
+      { new: true }
+    );
     res.status(200).send(newFactory);
   } catch (err) {
     res.status(500).send("Internal Server Error");
@@ -70,8 +71,18 @@ export const updateFactory = async (req, res) => {
   try {
     const body = req.body;
     const { id } = req.params;
+    const {organizationId}= body;
+    const findFactory = await factory.findById(id);
     if (!findFactory) {
       res.status(404).send("Factory not found");
+    }
+    const isOrgId = await factory.findById(organizationId);
+    if (!isOrgId) {
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { factory: id } },
+        { new: true }
+      );
     }
     const updatedFactory = await factory.findByIdAndUpdate(id, body, {
       new: true,
