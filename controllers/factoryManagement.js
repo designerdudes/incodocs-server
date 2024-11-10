@@ -33,13 +33,14 @@ export const getSingleRawBlock = async (req, res) => {
 export const addRawBlock = async (req, res) => {
   try {
     const body = req.body;
+    const {factoryId} = body
     console.log(body);
     if (!body.materialName || !body.weight || !body.factoryId) {
       res.status(400).send("enter all the required fields");
       return;
     }
     await factory.findByIdAndUpdate(
-      rawInventory.factoryId,
+      factoryId,
       { $push: { rawBlocksId: id } },
       { new: true }
     );
@@ -50,6 +51,25 @@ export const addRawBlock = async (req, res) => {
   }
 };
 
+export const removeFactoryfromRawBlock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const rawBlock = await rawInventory.findById(id);
+    if (!rawBlock) {
+      res.status(404).send("Block Not Found");
+      return;
+    }
+    await rawInventory.findByIdAndUpdate(
+      factoryId,
+      { $pull: { factoryId: factoryId } },
+      { new: true }
+    );
+    res.status(200).send("factory removed successfully");
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};
 export const updateRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
@@ -61,9 +81,9 @@ export const updateRawBlock = async (req, res) => {
       return;
     }
     const isfactoryId = await rawInventory.findById(factoryId);
-    if(!isfactoryId){
+    if (!isfactoryId) {
       await factory.findByIdAndUpdate(
-        rawInventory.factoryId,
+        factoryId,
         { $push: { rawBlocksId: id } },
         { new: true }
       );
@@ -85,13 +105,14 @@ export const updateRawBlock = async (req, res) => {
 export const removeRawBlock = async (req, res) => {
   try {
     const { id } = req.params;
+    const {factoryId} = req.body
     const findBlock = await rawInventory.findById(id);
     if (!findBlock) {
       res.status(404).json({ message: "Block not found" });
       return;
     }
     await factory.findByIdAndUpdate(
-      rawInventory.factoryId,
+      factoryId,
       { $pull: { rawBlocksId: id } },
       { new: true }
     );
