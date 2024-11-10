@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { addressSchema } from "./organization";
+import { addressSchema } from "./organization.js";
 
 const factorySchema = new mongoose.Schema(
   {
