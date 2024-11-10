@@ -36,8 +36,11 @@ export const addUser = async (req, res) => {
                 fullName: newUser.fullName,
                 email: newUser.email,
                 profileImg: newUser.profileImg,
-                owner: newUser.owner,
-                member: newUser.member
+                ownedOrganizations: newUser.ownedOrganizations,
+                organizationMembers: newUser.organizationMembers,
+                isFactoryManagementEnabled : newUser.isFactoryManagementEnabled,
+                isExportDocumentationEnabled : newUser.isExportDocumentationEnabled,
+                isAccountingEnabled : newUser.isAccountingEnabled
             }
         });
     } catch (error) {
@@ -80,8 +83,11 @@ export const loginUser = async (req, res) => {
                 fullName: user.fullName,
                 email: user.email,
                 profileImg: user.profileImg,
-                owner: user.owner,
-                member: user.member
+                ownedOrganizations: user.ownedOrganizations,
+                organizationMembers: user.organizationMembers,
+                isFactoryManagementEnabled : user.isFactoryManagementEnabled,
+                isExportDocumentationEnabled : user.isExportDocumentationEnabled,
+                isAccountingEnabled : user.isAccountingEnabled
             }
         });
     } catch (error) {
@@ -101,7 +107,7 @@ export const getCurrentUser = async (req, res) => {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
         const userId = decodedToken.id;
 
-        const user = await User.findById(userId).populate('owner').populate('member');
+        const user = await User.findById(userId).populate('ownedOrganizations').populate('organizationMembers');
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -116,10 +122,10 @@ export const getCurrentUser = async (req, res) => {
 // Controller function to update an existing user
 export const updateUser = async (req, res) => {
     const { id } = req.params; 
-    const { fullName, email, mobileNumber, address, profileImg } = req.body;  
+    const { fullName, email, mobileNumber, address, profileImg,isFactoryManagementEnabled, isExportDocumentationEnabled, isAccountingEnabled   } = req.body;  
 
     try {
-        const updatedUser = await User.findByIdAndUpdate(id, { fullName, email, mobileNumber, address, profileImg }, { new: true });  
+        const updatedUser = await User.findByIdAndUpdate(id, { fullName, email, mobileNumber, address, profileImg, isFactoryManagementEnabled, isExportDocumentationEnabled, isAccountingEnabled }, { new: true });  
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });  
         }
@@ -137,11 +143,11 @@ export const getUserByIdAndPopulateAll = async (req, res) => {
     try {
         const user = await User.findById(id)
             .populate({
-                path: 'owner',
+                path: 'ownedOrganizations',
                 model: 'Organization'
             })
             .populate({
-                path: 'member',
+                path: 'organizationMembers',
                 model: 'Organization'
             })
             .exec();
