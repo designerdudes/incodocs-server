@@ -62,7 +62,7 @@ export const updateRawBlock = async (req, res) => {
       return;
     }
     const isfactoryId = await rawInventory.find({ factoryId: factoryId });
-    console.log(isfactoryId, "fhds");
+    // console.log(isfactoryId, "fhds");
     if (!isfactoryId) {
       await factory.findByIdAndUpdate(
         factoryId,
@@ -160,6 +160,7 @@ export const getSingleFinishedSlab = async (req, res) => {
 export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
+    const { factoryId } = body;
     console.log(body);
     if (
       !body.productName ||
@@ -171,6 +172,11 @@ export const addFinishedSlab = async (req, res) => {
       return;
     }
     const addFinishedSlab = await finishedInventory.create(body);
+    await factory.findByIdAndUpdate(
+      factoryId,
+      { $push: { finishedSlabsId: addFinishedSlab._id } },
+      { new: true }
+    );
     res.status(200).send(addFinishedSlab);
   } catch (err) {
     // console.log(err)
@@ -181,11 +187,21 @@ export const addFinishedSlab = async (req, res) => {
 export const updateFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
+    const { factoryId } = req.body;
     const body = req.body;
 
     if (!body.productName || !body.weight || !body.quantity) {
       res.status(400).send("Enter all the required fields");
       return;
+    }
+    const isfactoryId = await rawInventory.find({ factoryId: factoryId });
+    // console.log(isfactoryId, "fhds");
+    if (!isfactoryId) {
+      await factory.findByIdAndUpdate(
+        factoryId,
+        { $push: { finishedSlabsId: id } },
+        { new: true }
+      );
     }
     const updatedSlab = await finishedInventory.findByIdAndUpdate(id, body, {
       new: true,
@@ -209,6 +225,12 @@ export const removeFinishedSlab = async (req, res) => {
       res.status(404).json({ message: "Slab not found" });
       return;
     }
+    const { factoryId } = findSlab;
+    await factory.findByIdAndUpdate(
+      factoryId,
+      { $pull: { finishedSlabsId: id } },
+      { new: true }
+    );
     await finishedInventory.findByIdAndDelete(id);
     res.status(200).send("Slab removed successfully");
   } catch (err) {
