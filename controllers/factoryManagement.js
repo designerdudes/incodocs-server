@@ -161,12 +161,13 @@ export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
     const { factoryId } = body;
+    const { rawBlockId } = body;
     console.log(body);
     if (
       !body.productName ||
       !body.weight ||
       !body.quantity ||
-      !body.rawInventoryId
+      !body.rawBlockId
     ) {
       res.status(400).send("enter all the required fields");
       return;
@@ -175,6 +176,13 @@ export const addFinishedSlab = async (req, res) => {
     await factory.findByIdAndUpdate(
       factoryId,
       { $push: { finishedSlabsId: addFinishedSlab._id } },
+      { new: true }
+    );
+    const rawBlock = await rawInventory.findById(rawBlockId);
+    // console.log(rawBlock,'hello')
+    await factory.findByIdAndUpdate(
+      factoryId,
+      { $pull: { rawBlocksId: rawBlock._id } },
       { new: true }
     );
     res.status(200).send(addFinishedSlab);

@@ -47,7 +47,7 @@ const finishedInventorySchema = new mongoose.Schema({
     value: { type: Number },
     units: { type: String, default: "ft" },
   },
-  rawInventoryId: {
+  rawBlockId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Inventory",
   },

@@ -10,7 +10,7 @@ import errorHandler from "./middleware/error.js";
 import userRouter from "./routes/user.js";
 import organizationRouter from "./routes/documentation/organization.js";
 import shipmentRouter from "./routes/documentation/shipment.js";
-import factoryrouter from "./routes/factoryManagement/inventory.js";
+import inventory from "./routes/factoryManagement/inventory.js";
 import factory from "./routes/documentation/factory.js";
 
 dotenv.config();
@@ -48,9 +48,9 @@ app.get("/", (req, res) => {
 // app.use('/auth', authRoute);
 app.use("/user", userRouter);
 app.use("/organizations", organizationRouter);
-app.use("/factory",factory)
 app.use("/shipment", shipmentRouter);
-app.use('/factory-management', factoryrouter)
+app.use("/factory",factory)
+app.use('/factory-management', inventory)
 
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
