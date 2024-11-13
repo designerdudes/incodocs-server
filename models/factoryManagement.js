@@ -22,6 +22,7 @@ const rawInventorySchema = new mongoose.Schema({
     value: { type: Number },
     units: { type: String, default: "ft" },
   },
+  status: { type: String, enum: ["ready for cutting", "ready for polishing"] },
 });
 const rawInventory = mongoose.model("rawInventory", rawInventorySchema);
 

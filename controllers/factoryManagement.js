@@ -1,6 +1,6 @@
 import Inventory from "../models/factoryManagement.js";
 import factory from "../models/factory.js";
-const { rawInventory, finishedInventory } = Inventory;
+const { rawInventory, finishedInventory, lot } = Inventory;
 
 // Raw Inventory APIs
 export const getAllRawBlocks = async (req, res) => {
@@ -33,13 +33,17 @@ export const getSingleRawBlock = async (req, res) => {
 export const addRawBlock = async (req, res) => {
   try {
     const body = req.body;
-    const { factoryId } = body;
+    const { factoryId, lotId } = body;
     console.log(body);
-    if (!body.materialName || !body.weight || !body.factoryId) {
+    if (!body.blockNumber || !body.lotId || !body.status) {
       res.status(400).send("enter all the required fields");
       return;
     }
     const addRawBlock = await rawInventory.create(body);
+    await lot.findByIdAndUpdate(lotId, {
+      $push: { blocksId: addRawBlock._id },
+    });
+
     await factory.findByIdAndUpdate(
       factoryId,
       { $push: { rawBlocksId: addRawBlock._id } },
