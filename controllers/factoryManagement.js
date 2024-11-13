@@ -185,6 +185,7 @@ export const addFinishedSlab = async (req, res) => {
       { $pull: { rawBlocksId: rawBlock._id } },
       { new: true }
     );
+    await rawInventory.findByIdAndDelete(rawBlockId);
     res.status(200).send(addFinishedSlab);
   } catch (err) {
     // console.log(err)

@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
 const rawInventorySchema = new mongoose.Schema({
+  blockNumber: { type: Number },
+  lotId: { type: mongoose.Schema.Types.ObjectId, ref: "lot" },
   materialName: { type: String, required: true },
   materialType: { type: String, required: true },
   quantity: { type: Number, required: true },
@@ -19,11 +21,6 @@ const rawInventorySchema = new mongoose.Schema({
   height: {
     value: { type: Number },
     units: { type: String, default: "ft" },
-  },
-  factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
-  organizationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Organization",
   },
 });
 const rawInventory = mongoose.model("rawInventory", rawInventorySchema);
@@ -62,19 +59,20 @@ const finishedInventory = mongoose.model(
   finishedInventorySchema
 );
 
-// const inventorySchema = new mongoose.Schema(
-//   {
-//     rawInventory: { type: rawInventorySchema },
-//     finishedInventory: { type: finishedInventorySchema },
-//     factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
-//     organizationId: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "Organization",
-//     },
-//   },
-//   { timestamps: true }
-// );
+const lotSchema = new mongoose.Schema(
+  {
+    lotName: { type: String, required: true },
+    noOfBlocks: { type: Number },
+    blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "rawInventory" }],
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+    },
+  },
+  { timestamps: true }
+);
 
-// const inventory = mongoose.model('inventory', inventorySchema)
+const lot = mongoose.model("lot", lotSchema);
 
-export default { rawInventory, finishedInventory};
+export default { rawInventory, finishedInventory, lot };
