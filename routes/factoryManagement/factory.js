@@ -5,7 +5,7 @@ import {
   getSingleFactory,
   removeFactoryFrommOrg,
   updateFactory,
-} from "../../controllers/factory.js";
+} from "../../controllers/factoryManagement/factory.js";
 const router = express.Router();
 
 router.get("/getAll", getFactories);

@@ -5,23 +5,29 @@ import { addressSchema } from "../../models/documentation/organization.js";
 const factorySchema = new mongoose.Schema(
   {
     factoryName: { type: String, required: true },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+    },
     address: { type: addressSchema, sparse: true },
-    BlocksId: [
+    lotId: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "blockInventory",
       },
     ],
-    finishedSlabsId: [
+    SlabsId: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "slabInventory",
       },
     ],
-    organizationId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Organization",
-    },
+    // BlocksId: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "blockInventory",
+    //   },
+    // ],
   },
   { timestamps: true }
 );
@@ -30,7 +36,7 @@ const factory = mongoose.model("factory", factorySchema);
 // Worker Schema
 const workerSchema = new mongoose.Schema(
   {
-    slapId: { type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" },
+    slapId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
     name: { type: String, required: true },
     totalSqftofCutting: { type: Number, default: 0 },
     totalSqftofPolishing: { type: Number, default: 0 },

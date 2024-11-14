@@ -1,5 +1,5 @@
 import express from 'express'; 
-import { addMembersToOrganization, addOrganization, getAllOrganizations, getOrganizationById, removeMembersFromOrganization, updateOrganization } from '../../controllers/organization.js';
+import { addMembersToOrganization, addOrganization, getAllOrganizations, getOrganizationById, removeMembersFromOrganization, updateOrganization } from '../../controllers/documentation/organization.js';
 
 const router = express.Router();
 

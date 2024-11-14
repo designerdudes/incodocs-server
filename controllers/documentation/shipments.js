@@ -1,5 +1,5 @@
-import Organization from "../models/organization.js";
-import Shipment from "../models/shipment.js";
+import Organization from "../../models/documentation/organization.js";
+import Shipment from "../../models/documentation/shipment.js";
 
 // Controller function to add a new shipment
 export const addShipment = async (req, res) => {

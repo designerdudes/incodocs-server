@@ -4,14 +4,14 @@ import mongoose from "mongoose";
 const lotSchema = new mongoose.Schema(
   {
     lotName: { type: String, required: true },
-    materialType: { type: String },
-    noOfBlocks: { type: Number },
-    blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
     factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
     },
+    materialType: { type: String },
+    noOfBlocks: { type: Number },
+    blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
   },
   { timestamps: true }
 );
@@ -21,7 +21,7 @@ const lotInventory = mongoose.model("lotInventory", lotSchema);
 const blockInventorySchema = new mongoose.Schema(
   {
     lotId: { type: mongoose.Schema.Types.ObjectId, ref: "lotInventory" },
-    blockNumber: { type: Number, required: true },
+    blockNumber: { type: Number, required: true, unique: true },
     materialType: { type: String },
     dimensions: {
       weight: {
@@ -41,7 +41,7 @@ const blockInventorySchema = new mongoose.Schema(
         units: { type: String, default: "inch" },
       },
     },
-    cutSlabs: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
+    SlabsId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
     status: {
       type: String,
       enum: ["inStock", "inCutting", "Polished", "Completed"],
@@ -59,6 +59,11 @@ const slabInventorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "blockInventory",
     },
+    factoryId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "factory",
+    },
+    blockNumber: { type: Number, unique: true },
     productName: { type: String },
     quantity: { type: Number, required: true },
     dimensions: {
@@ -99,4 +104,4 @@ const slabInventorySchema = new mongoose.Schema(
 );
 const slabInventory = mongoose.model("slabInventory", slabInventorySchema);
 
-export default { blockInventory, slabInventory, lotInventory };
+export { blockInventory, slabInventory, lotInventory };

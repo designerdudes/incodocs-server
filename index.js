@@ -11,7 +11,7 @@ import userRouter from "./routes/user.js";
 import organizationRouter from "./routes/documentation/organization.js";
 import shipmentRouter from "./routes/documentation/shipment.js";
 import inventory from "./routes/factoryManagement/inventory.js";
-import factory from "./routes/documentation/factory.js";
+import factory from "./routes/factoryManagement/factory.js";
 
 dotenv.config();
 

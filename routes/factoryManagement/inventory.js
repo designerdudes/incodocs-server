@@ -1,5 +1,5 @@
 import express from 'express'
-import { addFinishedSlab, addRawBlock, getAllFinishedSlabs, getAllRawBlocks, getSingleFinishedSlab, getSingleRawBlock, removeFinishedSlab, removeRawBlock, updateFinishedSlab, updateRawBlock } from '../../controllers/factoryManagement.js';
+import { addFinishedSlab, addRawBlock, getAllFinishedSlabs, getAllRawBlocks, getSingleFinishedSlab, getSingleRawBlock, removeFinishedSlab, removeRawBlock, updateFinishedSlab, updateRawBlock } from '../../controllers/factoryManagement/inventory.js';
 
 const router = express.Router();
 
