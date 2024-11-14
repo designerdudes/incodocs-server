@@ -25,4 +25,21 @@ router.put('/inventory/finished/put/:id', updateFinishedSlab);
 
 router.delete('/inventory/finished/delete/:id', removeFinishedSlab);
 
+
+// lots route
+
+
+router.post('/inventory/lot/add', addLot)
+
+router.get('/inventory/lot/get', getallLot)
+
+router.put('/inventory/lot/update', updateLot)
+
+router.get('/inventory/lot/getbyid', getlotById)
+
+router.delete('/inventory/lot/delete', removeLot)
+
+
+
+
 export default router;
