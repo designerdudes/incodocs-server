@@ -1,18 +1,18 @@
 import express from 'express'
-import { addFinishedSlab, addRawBlock, getAllFinishedSlabs, getAllRawBlocks, getSingleFinishedSlab, getSingleRawBlock, removeFinishedSlab, removeRawBlock, updateFinishedSlab, updateRawBlock } from '../../controllers/factoryManagement/inventory.js';
+import { addBlock, addFinishedSlab, getAllBlocks, getAllFinishedSlabs, getSingleBlock, getSingleFinishedSlab, removeBlock, removeFinishedSlab, updateBlock, updateFinishedSlab } from '../../controllers/factoryManagement/inventory.js';
 
 const router = express.Router();
 
 //Raw Blocks
-router.get('/inventory/raw/get', getAllRawBlocks);
+router.get('/inventory/raw/get', getAllBlocks);
 
-router.get('/inventory/raw/get/:id', getSingleRawBlock);
+router.get('/inventory/raw/get/:id', getSingleBlock);
 
-router.post('/inventory/raw/add', addRawBlock);
+router.post('/inventory/raw/add', addBlock);
 
-router.put('/inventory/raw/put/:id', updateRawBlock);
+router.put('/inventory/raw/put/:id', updateBlock);
 
-router.delete('/inventory/raw/delete/:id', removeRawBlock);
+router.delete('/inventory/raw/delete/:id', removeBlock);
 
 //Finished Slabs
 router.get('/inventory/finished/get', getAllFinishedSlabs);
