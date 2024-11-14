@@ -1,4 +1,4 @@
-import Organization from "../models/organization.js";
+import Organization from "../models/documentation/organization.js";
 import User from "../models/user.js";
 
 // Controller function to add a new organization
