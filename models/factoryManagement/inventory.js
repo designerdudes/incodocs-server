@@ -44,9 +44,10 @@ const blockInventorySchema = new mongoose.Schema(
     SlabsId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
     status: {
       type: String,
-      enum: ["inStock", "inCutting", "Polished", "Completed"],
+      enum: ["inStock", "inCutting", "polished", "completed"],
       default: "inStock",
     },
+    inStock: { type: Boolean },
   },
   { timestamps: true }
 );
@@ -55,7 +56,7 @@ const blockInventory = mongoose.model("blockInventory", blockInventorySchema);
 // Slab inventory schema
 const slabInventorySchema = new mongoose.Schema(
   {
-    BlockId: {
+    blockId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "blockInventory",
     },
@@ -89,6 +90,7 @@ const slabInventorySchema = new mongoose.Schema(
       enum: ["Cut", "Trimmed", "Polished"],
       default: "Cut",
     },
+    inStock: { type: Boolean },
     trim: {
       length: {
         value: { type: Number },

@@ -56,8 +56,8 @@ export const removeFactoryFrommOrg = async (req, res) => {
     if (!findFactory) {
       res.status(404).send("Factory not found");
     }
-    await Organization.findByIdAndUpdate(
-      factory.organizationId,
+    await Organization.findOneAndUpdate(
+      { factory: id },
       { $pull: { factory: id } },
       { new: true }
     );

@@ -55,7 +55,7 @@ export const addBlock = async (req, res) => {
       res.status(200).send(addBlock);
     }
   } catch (err) {
-    res.status(500).send("Internal server error");
+    res.status(500).send(err);
   }
 };
 
@@ -94,15 +94,11 @@ export const removeBlock = async (req, res) => {
       return;
     }
     const { lotId } = findBlock;
-    const findLot = await lotInventory.findByIdAndUpdate(
+    await lotInventory.findByIdAndUpdate(
       lotId,
       { $pull: { blocksId: id } },
       { new: true }
     );
-    if (!findLot) {
-      res.status(400).send("Lot not found, please enter a valid lot");
-      return;
-    }
     await blockInventory.findByIdAndDelete(id);
     res.status(200).send("Block removed successfully");
   } catch (err) {
@@ -141,15 +137,25 @@ export const getSingleFinishedSlab = async (req, res) => {
 export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
-    const { factoryId } = body;
-    if (!body.BlockId || !body.factoryId || !body.status) {
+    const { factoryId, blockId } = body;
+    if (!body.blockId || !body.factoryId || !body.status) {
       res.status(400).send("enter all the required fields");
+      return;
+    }
+    const findBlock = await blockInventory.findById(blockId);
+    if (findBlock.status !== "polished" || findBlock.status !== "completed") {
+      res.status(400).send("cannot add slab, block is not completed");
       return;
     }
     const addFinishedSlab = await slabInventory.create(body);
     await factory.findByIdAndUpdate(
       factoryId,
       { $push: { SlabsId: addFinishedSlab._id } },
+      { new: true }
+    );
+    await blockInventory.findByIdAndUpdate(
+      blockId,
+      { inStock: false },
       { new: true }
     );
     res.status(200).send(addFinishedSlab);
@@ -234,14 +240,13 @@ export const updateLot = async (req, res) => {
   const body = req.body;
   const { factoryId } = body;
   try {
-    const updateLot = await lotInventory.findByIdAndUpdate(id, body, {
-      new: true,
-    });
-    if (!updateLot) {
+    const findLot = await lotInventory.findById(id);
+    if (!findLot) {
       res.status(404).send({ message: "Lot not found" });
       return;
     }
     const findFactoryId = await lotInventory.find({ factoryId: factoryId });
+    console.log(findFactoryId);
     if (findFactoryId.length === 0) {
       const findFactory = await factory.findByIdAndUpdate(
         factoryId,
@@ -250,13 +255,12 @@ export const updateLot = async (req, res) => {
       );
       if (!findFactory) {
         res.status(400).send("Please enter a valid factory ID");
+        return;
       }
-      await factory.findOneAndUpdate(
-        { lotId: id },
-        { $pull: { lotId: id } },
-        { new: true }
-      );
     }
+    const updateLot = await lotInventory.findByIdAndUpdate(id, body, {
+      new: true,
+    });
     res.status(200).json(updateLot);
   } catch (error) {
     res.status(404).send("Internal server error");
@@ -293,13 +297,14 @@ export const getLotById = async (req, res) => {
 export const removeLot = async (req, res) => {
   const { id } = req.params;
   try {
-    const findLot = await findById(id)
+    const findLot = await lotInventory.findById(id);
     if (!findLot) {
-      res.status(404).json({ message: "Lot not found" });
+      res.status(404).send("Lot not found");
+      return;
     }
     await lotInventory.findByIdAndDelete(id);
-    await factory.findByIdAndUpdate(
-      findLot._id,
+    await factory.findOneAndUpdate(
+      { lotId: findLot._id },
       { $pull: { lotId: id } },
       { new: true }
     );

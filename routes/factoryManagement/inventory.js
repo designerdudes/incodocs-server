@@ -44,12 +44,12 @@ router.delete("/inventory/finished/delete/:id", removeFinishedSlab);
 // Lot Routes
 router.get("/inventory/lot/get", getAllLots);
 
-router.get("/inventory/lot/getbyid", getLotById);
+router.get("/inventory/lot/getbyid/:id", getLotById);
 
 router.post("/inventory/lot/add", addLot);
 
-router.put("/inventory/lot/update", updateLot);
+router.put("/inventory/lot/update/:id", updateLot);
 
-router.delete("/inventory/lot/delete", removeLot);
+router.delete("/inventory/lot/delete/:id", removeLot);
 
 export default router;

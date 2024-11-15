@@ -40,8 +40,6 @@ const workerSchema = new mongoose.Schema(
     name: { type: String, required: true },
     totalSqftofCutting: { type: Number, default: 0 },
     totalSqftofPolishing: { type: Number, default: 0 },
-    // cuttingRatePerSqft: { type: Number, default: 3.75 },
-    // polishRatePerSqft: { type: Number, default: 11 },
     totalPayment: { type: Number },
   },
   { timestamps: true }
