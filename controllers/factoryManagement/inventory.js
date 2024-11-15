@@ -204,3 +204,107 @@ export const removeFinishedSlab = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+//Lot Inventory APIs
+export const addLot = async (req, res) => {
+  try {
+    const body = req.body;
+    const { factoryId } = body;
+    if (!body.factoryId || !body.noOfBlocks) {
+      res.status(400).send("Enter All The Required Fields");
+      return;
+    }
+    const newLot = await lotInventory.create(body);
+    const findFactory = await factory.findByIdAndUpdate(
+      factoryId,
+      { $push: { lotId: newLot._id } },
+      { new: true }
+    );
+    if (!findFactory) {
+      res.status(400).send("Please enter a valid factory ID");
+    }
+    res.status(200).json(newLot);
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const updateLot = async (req, res) => {
+  const { id } = req.params;
+  const body = req.body;
+  const { factoryId } = body;
+  try {
+    const updateLot = await lotInventory.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    if (!updateLot) {
+      res.status(404).send({ message: "Lot not found" });
+      return;
+    }
+    const findFactoryId = await lotInventory.find({ factoryId: factoryId });
+    if (findFactoryId.length === 0) {
+      const findFactory = await factory.findByIdAndUpdate(
+        factoryId,
+        { $push: { lotId: id } },
+        { new: true }
+      );
+      if (!findFactory) {
+        res.status(400).send("Please enter a valid factory ID");
+      }
+      await factory.findOneAndUpdate(
+        { lotId: id },
+        { $pull: { lotId: id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(updateLot);
+  } catch (error) {
+    res.status(404).send("Internal server error");
+  }
+};
+
+export const getAllLots = async (req, res) => {
+  try {
+    const allLot = await lotInventory.find();
+    if (allLot.length === 0) {
+      res.status(404).send("No Records Found");
+    } else {
+      res.status(200).json(allLot);
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const getLotById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const getById = await lotInventory.findById(id);
+    if (!getById) {
+      res.status(404).json({ message: "No Records Found" });
+    } else {
+      res.status(200).json(getById);
+    }
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const removeLot = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const findLot = await findById(id)
+    if (!findLot) {
+      res.status(404).json({ message: "Lot not found" });
+    }
+    await lotInventory.findByIdAndDelete(id);
+    await factory.findByIdAndUpdate(
+      findLot._id,
+      { $pull: { lotId: id } },
+      { new: true }
+    );
+    res.status(200).json({ message: "Lot deleted successfully " });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};

@@ -1,45 +1,55 @@
-import express from 'express'
-import { addBlock, addFinishedSlab, getAllBlocks, getAllFinishedSlabs, getSingleBlock, getSingleFinishedSlab, removeBlock, removeFinishedSlab, updateBlock, updateFinishedSlab } from '../../controllers/factoryManagement/inventory.js';
+import express from "express";
+import {
+  addBlock,
+  addFinishedSlab,
+  addLot,
+  getAllBlocks,
+  getAllFinishedSlabs,
+  getAllLots,
+  getLotById,
+  getSingleBlock,
+  getSingleFinishedSlab,
+  removeBlock,
+  removeFinishedSlab,
+  removeLot,
+  updateBlock,
+  updateFinishedSlab,
+  updateLot,
+} from "../../controllers/factoryManagement/inventory.js";
 
 const router = express.Router();
 
 //Raw Blocks
-router.get('/inventory/raw/get', getAllBlocks);
+router.get("/inventory/raw/get", getAllBlocks);
 
-router.get('/inventory/raw/get/:id', getSingleBlock);
+router.get("/inventory/raw/get/:id", getSingleBlock);
 
-router.post('/inventory/raw/add', addBlock);
+router.post("/inventory/raw/add", addBlock);
 
-router.put('/inventory/raw/put/:id', updateBlock);
+router.put("/inventory/raw/put/:id", updateBlock);
 
-router.delete('/inventory/raw/delete/:id', removeBlock);
+router.delete("/inventory/raw/delete/:id", removeBlock);
 
 //Finished Slabs
-router.get('/inventory/finished/get', getAllFinishedSlabs);
+router.get("/inventory/finished/get", getAllFinishedSlabs);
 
-router.get('/inventory/finished/get/:id', getSingleFinishedSlab);
+router.get("/inventory/finished/get/:id", getSingleFinishedSlab);
 
-router.post('/inventory/finished/add', addFinishedSlab);
+router.post("/inventory/finished/add", addFinishedSlab);
 
-router.put('/inventory/finished/put/:id', updateFinishedSlab);
+router.put("/inventory/finished/put/:id", updateFinishedSlab);
 
-router.delete('/inventory/finished/delete/:id', removeFinishedSlab);
+router.delete("/inventory/finished/delete/:id", removeFinishedSlab);
 
+// Lot Routes
+router.get("/inventory/lot/get", getAllLots);
 
-// lots route
+router.get("/inventory/lot/getbyid", getLotById);
 
+router.post("/inventory/lot/add", addLot);
 
-router.post('/inventory/lot/add', addLot)
+router.put("/inventory/lot/update", updateLot);
 
-router.get('/inventory/lot/get', getallLot)
-
-router.put('/inventory/lot/update', updateLot)
-
-router.get('/inventory/lot/getbyid', getlotById)
-
-router.delete('/inventory/lot/delete', removeLot)
-
-
-
+router.delete("/inventory/lot/delete", removeLot);
 
 export default router;

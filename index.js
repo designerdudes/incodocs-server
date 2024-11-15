@@ -49,8 +49,8 @@ app.get("/", (req, res) => {
 app.use("/user", userRouter);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
-app.use("/factory",factory)
-app.use('/factory-management', inventory)
+app.use("/factory", factory);
+app.use("/factory-management", inventory);
 
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
