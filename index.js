@@ -50,6 +50,7 @@ app.use("/user", userRouter);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
 app.use("/factory", factory);
+app.use("/workerpay",factory)
 app.use("/factory-management", inventory);
 
 // checkSubscription.start()
