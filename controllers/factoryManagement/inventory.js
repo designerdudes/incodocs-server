@@ -143,8 +143,22 @@ export const addFinishedSlab = async (req, res) => {
       return;
     }
     const findBlock = await blockInventory.findById(blockId);
+    const findFactory = await factory.findById(factoryId);
+    const findLot = await lotInventory.findById(findBlock.lotId);
+    if (!findBlock || !findFactory) {
+      res.status(404).send("factory Id or block Id is incorrect");
+      return;
+    }
     if (findBlock.status !== "polished" || findBlock.status !== "completed") {
       res.status(400).send("cannot add slab, block is not completed");
+      return;
+    }
+    if (factoryId !== findLot.factoryId) {
+      res
+        .status(404)
+        .send(
+          "slap factory and block factory doesn't coincide, make sure you entered valid factory Id"
+        );
       return;
     }
     const addFinishedSlab = await slabInventory.create(body);
@@ -303,6 +317,7 @@ export const removeLot = async (req, res) => {
       return;
     }
     await lotInventory.findByIdAndDelete(id);
+    await blockInventory.deleteMany({ lotId: id });
     await factory.findOneAndUpdate(
       { lotId: findLot._id },
       { $pull: { lotId: id } },
@@ -310,6 +325,6 @@ export const removeLot = async (req, res) => {
     );
     res.status(200).json({ message: "Lot deleted successfully " });
   } catch (error) {
-    res.status(404).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
