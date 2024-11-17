@@ -367,3 +367,81 @@ export const deleteLotsInFactory = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+// get blocks by lot id
+export const getBlocksByLot = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findLot = await lotInventory
+      .findOne({ _id: id })
+      .populate("blocksId");
+    if (!findLot) {
+      return res.status(404).send("Lot not found");
+    }
+    const blocks = findLot.blocksId;
+    if (blocks.length === 0) {
+      return res.status(404).send("No records found");
+    }
+    res.status(200).send(blocks);
+  } catch (err) {
+    res.status(500).send("Innternal Server Error");
+  }
+};
+
+export const deleteBlocksInLot = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lotData = await lotInventory.findOne({ _id: id });
+    if (!lotData) {
+      return res.status(404).send("Lots not found");
+    }
+
+    const blocksIds = lotData.blocksId;
+
+    await blockInventory.deleteMany({ _id: { $in: blocksIds } });
+
+    lotData.blocksId = [];
+    await lotData.save();
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+// get slabs by factory id
+export const getSlabsByfactory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const factoryData = await factory.findOne({ _id: id }).populate("SlabsId");
+
+    if (!factoryData) {
+      return res.status(404).send("Factory not found");
+    }
+    const slabs = factoryData.SlabsId;
+    if (slabs.length === 0) {
+      res.status(404).send("No records found");
+      return;
+    }
+    res.status(200).send(slabs);
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const deleteSlabsInFactory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const factoryData = await factory.findOne({ _id: id });
+    if (!factoryData) {
+      return res.status(404).send("Factory not found");
+    }
+
+    const slabs = factoryData.SlabsId;
+
+    await blockInventory.deleteMany({ _id: { $in: slabs } });
+
+    factoryData.SlabsId = [];
+    await factoryData.save();
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};

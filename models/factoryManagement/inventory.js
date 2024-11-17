@@ -44,7 +44,7 @@ const blockInventorySchema = new mongoose.Schema(
     SlabsId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
     status: {
       type: String,
-      enum: ["inStock", "inCutting", "polished", "completed"],
+      enum: ["inStock", "inCutting", "cut"],
       default: "inStock",
     },
     inStock: { type: Boolean },
