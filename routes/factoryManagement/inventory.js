@@ -3,9 +3,11 @@ import {
   addBlock,
   addFinishedSlab,
   addLot,
+  deleteLotsInFactory,
   getAllBlocks,
   getAllFinishedSlabs,
   getAllLots,
+  getLotByFactory,
   getLotById,
   getSingleBlock,
   getSingleFinishedSlab,
@@ -51,5 +53,10 @@ router.post("/inventory/lot/add", addLot);
 router.put("/inventory/lot/update/:id", updateLot);
 
 router.delete("/inventory/lot/delete/:id", removeLot);
+
+//Get Lot by factory id
+router.get("/inventory/factory-lot/get/:id", getLotByFactory);
+
+router.delete("/inventory/factory-lot/delete/:id", deleteLotsInFactory);
 
 export default router;

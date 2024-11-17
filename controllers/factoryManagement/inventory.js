@@ -328,3 +328,42 @@ export const removeLot = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// get Lot by factory id
+export const getLotByFactory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const factoryData = await factory.findOne({ _id: id }).populate("lotId");
+
+    if (!factoryData) {
+      return res.status(404).send("Factory not found");
+    }
+    const lots = factoryData.lotId;
+    if (lots.length === 0) {
+      res.status(404).send("No records found");
+      return;
+    }
+    res.status(200).send(lots);
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+export const deleteLotsInFactory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const factoryData = await factory.findOne({ _id: id });
+    if (!factoryData) {
+      return res.status(404).send("Factory not found");
+    }
+
+    const lotIds = factoryData.lotId;
+
+    await lotInventory.deleteMany({ _id: { $in: lotIds } });
+
+    factoryData.lotId = [];
+    await factoryData.save();
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};

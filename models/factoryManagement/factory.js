@@ -13,7 +13,7 @@ const factorySchema = new mongoose.Schema(
     lotId: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "blockInventory",
+        ref: "lotInventory",
       },
     ],
     SlabsId: [
