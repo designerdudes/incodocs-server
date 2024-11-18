@@ -149,7 +149,7 @@ export const addFinishedSlab = async (req, res) => {
       res.status(404).send("factory Id or block Id is incorrect");
       return;
     }
-    if (findBlock.status !== "polished" || findBlock.status !== "completed") {
+    if (findBlock.status !== "cut") {
       res.status(400).send("cannot add slab, block is not completed");
       return;
     }
@@ -169,7 +169,7 @@ export const addFinishedSlab = async (req, res) => {
     );
     await blockInventory.findByIdAndUpdate(
       blockId,
-      { inStock: false },
+      { inStock: false, $push: { SlabsId: addFinishedSlab._id } },
       { new: true }
     );
     res.status(200).send(addFinishedSlab);
@@ -407,16 +407,18 @@ export const deleteBlocksInLot = async (req, res) => {
   }
 };
 
-// get slabs by factory id
-export const getSlabsByfactory = async (req, res) => {
+// get slabs by block id
+export const getSlabsByblock = async (req, res) => {
   try {
     const { id } = req.params;
-    const factoryData = await factory.findOne({ _id: id }).populate("SlabsId");
+    const blockData = await blockInventory
+      .findOne({ _id: id })
+      .populate("SlabsId");
 
-    if (!factoryData) {
-      return res.status(404).send("Factory not found");
+    if (!blockData) {
+      return res.status(404).send("Block not found");
     }
-    const slabs = factoryData.SlabsId;
+    const slabs = blockData.SlabsId;
     if (slabs.length === 0) {
       res.status(404).send("No records found");
       return;
@@ -427,21 +429,139 @@ export const getSlabsByfactory = async (req, res) => {
   }
 };
 
-export const deleteSlabsInFactory = async (req, res) => {
+export const deleteSlabsInblock = async (req, res) => {
   try {
     const { id } = req.params;
-    const factoryData = await factory.findOne({ _id: id });
-    if (!factoryData) {
+    const blockData = await blockInventory.findOne({ _id: id });
+    if (!blockData) {
       return res.status(404).send("Factory not found");
     }
 
-    const slabs = factoryData.SlabsId;
+    const slabs = blockData.SlabsId;
 
-    await blockInventory.deleteMany({ _id: { $in: slabs } });
+    await slabInventory.deleteMany({ _id: { $in: slabs } });
 
-    factoryData.SlabsId = [];
-    await factoryData.save();
+    blockData.SlabsId = [];
+    await blockData.save();
   } catch (err) {
     res.status(500).send("Internal server error");
   }
 };
+
+// Add Lot with Blocks inventory
+export const addLotAndBlocks = async (req, res) => {
+  try {
+    const {
+      lotName,
+      factoryId,
+      organizationId,
+      materialType,
+      noOfBlocks,
+      blocks,
+    } = req.body;
+
+    if (!factoryId || noOfBlocks) {
+      return res.status(400).send("factory Id and number of blocks required");
+    }
+    // creating lot here
+    const addLot = new lotInventory({
+      factoryId,
+      lotName,
+      organizationId,
+      materialType,
+      noOfBlocks,
+    });
+    await addLot.save();
+
+    // creating blocks here
+    if (blocks) {
+      const blocksData = blocks.map((block) => ({
+        lotId: addLot._id,
+        blockNumber: block.blockNumber,
+        materialType: block.materialType,
+        dimensions: block.dimensions,
+        SlabsId: block.SlabsId,
+        status: block.status,
+        inStock: block.inStock,
+      }));
+      const insertedBlocks = await blockInventory.insertMany(blocksData);
+
+      const blocksIds = insertedBlocks.map((block) => block._id);
+      addLot.blocksId = blocksIds;
+      await addLot.save();
+    }
+
+    await factory.findByIdAndUpdate(factoryId, {
+      $push: { lotId: addLot._id },
+    });
+
+    res.status(201).json({ message: "Lot and blocks added successfully!" });
+  } catch (error) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+// Update block and add slabs
+export const updateBlockCreateslab = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const exitstingBlock = await blockInventory.findById(id);
+    const {
+      lotId,
+      blockNumber,
+      materialType,
+      dimensions,
+      SlabsId,
+      status,
+      inStock,
+      slabs,
+    } = req.body;
+    const payload = {
+      lotId: lotId ?? exitstingBlock.lotId,
+      blockNumber: blockNumber ?? exitstingBlock.blockNumber,
+      materialType: materialType ?? exitstingBlock.materialType,
+      dimensions: dimensions ?? exitstingBlock.dimensions,
+      SlabsId: SlabsId ?? exitstingBlock.SlabsId,
+      status: status ?? exitstingBlock.status,
+      inStock: inStock ?? exitstingBlock.inStock,
+    };
+    const updateBlock = await blockInventory.findByIdAndUpdate(id, payload, {
+      new: true,
+    });
+    if (!updateBlock) {
+      return res.status(404).send("Block not found");
+    }
+
+    // adding/creating slabs
+    if (status === "cut") {
+      const findLot = await lotInventory.findOne({ _id: exitstingBlock.lotId });
+      const findFactoryId = findLot.factoryId;
+      const addSlabs = slabs.map((slab) => ({
+        blockId: id,
+        factoryId: findFactoryId,
+        blockNumber: slab.blockNumber,
+        productName: slab.productName,
+        quantity: slab.quantity,
+        dimensions: slab.dimensions,
+        status: slab.status,
+        inStock: slab.inStock,
+      }));
+      const addSlab = await slabInventory.insertMany(addSlabs);
+      const getSlabsId = addSlab.map((slab) => slab._id);
+      await blockInventory.findByIdAndUpdate(
+        id,
+        { $push: { SlabsId: getSlabsId } },
+        { new: true }
+      );
+      await factory.findByIdAndUpdate(
+        findFactoryId,
+        { $push: { SlabsId: getSlabsId } },
+        { new: true }
+      );
+    }
+  } catch (err) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+// add trim data when status is trimmed
