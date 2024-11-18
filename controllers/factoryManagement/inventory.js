@@ -408,7 +408,7 @@ export const deleteBlocksInLot = async (req, res) => {
 };
 
 // get slabs by block id
-export const getSlabsByblock = async (req, res) => {
+export const getSlabsByBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const blockData = await blockInventory
@@ -429,7 +429,7 @@ export const getSlabsByblock = async (req, res) => {
   }
 };
 
-export const deleteSlabsInblock = async (req, res) => {
+export const deleteSlabsInBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const blockData = await blockInventory.findOne({ _id: id });
@@ -502,7 +502,7 @@ export const addLotAndBlocks = async (req, res) => {
 };
 
 // Update block and add slabs
-export const updateBlockCreateslab = async (req, res) => {
+export const updateBlockCreateSlab = async (req, res) => {
   try {
     const { id } = req.params;
     const exitstingBlock = await blockInventory.findById(id);
@@ -565,3 +565,10 @@ export const updateBlockCreateslab = async (req, res) => {
 };
 
 // add trim data when status is trimmed
+export const updateSlabAddTrimData = async (req, res) => {
+  try {
+    const { id } = req.params;
+  } catch (err) {
+    res.status(500).send("Internal Server Error");
+  }
+};

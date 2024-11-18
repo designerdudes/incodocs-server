@@ -5,7 +5,7 @@ import {
   addLot,
   deleteBlocksInLot,
   deleteLotsInFactory,
-  deleteSlabsInFactory,
+  deleteSlabsInBlock,
   getAllBlocks,
   getAllFinishedSlabs,
   getAllLots,
@@ -14,7 +14,7 @@ import {
   getLotById,
   getSingleBlock,
   getSingleFinishedSlab,
-  getSlabsByfactory,
+  getSlabsByBlock,
   removeBlock,
   removeFinishedSlab,
   removeLot,
@@ -69,8 +69,8 @@ router.get("/inventory/blocksbylot/get/:id", getBlocksByLot);
 router.delete("/inventory/blocksbylot/delete/:id", deleteBlocksInLot);
 
 // Get slabs By Block Id
-router.get("/inventory/slabsbyblock/get/:id", getSlabsByfactory);
+router.get("/inventory/slabsbyblock/get/:id", getSlabsByBlock);
 
-router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInFactory);
+router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
 
 export default router;
