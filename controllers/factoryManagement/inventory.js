@@ -438,11 +438,15 @@ export const deleteSlabsInBlock = async (req, res) => {
     }
 
     const slabs = blockData.SlabsId;
+    if (slabs.length === 0) {
+      return res.status(404).send("No records found");
+    }
 
     await slabInventory.deleteMany({ _id: { $in: slabs } });
 
     blockData.SlabsId = [];
     await blockData.save();
+    res.status(200).send("slabs deleted successfully");
   } catch (err) {
     res.status(500).send("Internal server error");
   }
@@ -460,7 +464,7 @@ export const addLotAndBlocks = async (req, res) => {
       blocks,
     } = req.body;
 
-    if (!factoryId || noOfBlocks) {
+    if (!factoryId || !noOfBlocks) {
       return res.status(400).send("factory Id and number of blocks required");
     }
     // creating lot here
@@ -533,7 +537,7 @@ export const updateBlockCreateSlab = async (req, res) => {
     }
 
     // adding/creating slabs
-    if (status === "cut") {
+    if (updateBlock.status === "cut") {
       const findLot = await lotInventory.findOne({ _id: exitstingBlock.lotId });
       const findFactoryId = findLot.factoryId;
       const addSlabs = slabs.map((slab) => ({
@@ -559,8 +563,9 @@ export const updateBlockCreateSlab = async (req, res) => {
         { new: true }
       );
     }
+    res.status(200).send('updated successfully')
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send(err);
   }
 };
 
@@ -568,7 +573,43 @@ export const updateBlockCreateSlab = async (req, res) => {
 export const updateSlabAddTrimData = async (req, res) => {
   try {
     const { id } = req.params;
+    const exitstingSlab = await slabInventory.findById(id);
+    const {
+      blockId,
+      factoryId,
+      blockNumber,
+      productName,
+      quantity,
+      dimensions,
+      status,
+      inStock,
+      trim,
+    } = req.body;
+    const payload = {
+      blockId: blockId ?? exitstingSlab.blockId,
+      factoryId: factoryId ?? exitstingSlab.factoryId,
+      blockNumber: blockNumber ?? exitstingSlab.blockNumber,
+      productName: productName ?? exitstingSlab.productName,
+      quantity: quantity ?? exitstingSlab.quantity,
+      dimensions: dimensions ?? exitstingSlab.dimensions,
+      status: status ?? exitstingSlab.status,
+      inStock: inStock ?? exitstingSlab.inStock,
+    };
+    const updateSlab = await slabInventory.findByIdAndUpdate(id, payload, {
+      new: true,
+    });
+    if (!updateSlab) {
+      return res.status(404).send("Block not found");
+    }
+    if (updateSlab.status === "Trimmed") {
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(
+        id,
+        trim,
+        { new: true }
+      );
+    }
+    res.status(200).send(updatedTrimInSlab);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send(err.message);
   }
 };

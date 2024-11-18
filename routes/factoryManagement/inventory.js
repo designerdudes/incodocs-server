@@ -3,6 +3,7 @@ import {
   addBlock,
   addFinishedSlab,
   addLot,
+  addLotAndBlocks,
   deleteBlocksInLot,
   deleteLotsInFactory,
   deleteSlabsInBlock,
@@ -19,8 +20,10 @@ import {
   removeFinishedSlab,
   removeLot,
   updateBlock,
+  updateBlockCreateSlab,
   updateFinishedSlab,
   updateLot,
+  updateSlabAddTrimData,
 } from "../../controllers/factoryManagement/inventory.js";
 
 const router = express.Router();
@@ -72,5 +75,14 @@ router.delete("/inventory/blocksbylot/delete/:id", deleteBlocksInLot);
 router.get("/inventory/slabsbyblock/get/:id", getSlabsByBlock);
 
 router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
+
+// Add Lot with Blocks 
+router.post("/inventory/addlotandblocks", addLotAndBlocks);
+
+// Update Block create slab
+router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
+
+// add trim data in slab
+router.put("/inventory/addtrim/:id",updateSlabAddTrimData);
 
 export default router;
