@@ -21,10 +21,10 @@ router.put("/put/:id", updateFactory);
 router.delete("/delete/:id", removeFactoryFrommOrg);
 
 //WOrker Routes
-router.get("/getAll", getWorker);
-router.get("/getone", getSingleWorker);
-router.post("/add", addWorkerPay);
-router.put("/put", updateWorkerPay);
-router.delete("/delete", removeWorkerPay);
+router.get("/workerpay/getAll", getWorker);
+router.get("/workerpay/getone", getSingleWorker);
+router.post("/workerpay/add", addWorkerPay);
+router.put("/workerpay/put", updateWorkerPay);
+router.delete("/workerpay/delete", removeWorkerPay);
 
 export default router;
