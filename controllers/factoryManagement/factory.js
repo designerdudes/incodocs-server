@@ -137,7 +137,7 @@ export const getSingleWorker = async (req, res) => {
 export const removeWorkerPay = async (req, res) => {
   try {
     const { id } = req.params;
-    const findWorker = await Worker.findById(id);
+    const findWorker = await worker.findById(id);
     if (!findWorker) {
       res.status(404).send("Worker Not found");
       return;
@@ -153,16 +153,16 @@ export const updateWorkerPay = async (req, res) => {
   try {
     const { id } = req.params;
     const body = req.body;
-    const findWorker = await Worker.findById(id);
+    const findWorker = await worker.findById(id);
     if (!findWorker) {
       res.status(404).send("Worker Not found");
       return;
     }
-    const updateWorker = await Worker.findByIdAndUpdate(id, body, {
+    const updateWorker = await worker.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json(updateWorker);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('internal server error');
   }
 };

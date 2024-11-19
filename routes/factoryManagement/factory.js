@@ -22,9 +22,9 @@ router.delete("/delete/:id", removeFactoryFrommOrg);
 
 //WOrker Routes
 router.get("/workerpay/getAll", getWorker);
-router.get("/workerpay/getone", getSingleWorker);
+router.get("/workerpay/getone/:id", getSingleWorker);
 router.post("/workerpay/add", addWorkerPay);
-router.put("/workerpay/put", updateWorkerPay);
-router.delete("/workerpay/delete", removeWorkerPay);
+router.put("/workerpay/put/:id", updateWorkerPay);
+router.delete("/workerpay/delete/:id", removeWorkerPay);
 
 export default router;
