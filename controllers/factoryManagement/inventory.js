@@ -554,16 +554,16 @@ export const updateBlockCreateSlab = async (req, res) => {
       const getSlabsId = addSlab.map((slab) => slab._id);
       await blockInventory.findByIdAndUpdate(
         id,
-        { $push: { SlabsId: getSlabsId } },
+        { $push: { SlabsId: { $each: getSlabsId } }, inStock: false },
         { new: true }
       );
       await factory.findByIdAndUpdate(
         findFactoryId,
-        { $push: { SlabsId: getSlabsId } },
+        { $push: { SlabsId: { $each: getSlabsId } } },
         { new: true }
       );
     }
-    res.status(200).send('updated successfully')
+    res.status(200).send("updated successfully");
   } catch (err) {
     res.status(500).send(err);
   }
@@ -602,14 +602,37 @@ export const updateSlabAddTrimData = async (req, res) => {
       return res.status(404).send("Block not found");
     }
     if (updateSlab.status === "Trimmed") {
-      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(
-        id,
-        trim,
-        { new: true }
-      );
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, trim, {
+        new: true,
+      });
     }
     res.status(200).send(updatedTrimInSlab);
   } catch (err) {
     res.status(500).send(err.message);
+  }
+};
+
+// display blocks according to their status
+export const getBlocksBystatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const findBlock = await blockInventory.find({ status: status });
+    if (findBlock.length === 0) return res.status(404).send("No records found");
+    res.status(200).send(findBlock);
+    console.log("e");
+  } catch (err) {
+    res.status(500).send("Internal server error");
+  }
+};
+
+// display Slabs according to their status
+export const getSlabsBystatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const findSlab = await slabInventory.find({ status: status });
+    if (findSlab.length === 0) return res.status(404).send("No records found");
+    res.status(200).send(findSlab);
+  } catch (err) {
+    res.status(500).send("Internal server error");
   }
 };

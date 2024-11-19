@@ -11,11 +11,13 @@ import {
   getAllFinishedSlabs,
   getAllLots,
   getBlocksByLot,
+  getBlocksBystatus,
   getLotByFactory,
   getLotById,
   getSingleBlock,
   getSingleFinishedSlab,
   getSlabsByBlock,
+  getSlabsBystatus,
   removeBlock,
   removeFinishedSlab,
   removeLot,
@@ -76,13 +78,19 @@ router.get("/inventory/slabsbyblock/get/:id", getSlabsByBlock);
 
 router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
 
-// Add Lot with Blocks 
+// Add Lot with Blocks
 router.post("/inventory/addlotandblocks", addLotAndBlocks);
 
 // Update Block create slab
 router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
 
 // add trim data in slab
-router.put("/inventory/addtrim/:id",updateSlabAddTrimData);
+router.put("/inventory/addtrim/:id", updateSlabAddTrimData);
+
+// Get blocks by status
+router.get("/inventory/getblocksbystatus", getBlocksBystatus);
+
+// Get blocks by status
+router.get("/inventory/getslabsbystatus", getSlabsBystatus);
 
 export default router;
