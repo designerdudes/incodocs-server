@@ -10,7 +10,10 @@ export const addFactoryToOrg = async (req, res) => {
       res.status(400).send("Enter all the required fields");
       return;
     }
-    const newFactory = await factory.create(body);
+    const newFactory = new factory(body);
+    newFactory.userId = req.user.id;
+    await newFactory.save();
+    console.log(newFactory);
     await Organization.findByIdAndUpdate(
       organizationId,
       { $push: { factory: newFactory._id } },
@@ -32,6 +35,26 @@ export const getFactories = async (req, res) => {
     res.status(200).send(getFactory);
   } catch (err) {
     res.status(500).send("Internal Server Error");
+  }
+};
+export const getFactoriesByUser = async (req, res) => {
+  try {
+    console.log(req.user);
+    const userId = req.user.id; // Populated by the middleware
+
+    const getFactory = await factory.find(
+      { userId: userId }, // Fetch factories only for this organization
+      { __v: 0 }
+    );
+
+    if (getFactory.length === 0) {
+      return res.status(404).send("No Records Found");
+    }
+
+    res.status(200).send(getFactory);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("internal server error");
   }
 };
 
@@ -163,6 +186,6 @@ export const updateWorkerPay = async (req, res) => {
     });
     res.status(200).json(updateWorker);
   } catch (err) {
-    res.status(500).send('internal server error');
+    res.status(500).send("internal server error");
   }
 };

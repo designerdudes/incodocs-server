@@ -1,8 +1,10 @@
 import express from "express";
+import {authenticate}  from "../../middleware/authToken.js";
 import {
   addFactoryToOrg,
   addWorkerPay,
   getFactories,
+  getFactoriesByUser,
   getSingleFactory,
   getSingleWorker,
   getWorker,
@@ -15,8 +17,9 @@ const router = express.Router();
 
 // Factory Routes
 router.get("/getAll", getFactories);
+router.get("/getfactorybyuser",authenticate, getFactoriesByUser)
 router.get("/getSingle/:id", getSingleFactory);
-router.post("/add", addFactoryToOrg);
+router.post("/add",authenticate, addFactoryToOrg);
 router.put("/put/:id", updateFactory);
 router.delete("/delete/:id", removeFactoryFrommOrg);
 
