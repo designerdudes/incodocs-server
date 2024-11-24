@@ -391,11 +391,11 @@ export const getBlocksByLot = async (req, res) => {
       return res.status(404).json({ msg: "No records found" });
     }
     const updatedBlocks = blocks.map((block) => ({
-      ...blocks.toObject(),
+      ...block.toObject(),
       lotName: findLot.lotName,
     }));
     console.log(blocks.lotName);
-    res.status(200).send(blocks);
+    res.status(200).send(updatedBlocks);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
   }
