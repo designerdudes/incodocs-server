@@ -65,7 +65,7 @@ const slabInventorySchema = new mongoose.Schema(
       ref: "factory",
     },
     slabNumber : {type: Number},
-    blockNumber: { type: Number, unique: true },
+    blockNumber: { type: Number},
     productName: { type: String },
     quantity: { type: Number, required: true },
     dimensions: {
