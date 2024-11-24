@@ -8,7 +8,9 @@ import { factory } from "../../models/factoryManagement/factory.js";
 // Block Inventory APIs
 export const getAllBlocks = async (req, res) => {
   try {
-    const Blocks = await blockInventory.find({}, { __v: 0 }).populate('lotId', 'lotName');
+    const Blocks = await blockInventory
+      .find({}, { __v: 0 })
+      .populate("lotId", "lotName");
     if (Blocks.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -22,7 +24,9 @@ export const getAllBlocks = async (req, res) => {
 export const getSingleBlock = async (req, res) => {
   try {
     const { id } = req.params;
-    const Block = await blockInventory.findById(id).populate('lotId', 'lotName');
+    const Block = await blockInventory
+      .findById(id)
+      .populate("lotId", "lotName");
     if (!Block) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -109,7 +113,9 @@ export const removeBlock = async (req, res) => {
 // Finished Inventory APIs
 export const getAllFinishedSlabs = async (req, res) => {
   try {
-    const finishedSlabs = await slabInventory.find({}, { __v: 0 }).populate('blockId', 'blockNumber');
+    const finishedSlabs = await slabInventory
+      .find({}, { __v: 0 })
+      .populate("blockId", "blockNumber");
     if (finishedSlabs.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -123,7 +129,9 @@ export const getAllFinishedSlabs = async (req, res) => {
 export const getSingleFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
-    const FinishedSlabs = await slabInventory.findById(id).populate('blockId', 'blockNumber');
+    const FinishedSlabs = await slabInventory
+      .findById(id)
+      .populate("blockId", "blockNumber");
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -281,7 +289,9 @@ export const updateLot = async (req, res) => {
 
 export const getAllLots = async (req, res) => {
   try {
-    const allLot = await lotInventory.find().populate('factoryId','factoryName');
+    const allLot = await lotInventory
+      .find()
+      .populate("factoryId", "factoryName");
     if (allLot.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -295,7 +305,9 @@ export const getAllLots = async (req, res) => {
 export const getLotById = async (req, res) => {
   const { id } = req.params;
   try {
-    const getById = await lotInventory.findById(id).populate('factoryId','factoryName');
+    const getById = await lotInventory
+      .findById(id)
+      .populate("factoryId", "factoryName");
     if (!getById) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -370,9 +382,7 @@ export const deleteLotsInFactory = async (req, res) => {
 export const getBlocksByLot = async (req, res) => {
   try {
     const { id } = req.params;
-    const findLot = await lotInventory
-      .findOne({ _id: id })
-      .populate("blocksId");
+    const findLot = await lotInventory.findById(id).populate("blocksId");
     if (!findLot) {
       return res.status(404).json({ msg: "Lot not found" });
     }
@@ -380,6 +390,11 @@ export const getBlocksByLot = async (req, res) => {
     if (blocks.length === 0) {
       return res.status(404).json({ msg: "No records found" });
     }
+    const updatedBlocks = blocks.map((block) => ({
+      ...blocks.toObject(),
+      lotName: findLot.lotName,
+    }));
+    console.log(blocks.lotName);
     res.status(200).send(blocks);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
