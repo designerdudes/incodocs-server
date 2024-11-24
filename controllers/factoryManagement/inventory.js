@@ -8,7 +8,7 @@ import { factory } from "../../models/factoryManagement/factory.js";
 // Block Inventory APIs
 export const getAllBlocks = async (req, res) => {
   try {
-    const Blocks = await blockInventory.find({}, { __v: 0 });
+    const Blocks = await blockInventory.find({}, { __v: 0 }).populate('lotId', 'lotName');
     if (Blocks.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -22,7 +22,7 @@ export const getAllBlocks = async (req, res) => {
 export const getSingleBlock = async (req, res) => {
   try {
     const { id } = req.params;
-    const Block = await blockInventory.findById(id);
+    const Block = await blockInventory.findById(id).populate('lotId', 'lotName');
     if (!Block) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -109,7 +109,7 @@ export const removeBlock = async (req, res) => {
 // Finished Inventory APIs
 export const getAllFinishedSlabs = async (req, res) => {
   try {
-    const finishedSlabs = await slabInventory.find({}, { __v: 0 });
+    const finishedSlabs = await slabInventory.find({}, { __v: 0 }).populate('blockId', 'blockNumber');
     if (finishedSlabs.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -123,7 +123,7 @@ export const getAllFinishedSlabs = async (req, res) => {
 export const getSingleFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
-    const FinishedSlabs = await slabInventory.findById(id);
+    const FinishedSlabs = await slabInventory.findById(id).populate('blockId', 'blockNumber');
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -144,7 +144,7 @@ export const addFinishedSlab = async (req, res) => {
     }
     const findBlock = await blockInventory.findById(blockId);
     const findFactory = await factory.findById(factoryId);
-    const findLot = await lotInventory.findById(findBlock.lotId);
+    const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
     if (!findBlock || !findFactory) {
       res.status(404).json({ msg: "factory Id or block Id is incorrect" });
       return;
@@ -153,7 +153,7 @@ export const addFinishedSlab = async (req, res) => {
       res.status(400).json({ msg: "cannot add slab, block is not completed" });
       return;
     }
-    if (factoryId !== findLot.factoryId) {
+    if (factoryId != findLot.factoryId) {
       res.status(404).json({
         msg: "slap factory and block factory doesn't coincide, make sure you entered valid factory Id",
       });
@@ -170,7 +170,7 @@ export const addFinishedSlab = async (req, res) => {
       { inStock: false, $push: { SlabsId: addFinishedSlab._id } },
       { new: true }
     );
-    res.status(200).send(addFinishedSlab);
+    res.status(200).json(addFinishedSlab);
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -281,7 +281,7 @@ export const updateLot = async (req, res) => {
 
 export const getAllLots = async (req, res) => {
   try {
-    const allLot = await lotInventory.find();
+    const allLot = await lotInventory.find().populate('factoryId','factoryName');
     if (allLot.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -295,7 +295,7 @@ export const getAllLots = async (req, res) => {
 export const getLotById = async (req, res) => {
   const { id } = req.params;
   try {
-    const getById = await lotInventory.findById(id);
+    const getById = await lotInventory.findById(id).populate('factoryId','factoryName');
     if (!getById) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -569,7 +569,7 @@ export const updateBlockCreateSlab = async (req, res) => {
   }
 };
 
-// add trim data when status is trimmed
+// add trim data when status is polished
 export const updateSlabAddTrimData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -601,7 +601,7 @@ export const updateSlabAddTrimData = async (req, res) => {
     if (!updateSlab) {
       return res.status(404).json({ msg: "Block not found" });
     }
-    if (updateSlab.status === "Trimmed") {
+    if (updateSlab.status === "polished") {
       var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, trim, {
         new: true,
       });

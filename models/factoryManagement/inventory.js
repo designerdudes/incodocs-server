@@ -64,6 +64,7 @@ const slabInventorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "factory",
     },
+    slabNumber : {type: Number},
     blockNumber: { type: Number, unique: true },
     productName: { type: String },
     quantity: { type: Number, required: true },
@@ -87,8 +88,8 @@ const slabInventorySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Cut", "Trimmed", "Polished"],
-      default: "Cut",
+      enum: ["readyForPolish", 'inPolishing', "polished"],
+      default: "readyForPolish",
     },
     inStock: { type: Boolean },
     trim: {
