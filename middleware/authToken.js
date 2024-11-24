@@ -80,6 +80,6 @@ export const authenticate = (req, res, next) => {
     req.user = decoded; // Attach user info (decoded from token) to req.user
     next(); // Proceed to the next middleware or route handler
   } catch (err) {
-    res.status(400).send("Invalid Token");
+    res.status(400).json({ msg: "Invalid Token" });
   }
 };

@@ -7,7 +7,7 @@ export const addFactoryToOrg = async (req, res) => {
     const body = req.body;
     const { organizationId } = body;
     if (!body.organizationId || !body.factoryName) {
-      res.status(400).send("Enter all the required fields");
+      res.status(400).json({ msg: "Enter all the required fields" });
       return;
     }
     const newFactory = new factory(body);
@@ -21,7 +21,7 @@ export const addFactoryToOrg = async (req, res) => {
     );
     res.status(200).send(newFactory);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -34,7 +34,7 @@ export const getFactories = async (req, res) => {
     }
     res.status(200).send(getFactory);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 export const getFactoriesByUser = async (req, res) => {
@@ -48,13 +48,13 @@ export const getFactoriesByUser = async (req, res) => {
     );
 
     if (getFactory.length === 0) {
-      return res.status(404).send("No Records Found");
+      return res.status(404).json({ msg: "No Records Found" });
     }
 
     res.status(200).send(getFactory);
   } catch (err) {
     console.log(err);
-    res.status(500).send("internal server error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -63,12 +63,12 @@ export const getSingleFactory = async (req, res) => {
     const { id } = req.params;
     const getFactory = await factory.findById(id);
     if (!getFactory) {
-      res.status(404).send("No Records Found");
+      res.status(404).json({ msg: "No Records Found" });
       return;
     }
     res.status(200).send(getFactory);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -77,7 +77,7 @@ export const removeFactoryFrommOrg = async (req, res) => {
     const { id } = req.params;
     const findFactory = await factory.find({ _id: id });
     if (!findFactory) {
-      res.status(404).send("Factory not found");
+      res.status(404).json({ msg: "Factory not found" });
     }
     await Organization.findOneAndUpdate(
       { factory: id },
@@ -85,9 +85,9 @@ export const removeFactoryFrommOrg = async (req, res) => {
       { new: true }
     );
     await factory.findByIdAndDelete(id);
-    res.status(200).send("Factory removed successfully");
+    res.status(200).json({ msg: "Factory removed successfully" });
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -98,7 +98,7 @@ export const updateFactory = async (req, res) => {
     const { organizationId } = body;
     const findFactory = await factory.findById(id);
     if (!findFactory) {
-      res.status(404).send("Factory not found");
+      res.status(404).json({ msg: "Factory not found" });
     }
     const isOrgId = await factory.findById(organizationId);
     if (!isOrgId) {
@@ -113,7 +113,7 @@ export const updateFactory = async (req, res) => {
     });
     res.status(200).send(updatedFactory);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -124,7 +124,7 @@ export const addWorkerPay = async (req, res) => {
     const addWorker = await worker.create(body);
     res.status(200).json(addWorker);
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -132,13 +132,13 @@ export const getWorker = async (req, res) => {
   try {
     const getWorker = await worker.find();
     if (getWorker.length === 0) {
-      res.status(404).send("Worker Not found");
+      res.status(404).json({ msg: "Worker Not found" });
       return;
     } else {
       res.status(200).json(getWorker);
     }
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -147,13 +147,13 @@ export const getSingleWorker = async (req, res) => {
     const { id } = req.params;
     const getWorker = await worker.findById(id);
     if (!getWorker) {
-      res.status(404).send("Worker Not found");
+      res.status(404).json({ msg: "Worker Not found" });
       return;
     } else {
       res.status(200).json(getWorker);
     }
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -162,13 +162,13 @@ export const removeWorkerPay = async (req, res) => {
     const { id } = req.params;
     const findWorker = await worker.findById(id);
     if (!findWorker) {
-      res.status(404).send("Worker Not found");
+      res.status(404).json({ msg: "Worker Not found" });
       return;
     }
     await worker.findByIdAndDelete(id);
-    res.status(200).send("removed Successfully");
+    res.status(200).json({ msg: "removed Successfully" });
   } catch (err) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
 
@@ -178,7 +178,7 @@ export const updateWorkerPay = async (req, res) => {
     const body = req.body;
     const findWorker = await worker.findById(id);
     if (!findWorker) {
-      res.status(404).send("Worker Not found");
+      res.status(404).json({ msg: "Worker Not found" });
       return;
     }
     const updateWorker = await worker.findByIdAndUpdate(id, body, {
@@ -186,6 +186,6 @@ export const updateWorkerPay = async (req, res) => {
     });
     res.status(200).json(updateWorker);
   } catch (err) {
-    res.status(500).send("internal server error");
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };
