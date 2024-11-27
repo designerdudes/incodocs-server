@@ -9,6 +9,7 @@ const factorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
     },
+    gstNo: { type: String, required: true },
     userId: [{ type: mongoose.Schema.Types.ObjectId }],
     address: { type: addressSchema, sparse: true },
     lotId: [
