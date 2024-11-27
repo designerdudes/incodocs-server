@@ -42,7 +42,7 @@ app.listen(process.env.PORT, () => {
 });
 //basic home route
 app.get("/", (req, res) => {
-  res.send("home");
+  res.status(200).send("home");
 });
 
 // app.use('/auth', authRoute);
