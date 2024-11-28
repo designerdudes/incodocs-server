@@ -67,18 +67,9 @@ const slabInventorySchema = new mongoose.Schema(
     slabNumber : {type: Number},
     blockNumber: { type: Number},
     productName: { type: String },
-    quantity: { type: Number, required: true },
     dimensions: {
-      // thickness: {
-      //   value: { type: Number },
-      //   units: { type: String, default: "inch" },
-      // },
       length: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
-      },
-      breadth: {
-        value: { type: Number },
         units: { type: String, default: "inch" },
       },
       height: {

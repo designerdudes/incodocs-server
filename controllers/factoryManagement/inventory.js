@@ -560,7 +560,6 @@ export const updateBlockCreateSlab = async (req, res) => {
         factoryId: findFactoryId,
         blockNumber: slab.blockNumber,
         productName: slab.productName,
-        quantity: slab.quantity,
         dimensions: slab.dimensions,
         status: slab.status,
         inStock: slab.inStock,

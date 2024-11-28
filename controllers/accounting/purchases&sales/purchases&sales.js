@@ -4,6 +4,7 @@ import {
   slabPurchase,
 } from "../../../models/accounting/purchases&sales";
 import { supplier } from "../../../models/accounting/suppliers&customers";
+import { slabInventory } from "../../../models/factoryManagement/inventory";
 
 export const addSlabPurchaseByGst = async (req, res) => {
   try {
@@ -69,16 +70,71 @@ export const addActualSlabPurchase = async (req, res) => {
       invoiceNo,
       actualInvoiceValue,
       noOfSlabs,
-      slabIds,
       length,
       height,
       ratePerSqft,
       purchaseDate,
+      slabs,
     } = req.body;
-    
+    if (supplierId) {
+      const addSlabs = slabs.map((slab) => ({
+        factoryId: slab.factoryId,
+        productName: slab.productName,
+        dimensions: slab.dimensions,
+        status: slab.status,
+        inStock: slab.inStock,
+      }));
+      const addSlab = await slabInventory.insertMany(addSlabs);
+      const getSlabsIDs = addSlab.map((slab) => slab._id);
+      const purchasedslab = await slabPurchase.create({
+        supplierId,
+        invoiceNo,
+        actualInvoiceValue,
+        noOfSlabs,
+        slabIds: getSlabsIDs,
+        length,
+        height,
+        ratePerSqft,
+        purchaseDate,
+      });
+      return res.status(200).json(purchasedslab);
+    }
+    if (!supplierId || supplierId === null) {
+      const { supplierName, gstNo, mobileNumber, state, factoryAddress } =
+        req.body;
+      const addSupplier = await supplier.create({
+        supplierName,
+        gstNo,
+        mobileNumber,
+        state,
+        factoryAddress,
+      });
+      const addSlabs = slabs.map((slab) => ({
+        factoryId: slab.factoryId,
+        productName: slab.productName,
+        dimensions: slab.dimensions,
+        status: slab.status,
+        inStock: slab.inStock,
+      }));
+      const addSlab = await slabInventory.insertMany(addSlabs);
+      const getSlabsIDs = addSlab.map((slab) => slab._id);
+      const purchasedslab = await slabPurchase.create({
+        supplierId: addSupplier._id,
+        invoiceNo,
+        actualInvoiceValue,
+        noOfSlabs,
+        slabIds: getSlabsIDs,
+        length,
+        height,
+        ratePerSqft,
+        purchaseDate,
+      });
+      return res.status(200).json(purchasedslab);
+    }
   } catch (err) {
     res
       .status(500)
       .json({ error: "Internal server error", message: err.message });
   }
 };
+
