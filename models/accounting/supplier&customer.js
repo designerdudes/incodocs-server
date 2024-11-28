@@ -12,7 +12,7 @@ const supplierSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const supplierModel = mongoose.model("supplier", supplierSchema);
+export const supplier= mongoose.model("supplier", supplierSchema);
 
 // Customer collection
 const customerSchema = new mongoose.Schema(
@@ -24,5 +24,5 @@ const customerSchema = new mongoose.Schema(
     { timestamps: true }
   );
   
-  export const customerModel = mongoose.model("customer", customerSchema);
+  export const customer = mongoose.model("customer", customerSchema);
   
