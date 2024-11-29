@@ -214,4 +214,21 @@ export const getAllGstPurchasesBySupplierId = async (req, res) => {
   }
 };
 
-export const getAllActualPurchasesBySupplierId = async (req, res) => {};
+export const getAllActualPurchasesBySupplierId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const purchases = await slabPurchase.find({
+      supplierId: id,
+      actualInvoiceValue: { $exists: true, $ne: null },
+    });
+    if (purchases.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(purchases);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
