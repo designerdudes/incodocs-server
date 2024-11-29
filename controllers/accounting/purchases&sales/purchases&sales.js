@@ -214,4 +214,4 @@ export const getAllGstPurchasesBySupplierId = async (req, res) => {
   }
 };
 
-
+export const getAllActualPurchasesBySupplierId = async (req, res) => {};
