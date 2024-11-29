@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 // Finished Material Type Purchase
 const slabPurchaseSchema = new mongoose.Schema(
   {
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
-    // purchaseType: { type: String, enum: ["raw", "finished"] },
     invoiceNo: { type: String, required: true },
     invoiceValue: { type: Number },
     actualInvoiceValue: { type: Number },
@@ -24,8 +24,8 @@ export const slabPurchase = mongoose.model("slabPurchase", slabPurchaseSchema);
 // Raw Material Type Purchase
 const rawPurchaseSchema = new mongoose.Schema(
   {
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
-    // purchaseType: { type: String, enum: ["raw", "finished"] },
     noOfBlocks: { type: Number },
     blockIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
     blockNo: [{ type: Number }],
@@ -50,6 +50,7 @@ export const rawPurchase = mongoose.model("rawPurchase", rawPurchaseSchema);
 // sales collection
 const salesSchema = new mongoose.Schema(
   {
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: "customer" },
     noOfSlabs: { type: Number },
     slabIds: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],

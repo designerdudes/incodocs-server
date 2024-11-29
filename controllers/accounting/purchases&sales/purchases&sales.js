@@ -10,6 +10,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
   try {
     const {
       supplierId,
+      factoryId,
       invoiceNo,
       invoiceValue,
       noOfSlabs,
@@ -21,6 +22,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
     } = req.body;
     if (supplierId) {
       const purchasedslab = await slabPurchase.create({
+        factoryId,
         supplierId,
         invoiceNo,
         invoiceValue,
@@ -45,6 +47,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
       });
       const purchasedslab = await slabPurchase.create({
         supplierId: addSupplier._id,
+        factoryId,
         invoiceNo,
         invoiceValue,
         noOfSlabs,
@@ -67,6 +70,7 @@ export const addActualSlabPurchase = async (req, res) => {
   try {
     const {
       supplierId,
+      factoryId,
       invoiceNo,
       actualInvoiceValue,
       noOfSlabs,
@@ -88,6 +92,7 @@ export const addActualSlabPurchase = async (req, res) => {
       const getSlabsIDs = addSlab.map((slab) => slab._id);
       const purchasedslab = await slabPurchase.create({
         supplierId,
+        factoryId,
         invoiceNo,
         actualInvoiceValue,
         noOfSlabs,
@@ -120,6 +125,7 @@ export const addActualSlabPurchase = async (req, res) => {
       const getSlabsIDs = addSlab.map((slab) => slab._id);
       const purchasedslab = await slabPurchase.create({
         supplierId: addSupplier._id,
+        factoryId,
         invoiceNo,
         actualInvoiceValue,
         noOfSlabs,
@@ -137,4 +143,75 @@ export const addActualSlabPurchase = async (req, res) => {
       .json({ error: "Internal server error", message: err.message });
   }
 };
+
+export const getAnyPurchaseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const getPurchase = await slabPurchase.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (!getPurchase) {
+      return res.status(404).json({ message: "No Records Found" });
+    } else {
+      res.status(200).json({ getPurchase });
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllPurchaseByGst = async (req, res) => {
+  try {
+    const purchaseByGst = await slabPurchase.find({
+      gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has gstPercentage and excludes the purchases who's gstPercentage is null
+    });
+    if (purchaseByGst.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(purchaseByGst);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllActualPurchases = async (req, res) => {
+  try {
+    const actualPurchase = await slabPurchase.find({
+      actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (actualPurchase.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(actualPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllGstPurchasesBySupplierId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const purchases = await slabPurchase.find({
+      supplierId: id,
+      gstPercentage: { $exists: true, $ne: null },
+    });
+    if (purchases.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(purchases);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
 
