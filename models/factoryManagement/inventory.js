@@ -21,6 +21,7 @@ const lotInventory = mongoose.model("lotInventory", lotSchema);
 const blockInventorySchema = new mongoose.Schema(
   {
     lotId: { type: mongoose.Schema.Types.ObjectId, ref: "lotInventory" },
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     blockNumber: { type: Number, required: true, unique: true },
     materialType: { type: String },
     dimensions: {
@@ -64,21 +65,12 @@ const slabInventorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "factory",
     },
-    slabNumber : {type: Number},
-    blockNumber: { type: Number},
+    slabNumber: { type: Number },
+    blockNumber: { type: Number },
     productName: { type: String },
-    quantity: { type: Number, required: true },
     dimensions: {
-      thickness: {
-        value: { type: Number },
-        units: { type: String, default: "inch" },
-      },
       length: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
-      },
-      breadth: {
-        value: { type: Number },
         units: { type: String, default: "inch" },
       },
       height: {
@@ -88,7 +80,7 @@ const slabInventorySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["readyForPolish", 'inPolishing', "polished"],
+      enum: ["readyForPolish", "inPolishing", "polished"],
       default: "readyForPolish",
     },
     inStock: { type: Boolean },
