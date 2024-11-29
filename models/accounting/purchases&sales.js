@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const slabPurchaseSchema = new mongoose.Schema(
   {
     factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
+    // purchaseType: { type: String, enum: ["raw", "finished"] },
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
     invoiceNo: { type: String, required: true },
     invoiceValue: { type: Number },
