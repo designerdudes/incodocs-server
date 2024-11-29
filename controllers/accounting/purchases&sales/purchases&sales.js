@@ -1,3 +1,4 @@
+import { Enqueue } from "twilio/lib/twiml/VoiceResponse";
 import {
   sales,
   rawPurchase,
@@ -6,6 +7,7 @@ import {
 import { supplier } from "../../../models/accounting/suppliers&customers";
 import { slabInventory } from "../../../models/factoryManagement/inventory";
 
+// Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
   try {
     const {
@@ -166,7 +168,9 @@ export const getAnyPurchaseById = async (req, res) => {
 
 export const getAllPurchaseByGst = async (req, res) => {
   try {
+    const { factoryId } = req.body;
     const purchaseByGst = await slabPurchase.find({
+      factoryId: factoryId,
       gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has gstPercentage and excludes the purchases who's gstPercentage is null
     });
     if (purchaseByGst.length === 0) {
@@ -182,7 +186,9 @@ export const getAllPurchaseByGst = async (req, res) => {
 
 export const getAllActualPurchases = async (req, res) => {
   try {
+    const { factoryId } = req.body;
     const actualPurchase = await slabPurchase.find({
+      factoryId: factoryId,
       actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
     });
     if (actualPurchase.length === 0) {
@@ -199,8 +205,10 @@ export const getAllActualPurchases = async (req, res) => {
 export const getAllGstPurchasesBySupplierId = async (req, res) => {
   try {
     const { id } = req.params;
+    const { factoryId } = req.body;
     const purchases = await slabPurchase.find({
       supplierId: id,
+      factoryId: factoryId,
       gstPercentage: { $exists: true, $ne: null },
     });
     if (purchases.length === 0) {
@@ -217,8 +225,10 @@ export const getAllGstPurchasesBySupplierId = async (req, res) => {
 export const getAllActualPurchasesBySupplierId = async (req, res) => {
   try {
     const { id } = req.params;
+    const { factoryId } = req.body;
     const purchases = await slabPurchase.find({
       supplierId: id,
+      factoryId: factoryId,
       actualInvoiceValue: { $exists: true, $ne: null },
     });
     if (purchases.length === 0) {
@@ -232,3 +242,47 @@ export const getAllActualPurchasesBySupplierId = async (req, res) => {
   }
 };
 
+export const updatePurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const body = req.body;
+    const findPurchase = await slabPurchase.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (findPurchase.length === 0) {
+      return res.status(400).json({ message: "No Records Found" });
+    }
+    const updatedPurchase = await slabPurchase.findByIdAndDelete(id, body, {
+      new: true,
+    });
+    res.status(200).json(updatedPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const deletePurchase = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const findPurchase = await slabPurchase.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (findPurchase.length === 0) {
+      return res.status(400).json({ message: "No Records Found TO Delete" });
+    }
+    await slabPurchase.findByIdAndDelete(id);
+    res.status(200).json({ message: "Deleted Successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+// Sales API's
