@@ -24,12 +24,12 @@ const factorySchema = new mongoose.Schema(
         ref: "slabInventory",
       },
     ],
-    // BlocksId: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "blockInventory",
-    //   },
-    // ],
+    BlocksId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "blockInventory",
+      },
+    ],
   },
   { timestamps: true }
 );

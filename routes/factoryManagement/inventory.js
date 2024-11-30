@@ -10,6 +10,7 @@ import {
   getAllBlocks,
   getAllFinishedSlabs,
   getAllLots,
+  getBlocksByFactoryId,
   getBlocksByLot,
   getBlocksBystatus,
   getLotByFactory,
@@ -17,6 +18,7 @@ import {
   getSingleBlock,
   getSingleFinishedSlab,
   getSlabsByBlock,
+  getSlabsByFactoryId,
   getSlabsBystatus,
   removeBlock,
   removeFinishedSlab,
@@ -92,5 +94,11 @@ router.get("/inventory/getblocksbystatus", getBlocksBystatus);
 
 // Get blocks by status
 router.get("/inventory/getslabsbystatus", getSlabsBystatus);
+
+// get blocks by factoryId
+router.get("/inventory/getblocksbyfactory/:id", getBlocksByFactoryId);
+
+// get slabs by factoryId
+router.get("/inventory/getslabsbyfactory/:id", getSlabsByFactoryId);
 
 export default router;

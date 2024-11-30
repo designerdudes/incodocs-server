@@ -40,24 +40,23 @@ export const getSingleBlock = async (req, res) => {
 export const addBlock = async (req, res) => {
   try {
     const body = req.body;
-    const { lotId } = body;
-    // console.log(body);
+    const { lotId, factoryId } = body;
     if (!body.blockNumber || !body.lotId || !body.status) {
       res.status(400).json({ msg: "Enter All The Required Fields" });
       return;
     }
     const addBlock = await blockInventory.create(body);
-    const findLot = await lotInventory.findByIdAndUpdate(
+    await lotInventory.findByIdAndUpdate(
       lotId,
       { $push: { blocksId: addBlock._id } },
       { new: true }
     );
-    if (!findLot) {
-      res.status(400).json({ msg: "Lot not found, please enter a valid Lot " });
-      return;
-    } else {
-      res.status(200).send(addBlock);
-    }
+    await factory.findByIdAndUpdate(
+      factoryId,
+      { $push: { BlocksId: addBlock._id } },
+      { new: true }
+    );
+    res.status(200).send(addBlock);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
   }
@@ -67,15 +66,6 @@ export const updateBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const body = req.body;
-    const { lotId } = body;
-    const isLotId = await blockInventory.find({ lotId: lotId });
-    if (!isLotId) {
-      await lotInventory.findByIdAndUpdate(
-        lotId,
-        { $push: { blocksId: id } },
-        { new: true }
-      );
-    }
     const updatedBlock = await blockInventory.findByIdAndUpdate(id, body, {
       new: true,
     });
@@ -97,10 +87,15 @@ export const removeBlock = async (req, res) => {
       res.status(404).json({ message: "Block not found" });
       return;
     }
-    const { lotId } = findBlock;
+    const { lotId, factoryId } = findBlock;
     await lotInventory.findByIdAndUpdate(
       lotId,
       { $pull: { blocksId: id } },
+      { new: true }
+    );
+    await factory.findByIdAndUpdate(
+      factoryId,
+      { $pull: { BlocksId: id } },
       { new: true }
     );
     await blockInventory.findByIdAndDelete(id);
@@ -187,16 +182,16 @@ export const addFinishedSlab = async (req, res) => {
 export const updateFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
-    const { factoryId } = req.body;
+    // const { factoryId } = req.body;
     const body = req.body;
-    const isfactoryId = await slabInventory.find({ factoryId: factoryId });
-    if (!isfactoryId) {
-      await factory.findByIdAndUpdate(
-        factoryId,
-        { $push: { SlabsId: id } },
-        { new: true }
-      );
-    }
+    // const isfactoryId = await slabInventory.find({ factoryId: factoryId });
+    // if (!isfactoryId) {
+    //   await factory.findByIdAndUpdate(
+    //     factoryId,
+    //     { $push: { SlabsId: id } },
+    //     { new: true }
+    //   );
+    // }
     const updatedSlab = await slabInventory.findByIdAndUpdate(id, body, {
       new: true,
     });
@@ -218,9 +213,14 @@ export const removeFinishedSlab = async (req, res) => {
       res.status(404).json({ message: "Slab not found" });
       return;
     }
-    const { factoryId } = findSlab;
+    const { factoryId, blockId } = findSlab;
     await factory.findByIdAndUpdate(
       factoryId,
+      { $pull: { SlabsId: id } },
+      { new: true }
+    );
+    await blockInventory.findByIdAndUpdate(
+      blockId,
       { $pull: { SlabsId: id } },
       { new: true }
     );
@@ -258,25 +258,11 @@ export const addLot = async (req, res) => {
 export const updateLot = async (req, res) => {
   const { id } = req.params;
   const body = req.body;
-  const { factoryId } = body;
   try {
     const findLot = await lotInventory.findById(id);
     if (!findLot) {
       res.status(404).json({ msg: "Lot not found" });
       return;
-    }
-    const findFactoryId = await lotInventory.find({ factoryId: factoryId });
-    console.log(findFactoryId);
-    if (findFactoryId.length === 0) {
-      const findFactory = await factory.findByIdAndUpdate(
-        factoryId,
-        { $push: { lotId: id } },
-        { new: true }
-      );
-      if (!findFactory) {
-        res.status(400).json({ msg: "Please enter a valid factory ID" });
-        return;
-      }
     }
     const updateLot = await lotInventory.findByIdAndUpdate(id, body, {
       new: true,
@@ -359,6 +345,7 @@ export const getLotByFactory = async (req, res) => {
   }
 };
 
+// delete Lot by factory id
 export const deleteLotsInFactory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -368,11 +355,12 @@ export const deleteLotsInFactory = async (req, res) => {
     }
 
     const lotIds = factoryData.lotId;
-
     await lotInventory.deleteMany({ _id: { $in: lotIds } });
 
     factoryData.lotId = [];
     await factoryData.save();
+
+    res.status(200).json({ message: "lot deleted successfully" });
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -395,7 +383,7 @@ export const getBlocksByLot = async (req, res) => {
       lotName: findLot.lotName,
     }));
     console.log(blocks.lotName);
-    res.status(200).send(updatedBlocks);
+    res.status(200).json(updatedBlocks);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
   }
@@ -496,10 +484,10 @@ export const addLotAndBlocks = async (req, res) => {
     if (blocks) {
       const blocksData = blocks.map((block) => ({
         lotId: addLot._id,
+        factoryId: addLot.factoryId,
         blockNumber: block.blockNumber,
         materialType: block.materialType,
         dimensions: block.dimensions,
-        SlabsId: block.SlabsId,
         status: block.status,
         inStock: block.inStock,
       }));
@@ -508,13 +496,16 @@ export const addLotAndBlocks = async (req, res) => {
       const blocksIds = insertedBlocks.map((block) => block._id);
       addLot.blocksId = blocksIds;
       await addLot.save();
+      await factory.findByIdAndUpdate(addLot.factoryId, {
+        $push: { BlocksId: blocksIds },
+      });
     }
 
     await factory.findByIdAndUpdate(factoryId, {
       $push: { lotId: addLot._id },
     });
 
-    res.status(201).json({ msg: "Lot and blocks added successfully!" });
+    res.status(200).json({ msg: "Lot and blocks added successfully!" });
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -527,6 +518,7 @@ export const updateBlockCreateSlab = async (req, res) => {
     const exitstingBlock = await blockInventory.findById(id);
     const {
       lotId,
+      factoryId,
       blockNumber,
       materialType,
       dimensions,
@@ -537,6 +529,7 @@ export const updateBlockCreateSlab = async (req, res) => {
     } = req.body;
     const payload = {
       lotId: lotId ?? exitstingBlock.lotId,
+      factoryId: factoryId ?? exitstingBlock.factoryId,
       blockNumber: blockNumber ?? exitstingBlock.blockNumber,
       materialType: materialType ?? exitstingBlock.materialType,
       dimensions: dimensions ?? exitstingBlock.dimensions,
@@ -559,6 +552,7 @@ export const updateBlockCreateSlab = async (req, res) => {
         blockId: id,
         factoryId: findFactoryId,
         blockNumber: slab.blockNumber,
+        slabNumber: slab.slabNumber,
         productName: slab.productName,
         dimensions: slab.dimensions,
         status: slab.status,
@@ -597,8 +591,8 @@ export const updateSlabAddTrimData = async (req, res) => {
       dimensions,
       status,
       inStock,
-      trim,
     } = req.body;
+    var { trim } = req.body;
     const payload = {
       blockId: blockId ?? exitstingSlab.blockId,
       factoryId: factoryId ?? exitstingSlab.factoryId,
@@ -616,11 +610,11 @@ export const updateSlabAddTrimData = async (req, res) => {
       return res.status(404).json({ msg: "Block not found" });
     }
     if (updateSlab.status === "polished") {
-      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, trim, {
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, {trim}, {
         new: true,
       });
     }
-    res.status(200).josn(updatedTrimInSlab);
+    res.status(200).json(updatedTrimInSlab);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
   }
@@ -650,5 +644,37 @@ export const getSlabsBystatus = async (req, res) => {
     res.status(200).json(findSlab);
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
+  }
+};
+
+// get blocks by factoryId
+export const getBlocksByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findBlocks = await factory.findById(id).populate("BlocksId");
+    if (!findBlocks) {
+      return res.status(404).json({ message: "No Recors Found" });
+    }
+    res.status(200).json(findBlocks.BlocksId);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+// get slabss by factoryId
+export const getSlabsByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findSlabs = await factory.findById(id).populate("SlabsId");
+    if (!findSlabs) {
+      return res.status(404).json({ message: "No Recors Found" });
+    }
+    res.status(200).json(findSlabs.SlabsId);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
   }
 };
