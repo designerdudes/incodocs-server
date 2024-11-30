@@ -484,11 +484,10 @@ export const addLotAndBlocks = async (req, res) => {
     if (blocks) {
       const blocksData = blocks.map((block) => ({
         lotId: addLot._id,
-        factoryId: block.factoryId,
+        factoryId: addLot.factoryId,
         blockNumber: block.blockNumber,
         materialType: block.materialType,
         dimensions: block.dimensions,
-        SlabsId: block.SlabsId,
         status: block.status,
         inStock: block.inStock,
       }));
@@ -497,13 +496,16 @@ export const addLotAndBlocks = async (req, res) => {
       const blocksIds = insertedBlocks.map((block) => block._id);
       addLot.blocksId = blocksIds;
       await addLot.save();
+      await factory.findByIdAndUpdate(addLot.factoryId, {
+        $push: { BlocksId: blocksIds },
+      });
     }
 
     await factory.findByIdAndUpdate(factoryId, {
       $push: { lotId: addLot._id },
     });
 
-    res.status(201).json({ msg: "Lot and blocks added successfully!" });
+    res.status(200).json({ msg: "Lot and blocks added successfully!" });
   } catch (error) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -589,8 +591,8 @@ export const updateSlabAddTrimData = async (req, res) => {
       dimensions,
       status,
       inStock,
-      trim,
     } = req.body;
+    var { trim } = req.body;
     const payload = {
       blockId: blockId ?? exitstingSlab.blockId,
       factoryId: factoryId ?? exitstingSlab.factoryId,
@@ -608,11 +610,11 @@ export const updateSlabAddTrimData = async (req, res) => {
       return res.status(404).json({ msg: "Block not found" });
     }
     if (updateSlab.status === "polished") {
-      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, trim, {
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, {trim}, {
         new: true,
       });
     }
-    res.status(200).josn(updatedTrimInSlab);
+    res.status(200).json(updatedTrimInSlab);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
   }
