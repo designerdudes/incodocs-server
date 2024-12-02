@@ -27,20 +27,3 @@ const customerSchema = new mongoose.Schema(
 );
 
 export const customer = mongoose.model("customer", customerSchema);
-
-const gstSchema = new mongoose.Schema(
-  {
-    date: { type: Date },
-    type: { type: String, enum: ["purchase", "sale"] },
-    description: { type: String, enum: ["raw material", "finished"] },
-    partyName: { type: String },
-    invoice: { type: String },
-    amount: { type: String },
-    igst: { type: Number },
-    cgst: { type: Number },
-    sgst: { type: Number },
-  },
-  { timestamps: true }
-);
-
-export const gst = mongoose.model("gst", gstSchema);

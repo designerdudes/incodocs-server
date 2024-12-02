@@ -2,6 +2,7 @@ import {
   sales,
   rawPurchase,
   slabPurchase,
+  gst,
 } from "../../../models/accounting/purchases&sales";
 import {
   customer,
@@ -11,6 +12,7 @@ import {
   blockInventory,
   slabInventory,
 } from "../../../models/factoryManagement/inventory";
+import { factory } from "../../../models/factoryManagement/factory";
 
 // Slab Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
@@ -27,7 +29,15 @@ export const addSlabPurchaseByGst = async (req, res) => {
       gstPercentage,
       purchaseDate,
     } = req.body;
+    const findFactory = await factory.findById(factoryId);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
     if (supplierId) {
+      const findSupplier = await supplier.findById(supplierId);
+      if (!findSupplier) {
+        return res.status(404).json({ message: "supplier Id is invalid" });
+      }
+      // creating purchase
       const purchasedslab = await slabPurchase.create({
         factoryId,
         supplierId,
@@ -40,7 +50,29 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      return res.status(200).json(purchasedslab);
+
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = findSupplier.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: supplierId,
+          partyType: "supplier",
+          type: "purchase",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: supplierId,
+          partyType: "supplier",
+          type: "purchase",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      return res.status(200).json({ purchasedslab, newGst });
     }
     if (!supplierId || supplierId === null) {
       const { supplierName, gstNo, mobileNumber, state, factoryAddress } =
@@ -52,6 +84,8 @@ export const addSlabPurchaseByGst = async (req, res) => {
         state,
         factoryAddress,
       });
+
+      // creating purchase
       const purchasedslab = await slabPurchase.create({
         supplierId: addSupplier._id,
         factoryId,
@@ -64,7 +98,28 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      return res.status(200).json(purchasedslab);
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = addSupplier.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: addSupplier._id,
+          partyType: "supplier",
+          type: "purchase",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: addSupplier._id,
+          partyType: "supplier",
+          type: "purchase",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      return res.status(200).json({ purchasedslab, newGst });
     }
   } catch (err) {
     res
@@ -311,7 +366,16 @@ export const addRawPurchaseByGst = async (req, res) => {
       gstPercentage,
       purchaseDate,
     } = req.body;
+    const findFactory = await factory.findById(factoryId);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
     if (supplierId) {
+      const findSupplier = await supplier.findById(supplierId);
+      if (!findSupplier) {
+        return res.status(404).json({ message: "supplier Id is invalid" });
+      }
+
+      // creating purchase
       const purchasedBlock = await rawPurchase.create({
         factoryId,
         supplierId,
@@ -328,7 +392,28 @@ export const addRawPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      return res.status(200).json(purchasedBlock);
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = findSupplier.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: supplierId,
+          partyType: "supplier",
+          type: "purchase",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: supplierId,
+          partyType: "supplier",
+          type: "purchase",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      return res.status(200).json({ purchasedBlock, newGst });
     }
     if (!supplierId || supplierId === null) {
       const { supplierName, gstNo, mobileNumber, state, factoryAddress } =
@@ -356,7 +441,28 @@ export const addRawPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      return res.status(200).json(purchasedBlock);
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = addSupplier.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: addSupplier._id,
+          partyType: "supplier",
+          type: "purchase",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: addSupplier._id,
+          partyType: "supplier",
+          type: "purchase",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      return res.status(200).json({ purchasedBlock, newGst });
     }
   } catch (err) {
     res
@@ -613,7 +719,15 @@ export const createGstSale = async (req, res) => {
       gstPercentage,
       saleDate,
     } = req.body;
+    const findFactory = await factory.findById(factoryId);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
     if (customerId) {
+      const findcustomerId = await customer.findById(customerId);
+      if (!findcustomerId) {
+        return res.status(404).json({ message: "customer Id is invalid" });
+      }
+      // creating sale
       const addSale = await sales.create({
         factoryId,
         customerId,
@@ -624,7 +738,28 @@ export const createGstSale = async (req, res) => {
         gstPercentage,
         saleDate,
       });
-      return res.status(200).json(addSale);
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = findcustomerId.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: supplierId,
+          partyType: "supplier",
+          type: "purchase",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: customerId,
+          partyType: "customer",
+          type: "sale",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      return res.status(200).json({ addSale, newGst });
     }
     if (!customerId || customerId === null) {
       const { customerName, gstNo, mobileNumber, state, address } = req.body;
@@ -635,6 +770,8 @@ export const createGstSale = async (req, res) => {
         state,
         address,
       });
+
+      // creating sale
       const addSale = await sales.create({
         factoryId,
         customerId: addCustomer._id,
@@ -645,7 +782,28 @@ export const createGstSale = async (req, res) => {
         gstPercentage,
         saleDate,
       });
-      res.status(200).json(addSale);
+      // getting gst value
+      const gstValue = (invoiceValue * gstPercentage) / 100;
+      // Extract the first two letters
+      const supplierPrefix = addCustomer.gstNo.slice(0, 2).toUpperCase();
+      const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+      if (supplierPrefix === factoryPrefix) {
+        var newGst = await gst.create({
+          party: addCustomer._id,
+          partyType: "customer",
+          type: "sale",
+          igst: gstValue,
+        });
+      } else if (supplierPrefix !== factoryPrefix) {
+        var newGst = await gst.create({
+          party: addCustomer._id,
+          partyType: "customer",
+          type: "sale",
+          cgst: gstValue / 2,
+          sgst: gstValue / 2,
+        });
+      }
+      res.status(200).json({ addSale, newGst });
     }
   } catch (err) {
     res
@@ -845,3 +1003,4 @@ export const deleteSale = async (req, res) => {
       .json({ error: "Internal Server Error", message: err.message });
   }
 };
+

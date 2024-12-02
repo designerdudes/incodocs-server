@@ -66,3 +66,22 @@ const salesSchema = new mongoose.Schema(
 );
 
 export const sales = mongoose.model("sales", salesSchema);
+
+const gstSchema = new mongoose.Schema(
+  {
+    // date: { type: Date },
+    // description: { type: String, enum: ["raw material", "finished"] },
+    // partyName: { type: String },
+    // invoice: { type: String },
+    // amount: { type: String },
+    party: { type: mongoose.Schema.Types.ObjectId, refPath: "partyType" },
+    partyType: { type: String, enum: ["supplier", "customer"] },
+    type: { type: String, enum: ["purchase", "sale"] },
+    igst: { type: Number },
+    cgst: { type: Number },
+    sgst: { type: Number },
+  },
+  { timestamps: true }
+);
+
+export const gst = mongoose.model("gst", gstSchema);
