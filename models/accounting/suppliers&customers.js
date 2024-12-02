@@ -27,3 +27,9 @@ const customerSchema = new mongoose.Schema(
 );
 
 export const customer = mongoose.model("customer", customerSchema);
+
+const gstSchema = new mongoose.Schema({ 
+  
+}, { timestamps: true });
+
+export const gst = mongoose.model("gst", gstSchema);

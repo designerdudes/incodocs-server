@@ -161,7 +161,7 @@ export const getAnySlabPurchaseById = async (req, res) => {
       factoryId: factoryId,
       _id: id,
     });
-    if (!getPurchase) {
+    if (getPurchase.length === 0) {
       return res.status(404).json({ message: "No Records Found" });
     } else {
       res.status(200).json({ getPurchase });
@@ -469,7 +469,7 @@ export const getAnyRawPurchaseById = async (req, res) => {
       factoryId: factoryId,
       _id: id,
     });
-    if (!getPurchase) {
+    if (getPurchase.length === 0) {
       return res.status(404).json({ message: "No Records Found" });
     } else {
       res.status(200).json({ getPurchase });
@@ -707,3 +707,141 @@ export const createActualSale = async (req, res) => {
   }
 };
 
+export const getAnySaleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const getSale = await sales.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (getSale.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    } else {
+      res.status(200).json(getSale);
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllSalesByGst = async (req, res) => {
+  try {
+    const { factoryId } = req.body;
+    const slawsByGst = await sales.find({
+      factoryId: factoryId,
+      gstPercentage: { $exists: true, $ne: null },
+    });
+    if (slawsByGst.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(slawsByGst);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllActualSales = async (req, res) => {
+  try {
+    const { factoryId } = req.body;
+    const actualSales = await sales.find({
+      factoryId: factoryId,
+      actualInvoiceValue: { $exists: true, $ne: null },
+    });
+    if (actualSales.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(actualSales);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const getAllGstSalesByCustomerId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const sale = await sales.find({
+      customerId: id,
+      factoryId: factoryId,
+      gstPercentage: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllActualSalesByCustomerId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const sale = await sales.find({
+      customerId: id,
+      factoryId: factoryId,
+      actualInvoiceValue: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const updateSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const body = req.body;
+    const findSale = await sales.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (findSale.length === 0) {
+      return res.status(400).json({ message: "No Records Found" });
+    }
+    const updatedSale = await sales.findByIdAndDelete(id, body, {
+      new: true,
+    });
+    res.status(200).json({ status: "Updated Successfully ", updatedSale });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const deleteSale = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { factoryId } = req.body;
+    const findSale = await sales.find({
+      factoryId: factoryId,
+      _id: id,
+    });
+    if (findSale.length === 0) {
+      return res.status(400).json({ message: "No Records Found TO Delete" });
+    }
+    await sales.findByIdAndDelete(id);
+    res.status(200).json({ message: "Deleted Successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
