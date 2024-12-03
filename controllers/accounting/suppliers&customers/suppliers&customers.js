@@ -1,7 +1,6 @@
 import {
   customer,
   supplier,
-  supplier,
 } from "../../../models/accounting/suppliers&customers.js";
 
 // Customers APIs
@@ -121,7 +120,8 @@ export const getSupplierById = async (req, res) => {
 
 export const addSupplier = async (req, res) => {
   try {
-    const { supplierName, gstNo, mobileNumber } = req.body;
+    const { supplierName, gstNo, mobileNumber, state, factoryAddress } =
+      req.body;
     if (!supplierName || !gstNo || !mobileNumber) {
       return res.status(400).json({
         message: "All fields are required",
@@ -148,7 +148,9 @@ export const updateSupplier = async (req, res) => {
   try {
     const { id } = req.params;
     const body = req.body;
-    const updatedSupplier = await findByIdAndUpdate(id, body, { new: true });
+    const updatedSupplier = await supplier.findByIdAndUpdate(id, body, {
+      new: true,
+    });
     if (!updatedSupplier) {
       return res.status(404).json({ message: "No Records Found" });
     }

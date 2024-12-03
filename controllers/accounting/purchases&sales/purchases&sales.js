@@ -60,6 +60,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -67,6 +68,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -107,6 +109,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -114,6 +117,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -401,6 +405,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -408,6 +413,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -450,6 +456,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -457,6 +464,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -745,15 +753,17 @@ export const createGstSale = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
-          party: supplierId,
-          partyType: "supplier",
-          type: "purchase",
+          party: customerId,
+          partyType: "customer",
+          transaction: addSale._id,
+          type: "sale",
           igst: gstValue,
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
           party: customerId,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -791,6 +801,7 @@ export const createGstSale = async (req, res) => {
         var newGst = await gst.create({
           party: addCustomer._id,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           igst: gstValue,
         });
@@ -798,6 +809,7 @@ export const createGstSale = async (req, res) => {
         var newGst = await gst.create({
           party: addCustomer._id,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -1003,4 +1015,3 @@ export const deleteSale = async (req, res) => {
       .json({ error: "Internal Server Error", message: err.message });
   }
 };
-

@@ -21,7 +21,7 @@ const customerSchema = new mongoose.Schema(
     gstNo: { type: String },
     mobileNumber: { type: Number },
     state: { type: String },
-    address: { type: string },
+    address: { type: String },
   },
   { timestamps: true }
 );
