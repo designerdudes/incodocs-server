@@ -61,19 +61,19 @@ router.post("/purchase/addrawgst", addRawPurchaseByGst);
 
 router.post("/purchase/addraw", addActualRawPurchase);
 
-router.get("/purchase/rawgetbyid", getAnyRawPurchaseById);
+router.get("/purchase/rawgetbyid/:id", getAnyRawPurchaseById);
 
 router.get("/purchase/getallrawgst", getAllRawPurchaseByGst);
 
 router.get("/purchase/getallraw", getAllActualRawPurchases);
 
-router.get("/purchase/getgstrawbysupplier", getAllGstRawPurchasesBySupplierId);
+router.get("/purchase/getgstrawbysupplier/:id", getAllGstRawPurchasesBySupplierId);
 
-router.get("/purchase/getrawbysupplier", getAllActualRawPurchasesBySupplierId);
+router.get("/purchase/getrawbysupplier/:id", getAllActualRawPurchasesBySupplierId);
 
-router.put("/purchase/updateraw", updateRawPurchase);
+router.put("/purchase/updateraw/:id", updateRawPurchase);
 
-router.delete("/purchase/deleteraw", deleteRawPurchase);
+router.delete("/purchase/deleteraw/:id", deleteRawPurchase);
 
 // sale routes
 router.post("/sale/add", createActualSale);

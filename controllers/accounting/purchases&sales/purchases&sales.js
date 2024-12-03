@@ -500,12 +500,12 @@ export const addActualRawPurchase = async (req, res) => {
     } = req.body;
     if (supplierId) {
       const addBlocks = blocks.map((block) => ({
-        factoryId: block.factoryId,
+        factoryId: factoryId,
         blockNumber: block.blockNumber,
         materialType: block.materialType,
-        dimensions: slab.dimensions,
-        status: slab.status,
-        inStock: slab.inStock,
+        dimensions: block.dimensions,
+        status: block.status,
+        inStock: block.inStock,
       }));
       const addBlock = await blockInventory.insertMany(addBlocks);
       const getBlocksIDs = addBlock.map((block) => block._id);
@@ -684,7 +684,7 @@ export const updateRawPurchase = async (req, res) => {
     if (findPurchase.length === 0) {
       return res.status(400).json({ message: "No Records Found" });
     }
-    const updatedPurchase = await rawPurchase.findByIdAndDelete(id, body, {
+    const updatedPurchase = await rawPurchase.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json(updatedPurchase);
