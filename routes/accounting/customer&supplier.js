@@ -11,7 +11,7 @@ import {
   getSupplierById,
   updateCustomer,
   updateSupplier,
-} from "../../../controllers/accounting/suppliers&customers/suppliers&customers.js";
+} from "../../controllers/accounting/suppliers&customers/suppliers&customers.js";
 
 // customer Routes
 router.post("/customer/create", createCustomer);

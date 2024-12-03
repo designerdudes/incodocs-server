@@ -70,11 +70,11 @@ const slabInventorySchema = new mongoose.Schema(
     productName: { type: String },
     dimensions: {
       length: {
-        value: { type: Number, required: true },
+        value: { type: Number },
         units: { type: String, default: "inch" },
       },
       height: {
-        value: { type: Number, required: true },
+        value: { type: Number},
         units: { type: String, default: "inch" },
       },
     },

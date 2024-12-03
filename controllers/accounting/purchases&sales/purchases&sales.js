@@ -3,16 +3,16 @@ import {
   rawPurchase,
   slabPurchase,
   gst,
-} from "../../../models/accounting/purchases&sales";
+} from "../../../models/accounting/purchases&sales.js";
 import {
   customer,
   supplier,
-} from "../../../models/accounting/suppliers&customers";
+} from "../../../models/accounting/suppliers&customers.js";
 import {
   blockInventory,
   slabInventory,
-} from "../../../models/factoryManagement/inventory";
-import { factory } from "../../../models/factoryManagement/factory";
+} from "../../../models/factoryManagement/inventory.js";
+import { factory } from "../../../models/factoryManagement/factory.js";
 
 // Slab Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
@@ -100,6 +100,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
+      
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
       // Extract the first two letters
@@ -148,7 +149,7 @@ export const addActualSlabPurchase = async (req, res) => {
     } = req.body;
     if (supplierId) {
       const addSlabs = slabs.map((slab) => ({
-        factoryId: slab.factoryId,
+        factoryId: factoryId,
         slabNumber: slab.slabNumber,
         productName: slab.productName,
         dimensions: slab.dimensions,

@@ -10,8 +10,8 @@ import organizationRouter from "./routes/documentation/organization.js";
 import shipmentRouter from "./routes/documentation/shipment.js";
 import inventory from "./routes/factoryManagement/inventory.js";
 import factory from "./routes/factoryManagement/factory.js";
-import accounting from "./routes/accounting/customers&suppliers/customer&supplier.js";
-import transaction from "./controllers/accounting/purchases&sales/purchases&sales.js";
+import accounting from "./routes/accounting/customer&supplier.js";
+import transaction from "./routes/accounting/purchase&sale.js";
 
 dotenv.config();
 

@@ -141,28 +141,27 @@ export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
     const { factoryId, blockId } = body;
-    if (!body.blockId || !body.factoryId || !body.status) {
-      res.status(400).json({ msg: "enter all the required fields" });
-      return;
-    }
+    // if (!body.blockId || !body.factoryId || !body.status) {
+    //   return res.status(400).json({ msg: "enter all the required fields" });
+    // }
     const findBlock = await blockInventory.findById(blockId);
     const findFactory = await factory.findById(factoryId);
-    const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
+    // const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
     if (!findBlock || !findFactory) {
-      res.status(404).json({ msg: "factory Id or block Id is incorrect" });
-      return;
+      return res.status(404).json({ msg: "factory Id or block Id is incorrect" });
     }
     if (findBlock.status !== "cut") {
-      res.status(400).json({ msg: "cannot add slab, block is not completed" });
-      return;
+      return res.status(400).json({ msg: "cannot add slab, block is not completed" });
     }
-    if (factoryId != findLot.factoryId) {
-      res.status(404).json({
-        msg: "slap factory and block factory doesn't coincide, make sure you entered valid factory Id",
-      });
-      return;
-    }
-    const addFinishedSlab = await slabInventory.create(body);
+    // if (factoryId != findLot.factoryId) {
+    //   return res.status(404).json({
+    //     msg: "slap factory and block factory doesn't coincide, make sure you entered valid factory Id",
+    //   });
+    // }
+    const addFinishedSlab = await slabInventory.create({
+      ...body,
+      blockNumber: findBlock.blockNumber,
+    });
     await factory.findByIdAndUpdate(
       factoryId,
       { $push: { SlabsId: addFinishedSlab._id } },
@@ -175,7 +174,7 @@ export const addFinishedSlab = async (req, res) => {
     );
     res.status(200).json(addFinishedSlab);
   } catch (err) {
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ msg: "Internal server error", error: err.message });
   }
 };
 
@@ -610,9 +609,13 @@ export const updateSlabAddTrimData = async (req, res) => {
       return res.status(404).json({ msg: "Block not found" });
     }
     if (updateSlab.status === "polished") {
-      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, {trim}, {
-        new: true,
-      });
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(
+        id,
+        { trim },
+        {
+          new: true,
+        }
+      );
     }
     res.status(200).json(updatedTrimInSlab);
   } catch (err) {

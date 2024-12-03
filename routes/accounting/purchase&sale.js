@@ -29,37 +29,37 @@ import {
   updateRawPurchase,
   updateSale,
   updateSlabPurchase,
-} from "../../../controllers/accounting/purchases&sales/purchases&sales";
+} from "../../controllers/accounting/purchases&sales/purchases&sales.js";
 
 // slab purchsase routes
-router.create("/purchase/addslabgst", addSlabPurchaseByGst);
+router.post("/purchase/addslabgst", addSlabPurchaseByGst);
 
-router.create("/purchase/addslab", addActualSlabPurchase);
+router.post("/purchase/addslab", addActualSlabPurchase);
 
-router.get("/purchase/slabgetbyid", getAnySlabPurchaseById);
+router.get("/purchase/slabgetbyid/:id", getAnySlabPurchaseById);
 
 router.get("/purchase/getallslabgst", getAllSlabPurchaseByGst);
 
 router.get("/purchase/getallslab", getAllActualSlabPurchases);
 
 router.get(
-  "/purchase/getgstslabbysupplier",
+  "/purchase/getgstslabbysupplier/:id",
   getAllGstSlabPurchasesBySupplierId
 );
 
 router.get(
-  "/purchase/getslabbysupplier",
+  "/purchase/getslabbysupplier/:id",
   getAllActualSlabPurchasesBySupplierId
 );
 
-router.put("/purchase/updateslab", updateSlabPurchase);
+router.put("/purchase/updateslab/:id", updateSlabPurchase);
 
-router.delete("/purchase/deleteslab", deleteSlabPurchase);
+router.delete("/purchase/deleteslab/:id", deleteSlabPurchase);
 
 // raw purchase routes
-router.create("/purchase/addrawgst", addRawPurchaseByGst);
+router.post("/purchase/addrawgst", addRawPurchaseByGst);
 
-router.create("/purchase/addraw", addActualRawPurchase);
+router.post("/purchase/addraw", addActualRawPurchase);
 
 router.get("/purchase/rawgetbyid", getAnyRawPurchaseById);
 
@@ -76,20 +76,22 @@ router.put("/purchase/updateraw", updateRawPurchase);
 router.delete("/purchase/deleteraw", deleteRawPurchase);
 
 // sale routes
-router.create("/sale/add", createActualSale);
+router.post("/sale/add", createActualSale);
 
-router.create("/sale/addgst", createGstSale);
+router.post("/sale/addgst", createGstSale);
 
-router.create("/sale/getbyid", getAnySaleById);
+router.get("/sale/getbyid", getAnySaleById);
 
-router.create("/sale/getgstsale", getAllSalesByGst);
+router.get("/sale/getgstsale", getAllSalesByGst);
 
-router.create("/sale/getsale", getAllActualSales);
+router.get("/sale/getsale", getAllActualSales);
 
-router.create("/sale/getgstsalebycustomer", getAllGstSalesByCustomerId);
+router.get("/sale/getgstsalebycustomer", getAllGstSalesByCustomerId);
 
-router.create("/sale/getsalebycustomer", getAllActualSalesByCustomerId);
+router.get("/sale/getsalebycustomer", getAllActualSalesByCustomerId);
 
-router.create("/sale/updatesale", updateSale);
+router.put("/sale/updatesale", updateSale);
 
-router.create("/sale/deletesale", deleteSale);
+router.delete("/sale/deletesale", deleteSale);
+
+export default router;
