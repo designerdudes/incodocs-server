@@ -702,7 +702,16 @@ export const getSlabsByFactoryId = async (req, res) => {
     if (!findSlabs) {
       return res.status(404).json({ message: "No Recors Found" });
     }
-    res.status(200).json(findSlabs.SlabsId);
+    const getSlabs = findSlabs.SlabsId;
+    if (getSlabs.length === 0) {
+      return status(404).json({ msg: "No records found" });
+    }
+    const updatedSlabs = getSlabs.map((e) => ({
+      ...e.toObject(),
+      workersCuttingPay: findSlabs.workersCuttingPay,
+      workersPolishingPay: findSlabs.workersPolishingPay,
+    }));
+    res.status(200).json(updatedSlabs);
   } catch (err) {
     res
       .status(500)

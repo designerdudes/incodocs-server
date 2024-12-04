@@ -30,6 +30,8 @@ const factorySchema = new mongoose.Schema(
         ref: "blockInventory",
       },
     ],
+    workersCuttingPay: { type: Number },
+    workersPolishingPay: { type: Number },
   },
   { timestamps: true }
 );
