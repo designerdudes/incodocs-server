@@ -41,10 +41,15 @@ export const addBlock = async (req, res) => {
   try {
     const body = req.body;
     const { lotId, factoryId } = body;
-    if (!body.blockNumber || !body.lotId || !body.status) {
+    if (!body.lotId || !body.status) {
       res.status(400).json({ msg: "Enter All The Required Fields" });
       return;
     }
+
+    // // Get the highest blockNumber from the database
+    // const lastBlock = await blockInventory.findOne().sort({ blockNumber: -1 }); // it will sort the data in decending order and and takes the lars=gest blockNumber block
+    // const newBlockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1;
+
     const addBlock = await blockInventory.create(body);
     await lotInventory.findByIdAndUpdate(
       lotId,
@@ -148,10 +153,14 @@ export const addFinishedSlab = async (req, res) => {
     const findFactory = await factory.findById(factoryId);
     // const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
     if (!findBlock || !findFactory) {
-      return res.status(404).json({ msg: "factory Id or block Id is incorrect" });
+      return res
+        .status(404)
+        .json({ msg: "factory Id or block Id is incorrect" });
     }
     if (findBlock.status !== "cut") {
-      return res.status(400).json({ msg: "cannot add slab, block is not completed" });
+      return res
+        .status(400)
+        .json({ msg: "cannot add slab, block is not completed" });
     }
     // if (factoryId != findLot.factoryId) {
     //   return res.status(404).json({
