@@ -1,5 +1,3 @@
-// index.js
-
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -12,7 +10,8 @@ import organizationRouter from "./routes/documentation/organization.js";
 import shipmentRouter from "./routes/documentation/shipment.js";
 import inventory from "./routes/factoryManagement/inventory.js";
 import factory from "./routes/factoryManagement/factory.js";
-// import accounting from "./routes/accounting/accounting.js";
+import accounting from "./routes/accounting/customer&supplier.js";
+import transaction from "./routes/accounting/purchase&sale.js";
 
 dotenv.config();
 
@@ -52,8 +51,8 @@ app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
 app.use("/factory", factory);
 app.use("/factory-management", inventory);
-// app.use("/accounting", accounting);
-
+app.use("/accounting", accounting);
+app.use("/transaction", transaction);
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
 

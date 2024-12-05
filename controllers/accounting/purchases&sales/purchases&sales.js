@@ -3,16 +3,16 @@ import {
   rawPurchase,
   slabPurchase,
   gst,
-} from "../../../models/accounting/purchases&sales";
+} from "../../../models/accounting/purchases&sales.js";
 import {
   customer,
   supplier,
-} from "../../../models/accounting/suppliers&customers";
+} from "../../../models/accounting/suppliers&customers.js";
 import {
   blockInventory,
   slabInventory,
-} from "../../../models/factoryManagement/inventory";
-import { factory } from "../../../models/factoryManagement/factory";
+} from "../../../models/factoryManagement/inventory.js";
+import { factory } from "../../../models/factoryManagement/factory.js";
 
 // Slab Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
@@ -60,6 +60,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -67,6 +68,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -98,6 +100,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
+      
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
       // Extract the first two letters
@@ -107,6 +110,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -114,6 +118,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedslab._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -144,7 +149,7 @@ export const addActualSlabPurchase = async (req, res) => {
     } = req.body;
     if (supplierId) {
       const addSlabs = slabs.map((slab) => ({
-        factoryId: slab.factoryId,
+        factoryId: factoryId,
         slabNumber: slab.slabNumber,
         productName: slab.productName,
         dimensions: slab.dimensions,
@@ -401,6 +406,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -408,6 +414,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: supplierId,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -450,6 +457,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           igst: gstValue,
         });
@@ -457,6 +465,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         var newGst = await gst.create({
           party: addSupplier._id,
           partyType: "supplier",
+          transaction: purchasedBlock._id,
           type: "purchase",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -491,12 +500,12 @@ export const addActualRawPurchase = async (req, res) => {
     } = req.body;
     if (supplierId) {
       const addBlocks = blocks.map((block) => ({
-        factoryId: block.factoryId,
+        factoryId: factoryId,
         blockNumber: block.blockNumber,
         materialType: block.materialType,
-        dimensions: slab.dimensions,
-        status: slab.status,
-        inStock: slab.inStock,
+        dimensions: block.dimensions,
+        status: block.status,
+        inStock: block.inStock,
       }));
       const addBlock = await blockInventory.insertMany(addBlocks);
       const getBlocksIDs = addBlock.map((block) => block._id);
@@ -675,7 +684,7 @@ export const updateRawPurchase = async (req, res) => {
     if (findPurchase.length === 0) {
       return res.status(400).json({ message: "No Records Found" });
     }
-    const updatedPurchase = await rawPurchase.findByIdAndDelete(id, body, {
+    const updatedPurchase = await rawPurchase.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json(updatedPurchase);
@@ -745,15 +754,17 @@ export const createGstSale = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
-          party: supplierId,
-          partyType: "supplier",
-          type: "purchase",
+          party: customerId,
+          partyType: "customer",
+          transaction: addSale._id,
+          type: "sale",
           igst: gstValue,
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
           party: customerId,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -791,6 +802,7 @@ export const createGstSale = async (req, res) => {
         var newGst = await gst.create({
           party: addCustomer._id,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           igst: gstValue,
         });
@@ -798,6 +810,7 @@ export const createGstSale = async (req, res) => {
         var newGst = await gst.create({
           party: addCustomer._id,
           partyType: "customer",
+          transaction: addSale._id,
           type: "sale",
           cgst: gstValue / 2,
           sgst: gstValue / 2,
@@ -1003,4 +1016,3 @@ export const deleteSale = async (req, res) => {
       .json({ error: "Internal Server Error", message: err.message });
   }
 };
-

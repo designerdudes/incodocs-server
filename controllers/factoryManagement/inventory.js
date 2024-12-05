@@ -41,10 +41,15 @@ export const addBlock = async (req, res) => {
   try {
     const body = req.body;
     const { lotId, factoryId } = body;
-    if (!body.blockNumber || !body.lotId || !body.status) {
+    if (!body.lotId || !body.status) {
       res.status(400).json({ msg: "Enter All The Required Fields" });
       return;
     }
+
+    // // Get the highest blockNumber from the database
+    // const lastBlock = await blockInventory.findOne().sort({ blockNumber: -1 }); // it will sort the data in decending order and and takes the lars=gest blockNumber block
+    // const newBlockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1;
+
     const addBlock = await blockInventory.create(body);
     await lotInventory.findByIdAndUpdate(
       lotId,
@@ -141,28 +146,31 @@ export const addFinishedSlab = async (req, res) => {
   try {
     const body = req.body;
     const { factoryId, blockId } = body;
-    if (!body.blockId || !body.factoryId || !body.status) {
-      res.status(400).json({ msg: "enter all the required fields" });
-      return;
-    }
+    // if (!body.blockId || !body.factoryId || !body.status) {
+    //   return res.status(400).json({ msg: "enter all the required fields" });
+    // }
     const findBlock = await blockInventory.findById(blockId);
     const findFactory = await factory.findById(factoryId);
-    const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
+    // const findLot = await lotInventory.findOne({ _id: findBlock.lotId });
     if (!findBlock || !findFactory) {
-      res.status(404).json({ msg: "factory Id or block Id is incorrect" });
-      return;
+      return res
+        .status(404)
+        .json({ msg: "factory Id or block Id is incorrect" });
     }
     if (findBlock.status !== "cut") {
-      res.status(400).json({ msg: "cannot add slab, block is not completed" });
-      return;
+      return res
+        .status(400)
+        .json({ msg: "cannot add slab, block is not completed" });
     }
-    if (factoryId != findLot.factoryId) {
-      res.status(404).json({
-        msg: "slap factory and block factory doesn't coincide, make sure you entered valid factory Id",
-      });
-      return;
-    }
-    const addFinishedSlab = await slabInventory.create(body);
+    // if (factoryId != findLot.factoryId) {
+    //   return res.status(404).json({
+    //     msg: "slap factory and block factory doesn't coincide, make sure you entered valid factory Id",
+    //   });
+    // }
+    const addFinishedSlab = await slabInventory.create({
+      ...body,
+      blockNumber: findBlock.blockNumber,
+    });
     await factory.findByIdAndUpdate(
       factoryId,
       { $push: { SlabsId: addFinishedSlab._id } },
@@ -175,7 +183,7 @@ export const addFinishedSlab = async (req, res) => {
     );
     res.status(200).json(addFinishedSlab);
   } catch (err) {
-    res.status(500).json({ msg: "Internal server error" });
+    res.status(500).json({ msg: "Internal server error", error: err.message });
   }
 };
 
@@ -482,20 +490,26 @@ export const addLotAndBlocks = async (req, res) => {
 
     // creating blocks here
     if (blocks) {
+      // Fetch the highest blockNumber
+      const lastBlock = await blockInventory
+        .findOne()
+        .sort({ blockNumber: -1 });
+      let nextBlockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1;
+
       const blocksData = blocks.map((block) => ({
         lotId: addLot._id,
         factoryId: addLot.factoryId,
-        blockNumber: block.blockNumber,
+        blockNumber: nextBlockNumber++,
         materialType: block.materialType,
         dimensions: block.dimensions,
         status: block.status,
         inStock: block.inStock,
       }));
-      const insertedBlocks = await blockInventory.insertMany(blocksData);
+      var insertedBlocks = await blockInventory.insertMany(blocksData);
 
       const blocksIds = insertedBlocks.map((block) => block._id);
       addLot.blocksId = blocksIds;
-      await addLot.save();
+      var newlot = await addLot.save();
       await factory.findByIdAndUpdate(addLot.factoryId, {
         $push: { BlocksId: blocksIds },
       });
@@ -505,16 +519,22 @@ export const addLotAndBlocks = async (req, res) => {
       $push: { lotId: addLot._id },
     });
 
-    res.status(200).json({ msg: "Lot and blocks added successfully!" });
+    res.status(200).json({
+      msg: "Lot and blocks added successfully!",
+      newlot,
+      insertedBlocks,
+    });
   } catch (error) {
-    res.status(500).json({ msg: "Internal server error" });
+    res
+      .status(500)
+      .json({ msg: "Internal server error", error: error.message });
   }
 };
 
 // Update block and add slabs
 export const updateBlockCreateSlab = async (req, res) => {
   try {
-    const { id } = req.params;
+    var { id } = req.params;
     const exitstingBlock = await blockInventory.findById(id);
     const {
       lotId,
@@ -537,7 +557,7 @@ export const updateBlockCreateSlab = async (req, res) => {
       status: status ?? exitstingBlock.status,
       inStock: inStock ?? exitstingBlock.inStock,
     };
-    const updateBlock = await blockInventory.findByIdAndUpdate(id, payload, {
+    var updateBlock = await blockInventory.findByIdAndUpdate(id, payload, {
       new: true,
     });
     if (!updateBlock) {
@@ -548,19 +568,24 @@ export const updateBlockCreateSlab = async (req, res) => {
     if (updateBlock.status === "cut") {
       const findLot = await lotInventory.findOne({ _id: exitstingBlock.lotId });
       const findFactoryId = findLot.factoryId;
+
+      // Fetch the highest slabkNumber
+      const lastSlab = await slabInventory.findOne().sort({ slabNumber: -1 });
+      let nextSlabkNumber = lastSlab ? lastSlab.slabNumber + 1 : 1;
+
       const addSlabs = slabs.map((slab) => ({
         blockId: id,
         factoryId: findFactoryId,
-        blockNumber: slab.blockNumber,
-        slabNumber: slab.slabNumber,
+        blockNumber: updateBlock.blockNumber,
+        slabNumber: nextSlabkNumber++,
         productName: slab.productName,
         dimensions: slab.dimensions,
         status: slab.status,
         inStock: slab.inStock,
       }));
-      const addSlab = await slabInventory.insertMany(addSlabs);
+      var addSlab = await slabInventory.insertMany(addSlabs);
       const getSlabsId = addSlab.map((slab) => slab._id);
-      await blockInventory.findByIdAndUpdate(
+      var updatedBlock = await blockInventory.findByIdAndUpdate(
         id,
         { $push: { SlabsId: { $each: getSlabsId } }, inStock: false },
         { new: true }
@@ -571,9 +596,11 @@ export const updateBlockCreateSlab = async (req, res) => {
         { new: true }
       );
     }
-    res.status(200).json({ msg: "updated successfully" });
+    res
+      .status(200)
+      .json({ msg: "updated successfully", updatedBlock, addSlab: addSlab });
   } catch (err) {
-    res.status(500).json({ msg: "Internal Server Error" });
+    res.status(500).json({ msg: "Internal Server Error", error: err.message });
   }
 };
 
@@ -610,9 +637,13 @@ export const updateSlabAddTrimData = async (req, res) => {
       return res.status(404).json({ msg: "Block not found" });
     }
     if (updateSlab.status === "polished") {
-      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(id, {trim}, {
-        new: true,
-      });
+      var updatedTrimInSlab = await slabInventory.findByIdAndUpdate(
+        id,
+        { trim },
+        {
+          new: true,
+        }
+      );
     }
     res.status(200).json(updatedTrimInSlab);
   } catch (err) {
@@ -671,7 +702,16 @@ export const getSlabsByFactoryId = async (req, res) => {
     if (!findSlabs) {
       return res.status(404).json({ message: "No Recors Found" });
     }
-    res.status(200).json(findSlabs.SlabsId);
+    const getSlabs = findSlabs.SlabsId;
+    if (getSlabs.length === 0) {
+      return status(404).json({ msg: "No records found" });
+    }
+    const updatedSlabs = getSlabs.map((e) => ({
+      ...e.toObject(),
+      workersCuttingPay: findSlabs.workersCuttingPay,
+      workersPolishingPay: findSlabs.workersPolishingPay,
+    }));
+    res.status(200).json(updatedSlabs);
   } catch (err) {
     res
       .status(500)
