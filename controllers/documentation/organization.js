@@ -12,7 +12,7 @@ export const addOrganization = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: `User with ID ${owner} not found` }); // Return 404 if user with the given ID is not found
         }
-        
+         
         user.owner.push(newOrganization._id);
         
         await user.save();
