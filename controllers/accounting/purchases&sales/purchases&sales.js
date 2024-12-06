@@ -100,7 +100,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      
+
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
       // Extract the first two letters
@@ -302,6 +302,48 @@ export const getAllActualSlabPurchasesBySupplierId = async (req, res) => {
       return res.status(404).json({ message: "No Records Found" });
     }
     res.status(200).json(purchases);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllActualSlabPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const actualPurchase = await slabPurchase.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (actualPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(actualPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllGstSlabPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const gstPurchase = await slabPurchase.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (gstPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(gstPurchase);
   } catch (err) {
     res
       .status(500)
@@ -672,6 +714,48 @@ export const getAllActualRawPurchasesBySupplierId = async (req, res) => {
   }
 };
 
+export const getAllActualRawPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const actualPurchase = await rawPurchase.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (actualPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(actualPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllGstRawPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const gstPurchase = await rawPurchase.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (gstPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(gstPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
 export const updateRawPurchase = async (req, res) => {
   try {
     const { id } = req.params;
@@ -965,6 +1049,48 @@ export const getAllActualSalesByCustomerId = async (req, res) => {
     });
     if (sale.length === 0) {
       return res.status(404).json({ message: "No Records Found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllGstSalesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const sale = await sales.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllActualSalesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const sale = await sales.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No records found" });
     }
     res.status(200).json(sale);
   } catch (err) {

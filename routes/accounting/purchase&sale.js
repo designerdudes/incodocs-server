@@ -12,13 +12,17 @@ import {
   deleteSale,
   deleteSlabPurchase,
   getAllActualRawPurchases,
+  getAllActualRawPurchasesByFactoryId,
   getAllActualRawPurchasesBySupplierId,
   getAllActualSales,
   getAllActualSalesByCustomerId,
   getAllActualSlabPurchases,
+  getAllActualSlabPurchasesByFactoryId,
   getAllActualSlabPurchasesBySupplierId,
+  getAllGstRawPurchasesByFactoryId,
   getAllGstRawPurchasesBySupplierId,
   getAllGstSalesByCustomerId,
+  getAllGstSlabPurchasesByFactoryId,
   getAllGstSlabPurchasesBySupplierId,
   getAllRawPurchaseByGst,
   getAllSalesByGst,
@@ -52,6 +56,16 @@ router.get(
   getAllActualSlabPurchasesBySupplierId
 );
 
+router.get(
+  "/purchase/getslabbyfactory/:id",
+  getAllActualSlabPurchasesByFactoryId
+);
+
+router.get(
+  "/purchase/getgstslabbyfactory/:id",
+  getAllGstSlabPurchasesByFactoryId
+);
+
 router.put("/purchase/updateslab/:id", updateSlabPurchase);
 
 router.delete("/purchase/deleteslab/:id", deleteSlabPurchase);
@@ -67,9 +81,25 @@ router.get("/purchase/getallrawgst", getAllRawPurchaseByGst);
 
 router.get("/purchase/getallraw", getAllActualRawPurchases);
 
-router.get("/purchase/getgstrawbysupplier/:id", getAllGstRawPurchasesBySupplierId);
+router.get(
+  "/purchase/getgstrawbysupplier/:id",
+  getAllGstRawPurchasesBySupplierId
+);
 
-router.get("/purchase/getrawbysupplier/:id", getAllActualRawPurchasesBySupplierId);
+router.get(
+  "/purchase/getrawbysupplier/:id",
+  getAllActualRawPurchasesBySupplierId
+);
+
+router.get(
+  "/purchase/getgstrawbyfactory/:id",
+  getAllGstRawPurchasesByFactoryId
+);
+
+router.get(
+  "/purchase/getrawbyfactory/:id",
+  getAllActualRawPurchasesByFactoryId
+);
 
 router.put("/purchase/updateraw/:id", updateRawPurchase);
 
