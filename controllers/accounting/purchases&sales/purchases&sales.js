@@ -57,8 +57,10 @@ export const addSlabPurchaseByGst = async (req, res) => {
       // Extract the first two letters
       const supplierPrefix = findSupplier.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -67,6 +69,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -107,8 +110,10 @@ export const addSlabPurchaseByGst = async (req, res) => {
       // Extract the first two letters
       const supplierPrefix = addSupplier.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -117,6 +122,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -447,6 +453,7 @@ export const addRawPurchaseByGst = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -455,6 +462,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -498,6 +506,7 @@ export const addRawPurchaseByGst = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -506,6 +515,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -841,6 +851,7 @@ export const createGstSale = async (req, res) => {
 
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: customerId,
           partyType: "customer",
           transaction: addSale._id,
@@ -849,6 +860,7 @@ export const createGstSale = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: customerId,
           partyType: "customer",
           transaction: addSale._id,
@@ -887,6 +899,7 @@ export const createGstSale = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: addCustomer._id,
           partyType: "customer",
           transaction: addSale._id,
@@ -894,7 +907,8 @@ export const createGstSale = async (req, res) => {
           igst: gstValue,
         });
       } else if (supplierPrefix !== factoryPrefix) {
-        let newGst = await gst.create({
+        var newGst = await gst.create({
+          date: addSale.saleDate,
           party: addCustomer._id,
           partyType: "customer",
           transaction: addSale._id,

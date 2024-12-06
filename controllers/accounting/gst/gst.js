@@ -22,10 +22,7 @@ export const getAllGstData = async (req, res) => {
 export const getGstDataByDate = async (req, res) => {
   try {
     const { date } = req.body;
-    const findrawPurchase = await rawPurchase.find({ purchaseDate: date });
-    const findslabPurchase = await slabPurchase.find({ purchaseDate: date });
-    const findSale = await sales.find({ saleDate: date });
-    const data = await gst.find({});
+    const data = await gst.find({date});
     if (data.length === 0) {
       return res.status(404).json({ message: "No records found" });
     }

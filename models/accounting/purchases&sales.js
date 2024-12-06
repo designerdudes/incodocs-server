@@ -69,11 +69,7 @@ export const sales = mongoose.model("sales", salesSchema);
 
 const gstSchema = new mongoose.Schema(
   {
-    // date: { type: Date },
-    // description: { type: String, enum: ["raw material", "finished"] },
-    // partyName: { type: String },
-    // invoice: { type: String },
-    // amount: { type: String },
+    date: { type: Date },
     party: { type: mongoose.Schema.Types.ObjectId, refPath: "partyType" },
     partyType: { type: String, enum: ["supplier", "customer"] },
     transaction: { type: mongoose.Schema.Types.ObjectId, refPath: "type" },
@@ -81,6 +77,10 @@ const gstSchema = new mongoose.Schema(
     igst: { type: Number },
     cgst: { type: Number },
     sgst: { type: Number },
+    // description: { type: String, enum: ["raw material", "finished"] },
+    // partyName: { type: String },
+    // invoice: { type: String },
+    // amount: { type: String },
   },
   { timestamps: true }
 );
