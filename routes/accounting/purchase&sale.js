@@ -16,12 +16,14 @@ import {
   getAllActualRawPurchasesBySupplierId,
   getAllActualSales,
   getAllActualSalesByCustomerId,
+  getAllActualSalesByFactoryId,
   getAllActualSlabPurchases,
   getAllActualSlabPurchasesByFactoryId,
   getAllActualSlabPurchasesBySupplierId,
   getAllGstRawPurchasesByFactoryId,
   getAllGstRawPurchasesBySupplierId,
   getAllGstSalesByCustomerId,
+  getAllGstSalesByFactoryId,
   getAllGstSlabPurchasesByFactoryId,
   getAllGstSlabPurchasesBySupplierId,
   getAllRawPurchaseByGst,
@@ -110,18 +112,22 @@ router.post("/sale/add", createActualSale);
 
 router.post("/sale/addgst", createGstSale);
 
-router.get("/sale/getbyid", getAnySaleById);
+router.get("/sale/getbyid/:id", getAnySaleById);
 
 router.get("/sale/getgstsale", getAllSalesByGst);
 
 router.get("/sale/getsale", getAllActualSales);
 
-router.get("/sale/getgstsalebycustomer", getAllGstSalesByCustomerId);
+router.get("/sale/getgstsalebycustomer/:id", getAllGstSalesByCustomerId);
 
-router.get("/sale/getsalebycustomer", getAllActualSalesByCustomerId);
+router.get("/sale/getsalebycustomer/:id", getAllActualSalesByCustomerId);
 
-router.put("/sale/updatesale", updateSale);
+router.get("/sale/getsalebyfactory/:id", getAllActualSalesByFactoryId);
 
-router.delete("/sale/deletesale", deleteSale);
+router.get("/sale/getgstsalebyfactory/:id", getAllGstSalesByFactoryId);
+
+router.put("/sale/updatesale/:id", updateSale);
+
+router.delete("/sale/deletesale/:id", deleteSale);
 
 export default router;

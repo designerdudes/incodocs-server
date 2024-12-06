@@ -13,6 +13,7 @@ import {
   slabInventory,
 } from "../../../models/factoryManagement/inventory.js";
 import { factory } from "../../../models/factoryManagement/factory.js";
+import { ObjectId } from "mongodb";
 
 // Slab Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
@@ -833,9 +834,11 @@ export const createGstSale = async (req, res) => {
       });
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
+      
       // Extract the first two letters
       const supplierPrefix = findcustomerId.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
           party: customerId,
@@ -891,7 +894,7 @@ export const createGstSale = async (req, res) => {
           igst: gstValue,
         });
       } else if (supplierPrefix !== factoryPrefix) {
-        var newGst = await gst.create({
+        let newGst = await gst.create({
           party: addCustomer._id,
           partyType: "customer",
           transaction: addSale._id,
@@ -900,7 +903,7 @@ export const createGstSale = async (req, res) => {
           sgst: gstValue / 2,
         });
       }
-      res.status(200).json({ addSale, newGst });
+      return res.status(200).json({ addSale, newGst });
     }
   } catch (err) {
     res
@@ -932,6 +935,11 @@ export const createActualSale = async (req, res) => {
         actualInvoiceValue,
         saleDate,
       });
+      const objectIds = slabIds.map((id) => new ObjectId(id));
+      await slabInventory.updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { inStock: false } },
+      );
       return res.status(200).json(sale);
     }
     if (!customerId || customerId === null) {
@@ -953,6 +961,11 @@ export const createActualSale = async (req, res) => {
         actualInvoiceValue,
         saleDate,
       });
+      const objectIds = slabIds.map((id) => new ObjectId(id));
+      await slabInventory.updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { inStock: false } },
+      );
       return res.status(200).json(sale);
     }
   } catch (err) {
@@ -1112,7 +1125,7 @@ export const updateSale = async (req, res) => {
     if (findSale.length === 0) {
       return res.status(400).json({ message: "No Records Found" });
     }
-    const updatedSale = await sales.findByIdAndDelete(id, body, {
+    const updatedSale = await sales.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json({ status: "Updated Successfully ", updatedSale });
