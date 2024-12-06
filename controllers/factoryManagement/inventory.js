@@ -566,8 +566,8 @@ export const updateBlockCreateSlab = async (req, res) => {
 
     // adding/creating slabs
     if (updateBlock.status === "cut") {
-      const findLot = await lotInventory.findOne({ _id: exitstingBlock.lotId });
-      const findFactoryId = findLot.factoryId;
+      // const findLot = await lotInventory.findOne({ _id: exitstingBlock.lotId });
+      // const findFactoryId = findLot.factoryId;
 
       // Fetch the highest slabkNumber
       const lastSlab = await slabInventory.findOne().sort({ slabNumber: -1 });
@@ -575,7 +575,7 @@ export const updateBlockCreateSlab = async (req, res) => {
 
       const addSlabs = slabs.map((slab) => ({
         blockId: id,
-        factoryId: findFactoryId,
+        factoryId: updateBlock.factoryId,
         blockNumber: updateBlock.blockNumber,
         slabNumber: nextSlabkNumber++,
         productName: slab.productName,
@@ -591,14 +591,14 @@ export const updateBlockCreateSlab = async (req, res) => {
         { new: true }
       );
       await factory.findByIdAndUpdate(
-        findFactoryId,
+        updateBlock.factoryId,
         { $push: { SlabsId: { $each: getSlabsId } } },
         { new: true }
       );
     }
     res
       .status(200)
-      .json({ msg: "updated successfully", updatedBlock, addSlab: addSlab });
+      .json({ msg: "updated successfully", updatedBlock, addedSlab: addSlab });
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error", error: err.message });
   }
