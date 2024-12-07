@@ -123,7 +123,7 @@ export const getAllExpenses = async (req, res) => {
     const expenses = await expense.find();
     if (expenses.length === 0)
       return res.status(404).json({ message: "no records found" });
-    res.status(200).json(newExpense);
+    res.status(200).json(expenses);
   } catch (err) {
     res
       .status(500)
@@ -133,9 +133,12 @@ export const getAllExpenses = async (req, res) => {
 
 export const getExpenseById = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     const expenses = await expense.findById(id);
-    if (!expenses) return res.status(404).json({ message: "no records found" });
+    console.log(expenses);
+    if (!expenses) {
+      return res.status(404).json({ message: "no records found" });
+    }
     res.status(200).json(expenses);
   } catch (err) {
     res
@@ -146,8 +149,9 @@ export const getExpenseById = async (req, res) => {
 
 export const updateExpense = async (req, res) => {
   try {
-    const { id } = req.body;
-    const expenses = await expense.findByIdAndUpdate(id);
+    const { id } = req.params;
+    const body = req.body;
+    const expenses = await expense.findByIdAndUpdate(id, body, { new: true });
     if (!expenses) return res.status(404).json({ message: "no records found" });
     res.status(200).json(expenses);
   } catch (err) {
@@ -159,7 +163,7 @@ export const updateExpense = async (req, res) => {
 
 export const deleteExpense = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     const expenses = await expense.findByIdAndDelete(id);
     if (!expenses) return res.status(404).json({ message: "no records found" });
     res.status(200).json({ message: "deleted successfully" });
