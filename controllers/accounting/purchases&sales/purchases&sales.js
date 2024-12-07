@@ -13,6 +13,7 @@ import {
   slabInventory,
 } from "../../../models/factoryManagement/inventory.js";
 import { factory } from "../../../models/factoryManagement/factory.js";
+import { ObjectId } from "mongodb";
 
 // Slab Purchase API's
 export const addSlabPurchaseByGst = async (req, res) => {
@@ -56,8 +57,10 @@ export const addSlabPurchaseByGst = async (req, res) => {
       // Extract the first two letters
       const supplierPrefix = findSupplier.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -66,6 +69,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -100,14 +104,16 @@ export const addSlabPurchaseByGst = async (req, res) => {
         gstPercentage,
         purchaseDate,
       });
-      
+
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
       // Extract the first two letters
       const supplierPrefix = addSupplier.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -116,6 +122,7 @@ export const addSlabPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedslab.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedslab._id,
@@ -309,6 +316,48 @@ export const getAllActualSlabPurchasesBySupplierId = async (req, res) => {
   }
 };
 
+export const getAllActualSlabPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const actualPurchase = await slabPurchase.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (actualPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(actualPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllGstSlabPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const gstPurchase = await slabPurchase.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (gstPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(gstPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
 export const updateSlabPurchase = async (req, res) => {
   try {
     const { id } = req.params;
@@ -404,6 +453,7 @@ export const addRawPurchaseByGst = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -412,6 +462,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: supplierId,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -455,6 +506,7 @@ export const addRawPurchaseByGst = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -463,6 +515,7 @@ export const addRawPurchaseByGst = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: purchasedBlock.purchaseDate,
           party: addSupplier._id,
           partyType: "supplier",
           transaction: purchasedBlock._id,
@@ -672,6 +725,48 @@ export const getAllActualRawPurchasesBySupplierId = async (req, res) => {
   }
 };
 
+export const getAllActualRawPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const actualPurchase = await rawPurchase.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (actualPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(actualPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllGstRawPurchasesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const gstPurchase = await rawPurchase.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
+    });
+    if (gstPurchase.length === 0) {
+      return res.stauts(404).json({ message: "No records found" });
+    }
+    res.status(200).json(gstPurchase);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
 export const updateRawPurchase = async (req, res) => {
   try {
     const { id } = req.params;
@@ -749,11 +844,14 @@ export const createGstSale = async (req, res) => {
       });
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
+      
       // Extract the first two letters
       const supplierPrefix = findcustomerId.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
+
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: customerId,
           partyType: "customer",
           transaction: addSale._id,
@@ -762,6 +860,7 @@ export const createGstSale = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: customerId,
           partyType: "customer",
           transaction: addSale._id,
@@ -800,6 +899,7 @@ export const createGstSale = async (req, res) => {
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
       if (supplierPrefix === factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: addCustomer._id,
           partyType: "customer",
           transaction: addSale._id,
@@ -808,6 +908,7 @@ export const createGstSale = async (req, res) => {
         });
       } else if (supplierPrefix !== factoryPrefix) {
         var newGst = await gst.create({
+          date: addSale.saleDate,
           party: addCustomer._id,
           partyType: "customer",
           transaction: addSale._id,
@@ -816,7 +917,7 @@ export const createGstSale = async (req, res) => {
           sgst: gstValue / 2,
         });
       }
-      res.status(200).json({ addSale, newGst });
+      return res.status(200).json({ addSale, newGst });
     }
   } catch (err) {
     res
@@ -848,6 +949,11 @@ export const createActualSale = async (req, res) => {
         actualInvoiceValue,
         saleDate,
       });
+      const objectIds = slabIds.map((id) => new ObjectId(id));
+      await slabInventory.updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { inStock: false } },
+      );
       return res.status(200).json(sale);
     }
     if (!customerId || customerId === null) {
@@ -869,6 +975,11 @@ export const createActualSale = async (req, res) => {
         actualInvoiceValue,
         saleDate,
       });
+      const objectIds = slabIds.map((id) => new ObjectId(id));
+      await slabInventory.updateMany(
+        { _id: { $in: objectIds } },
+        { $set: { inStock: false } },
+      );
       return res.status(200).json(sale);
     }
   } catch (err) {
@@ -974,6 +1085,48 @@ export const getAllActualSalesByCustomerId = async (req, res) => {
   }
 };
 
+export const getAllGstSalesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const sale = await sales.find({
+      factoryId: id,
+      gstPercentage: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const getAllActualSalesByFactoryId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findFactory = await factory.findById(id);
+    if (!findFactory)
+      return res.status(404).json({ message: "factory not found" });
+    const sale = await sales.find({
+      factoryId: id,
+      actualInvoiceValue: { $exists: true, $ne: null },
+    });
+    if (sale.length === 0) {
+      return res.status(404).json({ message: "No records found" });
+    }
+    res.status(200).json(sale);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
 export const updateSale = async (req, res) => {
   try {
     const { id } = req.params;
@@ -986,7 +1139,7 @@ export const updateSale = async (req, res) => {
     if (findSale.length === 0) {
       return res.status(400).json({ message: "No Records Found" });
     }
-    const updatedSale = await sales.findByIdAndDelete(id, body, {
+    const updatedSale = await sales.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json({ status: "Updated Successfully ", updatedSale });
