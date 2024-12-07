@@ -4,7 +4,6 @@ import mongoose from "mongoose";
 const slabPurchaseSchema = new mongoose.Schema(
   {
     factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
-    // purchaseType: { type: String, enum: ["raw", "finished"] },
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
     invoiceNo: { type: String, required: true },
     invoiceValue: { type: Number },
@@ -86,3 +85,15 @@ const gstSchema = new mongoose.Schema(
 );
 
 export const gst = mongoose.model("gst", gstSchema);
+
+const expenseSchema = new mongoose.Schema(
+  {
+    expenseName: { type: String },
+    expenseValue: { type: Number },
+    gstPercentage: { type: Number },
+    expenseDate: { type: Date },
+  },
+  { timestamps: true }
+);
+
+export const expense = mongoose.model("expense", expenseSchema);

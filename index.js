@@ -13,6 +13,7 @@ import factory from "./routes/factoryManagement/factory.js";
 import accounting from "./routes/accounting/customer&supplier.js";
 import transaction from "./routes/accounting/purchase&sale.js";
 import gst from "./routes/accounting/gst.js";
+import expense from "./routes/accounting/expenses.js";
 
 dotenv.config();
 
@@ -54,7 +55,8 @@ app.use("/factory", factory);
 app.use("/factory-management", inventory);
 app.use("/accounting", accounting);
 app.use("/transaction", transaction);
-app.use("/gst",gst)
+app.use("/gst", gst);
+app.use("/expense", expense);
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
 
