@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-// import authRoute from './routes/auth.js';
+import authRoute from './routes/auth.js';
 import errorHandler from "./middleware/error.js";
 import userRouter from "./routes/user.js";
 import organizationRouter from "./routes/documentation/organization.js";
@@ -47,7 +47,7 @@ app.get("/", (req, res) => {
   res.status(200).send("home");
 });
 
-// app.use('/auth', authRoute);
+app.use('/auth', authRoute);
 app.use("/user", userRouter);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);

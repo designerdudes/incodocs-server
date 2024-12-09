@@ -5,11 +5,11 @@ import {
   emailVerificationEmail,
   emailVerificationSuccess,
 } from "../config/sendMail.js";
-import UserOTP from "../models/otp.js";
-import { sendVerificationCode } from "../config/sendSms.js";
-import mongoose from "mongoose";
-import bcryptjs from "bcryptjs";
-import axios from "axios";
+import {UserOTP} from "../models/otp.js";
+// import { sendVerificationCode } from "../config/sendSms.js";
+// import mongoose from "mongoose";
+// import bcryptjs from "bcryptjs";
+// import axios from "axios";
 import unirest from "unirest";
 // var unirest = require("unirest");
 
@@ -166,12 +166,12 @@ export const sendOTPforAdminVerification = async (req, res) => {
     let user = req.body;
     const email = user.email;
     const validEmailUser = await User.findOne({ email });
-    if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
-      return res.status(403).json({
-        msg: "User not authorized",
-        ok: false,
-      });
-    }
+    // if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
+    //   return res.status(403).json({
+    //     msg: "User not authorized",
+    //     ok: false,
+    //   });
+    // }
 
     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
@@ -194,7 +194,7 @@ export const sendOTPforAdminVerification = async (req, res) => {
 
     console.log("email email", email);
     // Continue with other operations, such as sending an email
-    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
+    await emailVerificationEmail(email, OTP, validEmailUser.fullName); 
 
     // Send the response
     res.status(200).send({
@@ -209,130 +209,130 @@ export const sendOTPforAdminVerification = async (req, res) => {
   }
 };
 
-export const sendOTPforverification = async (req, res) => {
-  try {
-    let user = req.body;
-    console.log("req", req.body);
-    const email = user.email;
+// export const sendOTPforverification = async (req, res) => {
+//   try {
+//     let user = req.body;
+//     console.log("req", req.body);
+//     const email = user.email;
 
-    const validEmailUser = await User.findOne({
-      email,
-    });
-    if (!validEmailUser) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
-    let OTP = Math.floor(Math.random() * 900000) + 100000;
+//     const validEmailUser = await User.findOne({
+//       email,
+//     });
+//     if (!validEmailUser) {
+//       return res.status(404).send({
+//         msg: "User not found",
+//         ok: false,
+//       });
+//     }
+//     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
-    console.log("OTP is generated", OTP);
+//     console.log("OTP is generated", OTP);
 
-    // Create a new UserOTP instance
-    let otp = new UserOTP({
-      email: email,
-      otp: OTP,
-      createdAt: new Date(),
-      expireAt: new Date() + 86400000,
-    });
+//     // Create a new UserOTP instance
+//     let otp = new UserOTP({
+//       email: email,
+//       otp: OTP,
+//       createdAt: new Date(),
+//       expireAt: new Date() + 86400000,
+//     });
 
-    console.log("OTP is about to be saved");
+//     console.log("OTP is about to be saved");
 
-    // Save the OTP to the database
-    await otp.save();
+//     // Save the OTP to the database
+//     await otp.save();
 
-    console.log("OTP is saved in the database");
+//     console.log("OTP is saved in the database");
 
-    console.log("email email", email);
-    // Continue with other operations, such as sending an email
-    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
+//     console.log("email email", email);
+//     // Continue with other operations, such as sending an email
+//     await emailVerificationEmail(email, OTP, validEmailUser.fullName);
 
-    // Send the response
-    res.status(200).send({
-      ok: true,
-      msg: "email sent",
-    });
-  } catch (error) {
-    console.error("Error in sendOTPforverification:", error);
-    res.status(500).send({
-      msg: error.message,
-    });
-  }
-};
+//     // Send the response
+//     res.status(200).send({
+//       ok: true,
+//       msg: "email sent",
+//     });
+//   } catch (error) {
+//     console.error("Error in sendOTPforverification:", error);
+//     res.status(500).send({
+//       msg: error.message,
+//     });
+//   }
+// };
 
-export const sendOTPforMobileverification = async (req, res) => {
-  try {
-    let user = req.body;
-    console.log("req", req.body);
-    const mobileNumber = user.mobileNumber;
-    const validmobileNumberUser = await User.findOne({
-      mobileNumber,
-    });
-    console.log("validmobileNumberUser", validmobileNumberUser);
-    // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
-    if (!validmobileNumberUser) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
+// export const sendOTPforMobileverification = async (req, res) => {
+//   try {
+//     let user = req.body;
+//     console.log("req", req.body);
+//     const mobileNumber = user.mobileNumber;
+//     const validmobileNumberUser = await User.findOne({
+//       mobileNumber,
+//     });
+//     console.log("validmobileNumberUser", validmobileNumberUser);
+//     // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
+//     if (!validmobileNumberUser) {
+//       return res.status(404).send({
+//         msg: "User not found",
+//         ok: false,
+//       });
+//     }
 
-    let OTP = Math.floor(Math.random() * 900000) + 100000;
+//     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
-    console.log("OTP is generated", OTP);
+//     console.log("OTP is generated", OTP);
 
-    // Create a new UserOTP instance
-    let otp = new UserOTP({
-      mobileNumber: mobileNumber,
-      otp: OTP,
-      createdAt: new Date(),
-      expireAt: new Date() + 86400000,
-    });
+//     // Create a new UserOTP instance
+//     let otp = new UserOTP({
+//       mobileNumber: mobileNumber,
+//       otp: OTP,
+//       createdAt: new Date(),
+//       expireAt: new Date() + 86400000,
+//     });
 
-    console.log("OTP is about to be saved");
+//     console.log("OTP is about to be saved");
 
-    // Save the OTP to the database
-    await otp.save();
+//     // Save the OTP to the database
+//     await otp.save();
 
-    var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+//     var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
 
-    req.headers({
-      authorization:
-        "eRQO6sBudTDi8gtqCIboSG1Z3fEvJYPahWy9pxjXKzVw2l50HUaLsFVcx5dXJoGMwWe32ImyHYSNTk4A",
-    });
+//     req.headers({
+//       authorization:
+//         "eRQO6sBudTDi8gtqCIboSG1Z3fEvJYPahWy9pxjXKzVw2l50HUaLsFVcx5dXJoGMwWe32ImyHYSNTk4A",
+//     });
 
-    req.form({
-      variables_values: OTP,
-      route: "otp",
-      numbers: mobileNumber,
-    });
+//     req.form({
+//       variables_values: OTP,
+//       route: "otp",
+//       numbers: mobileNumber,
+//     });
 
-    req.end(function (res) {
-      if (res.error) throw new Error(res.error);
+//     req.end(function (res) {
+//       if (res.error) throw new Error(res.error);
 
-      console.log(res.body);
-    });
+//       console.log(res.body);
+//     });
 
-    console.log("res", res.data);
+//     console.log("res", res.data);
 
-    // const verification = await sendVerificationCode(`+91${mobileNumber}`);
-    console.log("OTP is saved in the database");
+//     // const verification = await sendVerificationCode(`+91${mobileNumber}`);
+//     console.log("OTP is saved in the database");
 
-    console.log("mobileNumber mobileNumber", mobileNumber);
-    // Continue with other operations, such as sending an mobileNumber
+//     console.log("mobileNumber mobileNumber", mobileNumber);
+//     // Continue with other operations, such as sending an mobileNumber
 
-    // Send the response
-    res.status(200).send({
-      ok: true,
-      msg: "mobileNumber sent",
-    });
-  } catch (error) {
-    console.error("Error in sendOTPforverification:", error);
-    res.status(500).send({
-      msg: error.message,
-    });
-  }
-};
+//     // Send the response
+//     res.status(200).send({
+//       ok: true,
+//       msg: "mobileNumber sent",
+//     });
+//   } catch (error) {
+//     console.error("Error in sendOTPforverification:", error);
+//     res.status(500).send({
+//       msg: error.message,
+//     });
+//   }
+// };
 
 export const verifyotp = async (req, res) => {
   try {
@@ -434,331 +434,331 @@ export const verifyotp = async (req, res) => {
   }
 };
 
-export const verifymobileotp = async (req, res) => {
-  try {
-    let user = req.body;
-    console.log("user", user);
-    const mobileNumber = req.mobileNo || user.mobileNumber;
+// export const verifymobileotp = async (req, res) => {
+//   try {
+//     let user = req.body;
+//     console.log("user", user);
+//     const mobileNumber = req.mobileNo || user.mobileNumber;
 
-    if (!user) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
+//     if (!user) {
+//       return res.status(404).send({
+//         msg: "User not found",
+//         ok: false,
+//       });
+//     }
 
-    const { otp } = req.body;
+//     const { otp } = req.body;
 
-    // Find OTP records for the user's mobileNumber
-    const databaseotp = await UserOTP.find({
-      mobileNumber: mobileNumber,
-    });
+//     // Find OTP records for the user's mobileNumber
+//     const databaseotp = await UserOTP.find({
+//       mobileNumber: mobileNumber,
+//     });
 
-    if (!databaseotp || databaseotp.length === 0) {
-      return res.status(404).send({
-        msg: "No OTP records found",
-        ok: false,
-      });
-    }
+//     if (!databaseotp || databaseotp.length === 0) {
+//       return res.status(404).send({
+//         msg: "No OTP records found",
+//         ok: false,
+//       });
+//     }
 
-    // Check if the provided OTP matches any of the OTP records
-    const matchingOTP = databaseotp.find((record) => record.otp == otp);
+//     // Check if the provided OTP matches any of the OTP records
+//     const matchingOTP = databaseotp.find((record) => record.otp == otp);
 
-    if (!matchingOTP) {
-      return res.status(401).send({
-        msg: "Wrong OTP!",
-        ok: false,
-      });
-    }
+//     if (!matchingOTP) {
+//       return res.status(401).send({
+//         msg: "Wrong OTP!",
+//         ok: false,
+//       });
+//     }
 
-    // Calculate the time difference
-    const currentTime = new Date();
-    const createdAt = new Date(matchingOTP.createdAt);
-    const timeDifference = currentTime - createdAt;
+//     // Calculate the time difference
+//     const currentTime = new Date();
+//     const createdAt = new Date(matchingOTP.createdAt);
+//     const timeDifference = currentTime - createdAt;
 
-    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
-    if (timeDifference > 900000) {
-      // Delete OTP records for the user's mobileNumber
-      await otp.deleteMany({
-        mobileNumber: mobileNumber,
-      });
+//     // Check if the time difference is more than 15 minutes (900,000 milliseconds)
+//     if (timeDifference > 900000) {
+//       // Delete OTP records for the user's mobileNumber
+//       await otp.deleteMany({
+//         mobileNumber: mobileNumber,
+//       });
 
-      return res.status(402).send({
-        msg: "Your OTP has expired, can't verify",
-        ok: false,
-      });
-    }
+//       return res.status(402).send({
+//         msg: "Your OTP has expired, can't verify",
+//         ok: false,
+//       });
+//     }
 
-    // Update user's mobileNumberVerified status
-    const validmobileNumberUser = await User.findOne({
-      mobileNumber,
-    });
-    console.log(mobileNumber, validmobileNumberUser);
-    if (!validmobileNumberUser) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
+//     // Update user's mobileNumberVerified status
+//     const validmobileNumberUser = await User.findOne({
+//       mobileNumber,
+//     });
+//     console.log(mobileNumber, validmobileNumberUser);
+//     if (!validmobileNumberUser) {
+//       return res.status(404).send({
+//         msg: "User not found",
+//         ok: false,
+//       });
+//     }
 
-    // Include user ID and role in the JWT token payload
-    const tokenPayload = {
-      id: validmobileNumberUser._id,
-      role: validmobileNumberUser.role,
-    };
+//     // Include user ID and role in the JWT token payload
+//     const tokenPayload = {
+//       id: validmobileNumberUser._id,
+//       role: validmobileNumberUser.role,
+//     };
 
-    const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
-    res.cookie("accessToken", Token, {
-      httpOnly: true,
-    });
+//     const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
+//     res.cookie("accessToken", Token, {
+//       httpOnly: true,
+//     });
 
-    // Delete OTP records for the user's mobileNumber
-    await UserOTP.deleteMany({
-      mobileNumber: mobileNumber,
-    });
-    // emailVerificationSuccess(email)
-    res.status(200).send({
-      msg: "Mobile Number verified",
-      ok: true,
-      token: Token,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      msg: "Internal Server Error",
-      ok: false,
-    });
-  }
-};
+//     // Delete OTP records for the user's mobileNumber
+//     await UserOTP.deleteMany({
+//       mobileNumber: mobileNumber,
+//     });
+//     // emailVerificationSuccess(email)
+//     res.status(200).send({
+//       msg: "Mobile Number verified",
+//       ok: true,
+//       token: Token,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({
+//       msg: "Internal Server Error",
+//       ok: false,
+//     });
+//   }
+// };
 
-export const getAllCustomers = async (req, res, next) => {
-  try {
-    const customers = await User.find({ role: "customer" });
-    res.status(200).json(customers);
-  } catch (error) {
-    // Handle errors, you can customize this part based on your application's error handling strategy
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+// export const getAllCustomers = async (req, res, next) => {
+//   try {
+//     const customers = await User.find({ role: "customer" });
+//     res.status(200).json(customers);
+//   } catch (error) {
+//     // Handle errors, you can customize this part based on your application's error handling strategy
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const getAlldeliveryagent = async (req, res, next) => {
-  try {
-    const deliveryagents = await User.find({ role: "deliveryagent" });
-    res.status(200).json(deliveryagents);
-  } catch (error) {
-    // Handle errors, you can customize this part based on your application's error handling strategy
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+// export const getAlldeliveryagent = async (req, res, next) => {
+//   try {
+//     const deliveryagents = await User.find({ role: "deliveryagent" });
+//     res.status(200).json(deliveryagents);
+//   } catch (error) {
+//     // Handle errors, you can customize this part based on your application's error handling strategy
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const getallTeamMembers = async (req, res, next) => {
-  try {
-    const teamMembers = await User.find({ role: "admin" || "owner" });
-    res.status(200).json(teamMembers);
-  } catch (error) {
-    // Handle errors, you can customize this part based on your application's error handling strategy
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+// export const getallTeamMembers = async (req, res, next) => {
+//   try {
+//     const teamMembers = await User.find({ role: "admin" || "owner" });
+//     res.status(200).json(teamMembers);
+//   } catch (error) {
+//     // Handle errors, you can customize this part based on your application's error handling strategy
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const deletebyid = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
+// export const deletebyid = async (req, res, next) => {
+//   try {
+//     const userId = req.params.id;
 
-    // Check if the user ID is valid (optional)
-    // if (!isValidUserId(userId)) {
-    //   return res.status(400).json({ error: "Invalid User ID" });
-    // }
+//     // Check if the user ID is valid (optional)
+//     // if (!isValidUserId(userId)) {
+//     //   return res.status(400).json({ error: "Invalid User ID" });
+//     // }
 
-    // Find and delete the user by ID
-    const deletedUser = await User.findByIdAndDelete(userId);
+//     // Find and delete the user by ID
+//     const deletedUser = await User.findByIdAndDelete(userId);
 
-    if (!deletedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+//     if (!deletedUser) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // Respond with a success message or the deleted user details
-    res.status(200).json({ message: "User deleted successfully", deletedUser });
-  } catch (error) {
-    // Handle errors, you can customize this part based on your application's error handling strategy
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     // Respond with a success message or the deleted user details
+//     res.status(200).json({ message: "User deleted successfully", deletedUser });
+//   } catch (error) {
+//     // Handle errors, you can customize this part based on your application's error handling strategy
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const getUserById = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
+// export const getUserById = async (req, res, next) => {
+//   try {
+//     const userId = req.params.id;
 
-    // Find the user by ID
-    const foundUser = await User.findById(userId);
+//     // Find the user by ID
+//     const foundUser = await User.findById(userId);
 
-    // Check if the user is not found
-    if (!foundUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+//     // Check if the user is not found
+//     if (!foundUser) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // Respond with the user data
-    res.status(200).json({ user: foundUser });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     // Respond with the user data
+//     res.status(200).json({ user: foundUser });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const getCurrentUserById = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
+// export const getCurrentUserById = async (req, res, next) => {
+//   try {
+//     const userId = req.params.id;
 
-    // Check if the user ID is valid (optional)
-    // if (!isValidUserId(userId)) {
-    //   return res.status(400).json({ error: "Invalid User ID" });
-    // }
+//     // Check if the user ID is valid (optional)
+//     // if (!isValidUserId(userId)) {
+//     //   return res.status(400).json({ error: "Invalid User ID" });
+//     // }
 
-    // Find the user by ID
-    const foundUser = await User.findById(userId);
+//     // Find the user by ID
+//     const foundUser = await User.findById(userId);
 
-    if (!foundUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
+//     if (!foundUser) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
 
-    // Respond with the user data
-    res.status(200).json({ user: foundUser });
-  } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+//     // Respond with the user data
+//     res.status(200).json({ user: foundUser });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-export const getCurrentUser = async (req, res, next) => {
-  console.log(" authenticateToken", req.body.token);
+// export const getCurrentUser = async (req, res, next) => {
+//   console.log(" authenticateToken", req.body.token);
 
-  const token = req.body.token;
+//   const token = req.body.token;
 
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+//   if (!token) {
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-    console.log(" decoded decoded", decoded);
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+//     console.log(" decoded decoded", decoded);
 
-    // Check if the required role is present in the decoded token
-    if (
-      !decoded.role ||
-      !["owner", "admin", "deliveryagent", "customer"].includes(decoded.role)
-    ) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
+//     // Check if the required role is present in the decoded token
+//     if (
+//       !decoded.role ||
+//       !["owner", "admin", "deliveryagent", "customer"].includes(decoded.role)
+//     ) {
+//       return res.status(403).json({ message: "Forbidden" });
+//     }
 
-    // Fetch user details based on the user ID obtained from the token
-    const userId = decoded.id;
-    const user = await User.findById(userId);
+//     // Fetch user details based on the user ID obtained from the token
+//     const userId = decoded.id;
+//     const user = await User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    res.status(200).json({ user: user });
-  } catch (err) {
-    console.error("Token verification error:", err.message);
-    return res.status(403).json({ message: "Forbidden" });
-  }
-};
+//     res.status(200).json({ user: user });
+//   } catch (err) {
+//     console.error("Token verification error:", err.message);
+//     return res.status(403).json({ message: "Forbidden" });
+//   }
+// };
 
-export const addOrUpdateAddress = async (req, res) => {
-  try {
-    const token =
-      req.headers.authorization && req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
+// export const addOrUpdateAddress = async (req, res) => {
+//   try {
+//     const token =
+//       req.headers.authorization && req.headers.authorization.split(" ")[1];
+//     const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
 
-    const userId = decodedToken.id;
+//     const userId = decodedToken.id;
 
-    const { addressId, addressType, location, coordinates, city, pincode } =
-      req.body;
+//     const { addressId, addressType, location, coordinates, city, pincode } =
+//       req.body;
 
-    // Find the user by ID
-    const user = await User.findById(userId);
+//     // Find the user by ID
+//     const user = await User.findById(userId);
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
 
-    // Check for unique addressType within user's addresses
-    const isAddressTypeUnique = user.address.every(
-      (addr) => addr.addressType !== addressType
-    );
+//     // Check for unique addressType within user's addresses
+//     const isAddressTypeUnique = user.address.every(
+//       (addr) => addr.addressType !== addressType
+//     );
 
-    if (!isAddressTypeUnique) {
-      return res.status(400).json({
-        success: false,
-        message: "AddressType must be unique for the user",
-      });
-    }
+//     if (!isAddressTypeUnique) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "AddressType must be unique for the user",
+//       });
+//     }
 
-    const existingAddress = user.address.id(addressId);
+//     const existingAddress = user.address.id(addressId);
 
-    if (existingAddress) {
-      // Update only specific fields (e.g., location, coordinates)
-      existingAddress.location = location;
-      existingAddress.coordinates = coordinates;
-      console.log("Address updated");
-    } else {
-      // Add a new address
-      user.address.push({ addressType, location, coordinates, city, pincode });
-      console.log("New address added");
-    }
+//     if (existingAddress) {
+//       // Update only specific fields (e.g., location, coordinates)
+//       existingAddress.location = location;
+//       existingAddress.coordinates = coordinates;
+//       console.log("Address updated");
+//     } else {
+//       // Add a new address
+//       user.address.push({ addressType, location, coordinates, city, pincode });
+//       console.log("New address added");
+//     }
 
-    await user.save();
+//     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Address added/updated successfully",
-      data: user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       message: "Address added/updated successfully",
+//       data: user,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Internal Server Error" });
+//   }
+// };
 
-export const deleteAddress = async (req, res) => {
-  try {
-    const token =
-      req.headers.authorization && req.headers.authorization.split(" ")[1];
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
+// export const deleteAddress = async (req, res) => {
+//   try {
+//     const token =
+//       req.headers.authorization && req.headers.authorization.split(" ")[1];
+//     const decodedToken = jwt.verify(token, process.env.JWT_SECRETKEY);
 
-    const userId = decodedToken.id;
-    const { addressId } = req.params;
+//     const userId = decodedToken.id;
+//     const { addressId } = req.params;
 
-    const user = await User.findById(userId);
+//     const user = await User.findById(userId);
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
-    }
+//     if (!user) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "User not found" });
+//     }
 
-    user.address.pull(addressId);
+//     user.address.pull(addressId);
 
-    await user.save();
+//     await user.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Address deleted successfully",
-      data: user,
-    });
-  } catch (error) {
-    console.error(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-};
+//     return res.status(200).json({
+//       success: true,
+//       message: "Address deleted successfully",
+//       data: user,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res
+//       .status(500)
+//       .json({ success: false, message: "Internal Server Error" });
+//   }
+// };
