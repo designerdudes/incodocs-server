@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
-// import authRoute from './routes/auth.js';
+import authRoute from './routes/auth.js';
 import errorHandler from "./middleware/error.js";
 import userRouter from "./routes/user.js";
 import organizationRouter from "./routes/documentation/organization.js";
@@ -14,6 +14,8 @@ import accounting from "./routes/accounting/customer&supplier.js";
 import transaction from "./routes/accounting/purchase&sale.js";
 import gst from "./routes/accounting/gst.js";
 import expense from "./routes/accounting/expenses.js";
+
+import otps from "./routes/otp.js"
 
 dotenv.config();
 
@@ -47,7 +49,7 @@ app.get("/", (req, res) => {
   res.status(200).send("home");
 });
 
-// app.use('/auth', authRoute);
+app.use('/auth', authRoute);
 app.use("/user", userRouter);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
@@ -59,5 +61,5 @@ app.use("/gst", gst);
 app.use("/expense", expense);
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
-
+app.use('/otp',otps)
 app.use(errorHandler);

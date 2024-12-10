@@ -5,7 +5,7 @@ import {
   emailVerificationEmail,
   emailVerificationSuccess,
 } from "../config/sendMail.js";
-import {UserOTP} from "../models/otp.js";
+import { UserOTP } from "../models/otp.js";
 // import { sendVerificationCode } from "../config/sendSms.js";
 // import mongoose from "mongoose";
 // import bcryptjs from "bcryptjs";
@@ -164,7 +164,7 @@ export const signin = async (req, res, next) => {
 export const sendOTPforAdminVerification = async (req, res) => {
   try {
     let user = req.body;
-    const email = user.email;
+    const email = user.email; // this is req.body.email
     const validEmailUser = await User.findOne({ email });
     // if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
     //   return res.status(403).json({
@@ -172,10 +172,7 @@ export const sendOTPforAdminVerification = async (req, res) => {
     //     ok: false,
     //   });
     // }
-
     let OTP = Math.floor(Math.random() * 900000) + 100000;
-
-    console.log("OTP is generated", OTP);
 
     // Create a new UserOTP instance
     let otp = new UserOTP({
@@ -184,17 +181,10 @@ export const sendOTPforAdminVerification = async (req, res) => {
       createdAt: new Date(),
       expireAt: new Date() + 86400000,
     });
+    await otp.save(); // Save the OTP to the database
 
-    console.log("OTP is about to be saved");
-
-    // Save the OTP to the database
-    await otp.save();
-
-    console.log("OTP is saved in the database");
-
-    console.log("email email", email);
     // Continue with other operations, such as sending an email
-    await emailVerificationEmail(email, OTP, validEmailUser.fullName); 
+    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
 
     // Send the response
     res.status(200).send({
@@ -205,6 +195,115 @@ export const sendOTPforAdminVerification = async (req, res) => {
     console.error("Error in sendOTPforverification:", error);
     res.status(500).send({
       msg: error.message,
+    });
+  }
+};
+
+export const getotps = async (req, res) => {
+  try {
+    const otp = await UserOTP.find();
+    res.status(200).send(otp);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const verifyotp = async (req, res) => {
+  try {
+    let user = req.body;
+    console.log("user", user.email);
+    const email = req.mobileNo || user.email;
+
+    if (!user) {
+      return res.status(404).send({
+        msg: "User not found",
+        ok: false,
+      });
+    }
+
+    const { otp } = req.body;
+
+    // Find OTP records for the user's email
+    const databaseotp = await UserOTP.find({
+      email: email,
+    });
+
+    if (!databaseotp || databaseotp.length === 0) {
+      return res.status(404).send({
+        msg: "No OTP records found",
+        ok: false,
+      });
+    }
+
+    // Check if the provided OTP matches any of the OTP records
+    const matchingOTP = databaseotp.find((record) => record.otp == otp);
+
+    if (!matchingOTP) {
+      return res.status(401).send({
+        msg: "Wrong OTP!",
+        ok: false,
+      });
+    }
+
+    // Calculate the time difference
+    const currentTime = new Date();
+    const createdAt = new Date(matchingOTP.createdAt);
+    const timeDifference = currentTime - createdAt;
+    //uncomment this comment`
+
+    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
+    // if (timeDifference > 900000) {
+    //   // Delete OTP records for the user's email
+    //   await UserOTP.deleteMany({
+    //     email: email
+    //   });
+
+    //   return res
+    //     .status(402)
+    //     .send({
+    //       msg: "Your OTP has expired, can't verify",
+    //       ok: false
+    //     });
+    // }
+
+    // Update user's emailVerified status
+    const validEmailUser = await User.findOne({
+      email,
+    });
+    console.log(email, validEmailUser);
+    if (!validEmailUser) {
+      return res.status(404).send({
+        msg: "User not found",
+        ok: false,
+      });
+    }
+
+    // Include user ID and role in the JWT token payload
+    const tokenPayload = {
+      id: validEmailUser._id,
+      role: validEmailUser.role,
+    };
+
+    const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
+    res.cookie("accessToken", Token, {
+      httpOnly: true,
+    });
+
+    // Delete OTP records for the user's email
+    await UserOTP.deleteMany({
+      email: email,
+    });
+    await emailVerificationSuccess(email);
+    res.status(200).send({
+      msg: "Email verified",
+      ok: true,
+      token: Token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      msg: "Internal Server Error",
+      ok: false,
     });
   }
 };
@@ -333,106 +432,6 @@ export const sendOTPforAdminVerification = async (req, res) => {
 //     });
 //   }
 // };
-
-export const verifyotp = async (req, res) => {
-  try {
-    let user = req.body;
-    console.log("user", user.email);
-    const email = req.mobileNo || user.email;
-
-    if (!user) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
-
-    const { otp } = req.body;
-
-    // Find OTP records for the user's email
-    const databaseotp = await UserOTP.find({
-      email: email,
-    });
-
-    if (!databaseotp || databaseotp.length === 0) {
-      return res.status(404).send({
-        msg: "No OTP records found",
-        ok: false,
-      });
-    }
-
-    // Check if the provided OTP matches any of the OTP records
-    const matchingOTP = databaseotp.find((record) => record.otp == otp);
-
-    if (!matchingOTP) {
-      return res.status(401).send({
-        msg: "Wrong OTP!",
-        ok: false,
-      });
-    }
-
-    // Calculate the time difference
-    const currentTime = new Date();
-    const createdAt = new Date(matchingOTP.createdAt);
-    const timeDifference = currentTime - createdAt;
-    //uncomment this comment`
-
-    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
-    // if (timeDifference > 900000) {
-    //   // Delete OTP records for the user's email
-    //   await UserOTP.deleteMany({
-    //     email: email
-    //   });
-
-    //   return res
-    //     .status(402)
-    //     .send({
-    //       msg: "Your OTP has expired, can't verify",
-    //       ok: false
-    //     });
-    // }
-
-    // Update user's emailVerified status
-    const validEmailUser = await User.findOne({
-      email,
-    });
-    console.log(email, validEmailUser);
-    if (!validEmailUser) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
-
-    // Include user ID and role in the JWT token payload
-    const tokenPayload = {
-      id: validEmailUser._id,
-      role: validEmailUser.role,
-    };
-
-    const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
-    res.cookie("accessToken", Token, {
-      httpOnly: true,
-    });
-
-    // Delete OTP records for the user's email
-    await UserOTP.deleteMany({
-      email: email,
-    });
-    await emailVerificationSuccess(email);
-    res.status(200).send({
-      msg: "Email verified",
-      ok: true,
-      token: Token,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      msg: "Internal Server Error",
-      ok: false,
-    });
-  }
-};
 
 // export const verifymobileotp = async (req, res) => {
 //   try {
