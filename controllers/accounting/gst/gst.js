@@ -108,9 +108,32 @@ export const getAllGstSales = async (req, res) => {
 
 export const addExpense = async (req, res) => {
   try {
-    const body = req.body;
-    const newExpense = await expense.create(body);
-    res.status(200).json(newExpense);
+    const { expenseName, expenseValue, gstPercentage, expenseDate, gstType } =
+      req.body;
+    const gstValue = (expenseValue * gstPercentage) / 100;
+    const newExpense = await expense.create(
+      expenseName,
+      expenseValue,
+      gstPercentage,
+      expenseDate
+    );
+    if (gstType === "igst") {
+      var newGst = await gst.create({
+        date: newExpense.expenseDate,
+        transaction: newExpense._id,
+        type: "expense",
+        igst: gstValue,
+      });
+    } else if (!gstType || gstType === "null") {
+      var newGst = await gst.create({
+        date: newExpense.expenseDate,
+        transaction: newExpense._id,
+        type: "expense",
+        cgst: gstValue / 2,
+        sgst: gstValue / 2,
+      });
+    }
+    res.status(200).json({ newExpense, newGst });
   } catch (err) {
     res
       .status(500)

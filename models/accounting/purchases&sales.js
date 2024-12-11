@@ -72,7 +72,7 @@ const gstSchema = new mongoose.Schema(
     party: { type: mongoose.Schema.Types.ObjectId, refPath: "partyType" },
     partyType: { type: String, enum: ["supplier", "customer"] },
     transaction: { type: mongoose.Schema.Types.ObjectId, refPath: "type" },
-    type: { type: String, enum: ["purchase", "sale"] },
+    type: { type: String, enum: ["purchase", "sale", "expense"] },
     igst: { type: Number },
     cgst: { type: Number },
     sgst: { type: Number },
