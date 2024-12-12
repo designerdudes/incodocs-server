@@ -111,12 +111,12 @@ export const addExpense = async (req, res) => {
     const { expenseName, expenseValue, gstPercentage, expenseDate, gstType } =
       req.body;
     const gstValue = (expenseValue * gstPercentage) / 100;
-    const newExpense = await expense.create(
+    const newExpense = await expense.create({
       expenseName,
       expenseValue,
       gstPercentage,
-      expenseDate
-    );
+      expenseDate,
+    });
     if (gstType === "igst") {
       var newGst = await gst.create({
         date: newExpense.expenseDate,
@@ -135,6 +135,7 @@ export const addExpense = async (req, res) => {
     }
     res.status(200).json({ newExpense, newGst });
   } catch (err) {
+    console.log(err);
     res
       .status(500)
       .json({ error: "Internal Server Error", message: err.message });
