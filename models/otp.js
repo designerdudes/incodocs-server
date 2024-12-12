@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
 const userOTPSchema = new mongoose.Schema({
+  mobileNumber: { type: Number },
   email: {
     type: String,
     required: true,
-    unique: true,
     trim: true,
     lowercase: true,
   },

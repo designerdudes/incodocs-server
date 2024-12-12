@@ -6,6 +6,7 @@ import {
   emailVerificationSuccess,
 } from "../config/sendMail.js";
 import { UserOTP } from "../models/otp.js";
+import fast2sms from "fast-two-sms";
 // import { sendVerificationCode } from "../config/sendSms.js";
 // import mongoose from "mongoose";
 // import bcryptjs from "bcryptjs";
@@ -179,7 +180,7 @@ export const sendOTPforAdminVerification = async (req, res) => {
       email: email,
       otp: OTP,
       createdAt: new Date(),
-      expireAt: new Date() + 86400000,
+      expireAt: new Date(Date.now() + 86400000),
     });
     await otp.save(); // Save the OTP to the database
 
@@ -211,17 +212,8 @@ export const getotps = async (req, res) => {
 export const verifyotp = async (req, res) => {
   try {
     let user = req.body;
-    console.log("user", user.email);
-    const email = req.mobileNo || user.email;
-
-    if (!user) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
-
     const { otp } = req.body;
+    const email = req.mobileNo || user.email;
 
     // Find OTP records for the user's email
     const databaseotp = await UserOTP.find({
@@ -237,7 +229,6 @@ export const verifyotp = async (req, res) => {
 
     // Check if the provided OTP matches any of the OTP records
     const matchingOTP = databaseotp.find((record) => record.otp == otp);
-
     if (!matchingOTP) {
       return res.status(401).send({
         msg: "Wrong OTP!",
@@ -249,22 +240,18 @@ export const verifyotp = async (req, res) => {
     const currentTime = new Date();
     const createdAt = new Date(matchingOTP.createdAt);
     const timeDifference = currentTime - createdAt;
-    //uncomment this comment`
 
     // Check if the time difference is more than 15 minutes (900,000 milliseconds)
-    // if (timeDifference > 900000) {
-    //   // Delete OTP records for the user's email
-    //   await UserOTP.deleteMany({
-    //     email: email
-    //   });
-
-    //   return res
-    //     .status(402)
-    //     .send({
-    //       msg: "Your OTP has expired, can't verify",
-    //       ok: false
-    //     });
-    // }
+    if (timeDifference > 9000000) {
+      // Delete OTP records for the user's email
+      await UserOTP.deleteMany({
+        email: email,
+      });
+      return res.status(402).send({
+        msg: "Your OTP has expired, can't verify",
+        ok: false,
+      });
+    }
 
     // Update user's emailVerified status
     const validEmailUser = await User.findOne({
@@ -359,79 +346,93 @@ export const verifyotp = async (req, res) => {
 //   }
 // };
 
-// export const sendOTPforMobileverification = async (req, res) => {
-//   try {
-//     let user = req.body;
-//     console.log("req", req.body);
-//     const mobileNumber = user.mobileNumber;
-//     const validmobileNumberUser = await User.findOne({
-//       mobileNumber,
-//     });
-//     console.log("validmobileNumberUser", validmobileNumberUser);
-//     // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
-//     if (!validmobileNumberUser) {
-//       return res.status(404).send({
-//         msg: "User not found",
-//         ok: false,
-//       });
-//     }
+export const sendOTPforMobileverification = async (req, res) => {
+  try {
+    // var options = {
+    //   authorization: process.env.FAST_2_SMS_APIKEY,
+    //   message: "makikirkiri",
+    //   numbers: ["7702793710"],
+    // };
+    // await fast2sms
+    //   .sendMessage(options)
+    //   .then((res) => {
+    //     console.log("otp send");
+    //   })
+    //   .catch((err) => console.log(err)); //Asynchronous Function.
+    // res.status(200).send("otp send successfully");
+    let user = req.body;
+    console.log("req", req.body);
+    const { mobileNumber, email } = user;
+    const validmobileNumberUser = await User.findOne({
+      mobileNumber,
+    });
+    console.log("validmobileNumberUser", validmobileNumberUser);
+    // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
+    if (!validmobileNumberUser) {
+      return res.status(404).json({
+        msg: "User not found",
+        ok: false,
+      });
+    }
 
-//     let OTP = Math.floor(Math.random() * 900000) + 100000;
+    let OTP = Math.floor(Math.random() * 900000) + 100000;
 
-//     console.log("OTP is generated", OTP);
+    console.log("OTP is generated", OTP);
 
-//     // Create a new UserOTP instance
-//     let otp = new UserOTP({
-//       mobileNumber: mobileNumber,
-//       otp: OTP,
-//       createdAt: new Date(),
-//       expireAt: new Date() + 86400000,
-//     });
+    // Create a new UserOTP instance
+    let otp = new UserOTP({
+      email: email,
+      mobileNumber: mobileNumber,
+      otp: OTP,
+      createdAt: new Date(),
+      expireAt: new Date() + 86400000,
+    });
 
-//     console.log("OTP is about to be saved");
+    console.log("OTP is about to be saved");
 
-//     // Save the OTP to the database
-//     await otp.save();
+    // Save the OTP to the database
+    await otp.save();
 
-//     var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+    var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
 
-//     req.headers({
-//       authorization:
-//         "eRQO6sBudTDi8gtqCIboSG1Z3fEvJYPahWy9pxjXKzVw2l50HUaLsFVcx5dXJoGMwWe32ImyHYSNTk4A",
-//     });
+    req.headers({
+      authorization: process.env.FAST_2_SMS_APIKEY,
+    });
 
-//     req.form({
-//       variables_values: OTP,
-//       route: "otp",
-//       numbers: mobileNumber,
-//     });
+    req.form({
+      variables_values: OTP,
+      route: "otp",
+      numbers: mobileNumber,
+    });
 
-//     req.end(function (res) {
-//       if (res.error) throw new Error(res.error);
+    req.end(function (response) {
+      if (response.error) {
+        console.error("Fast2SMS API Error:", response.error);
+        console.error("Response body:", response.body); // Log the body
+        throw new Error(response.error);
+      }
 
-//       console.log(res.body);
-//     });
+      console.log(response.body);
+    });
 
-//     console.log("res", res.data);
+    // const verification = await sendVerificationCode(`+91${mobileNumber}`);
+    console.log("OTP is saved in the database");
 
-//     // const verification = await sendVerificationCode(`+91${mobileNumber}`);
-//     console.log("OTP is saved in the database");
+    console.log("mobileNumber ", mobileNumber);
+    // Continue with other operations, such as sending an mobileNumber
 
-//     console.log("mobileNumber mobileNumber", mobileNumber);
-//     // Continue with other operations, such as sending an mobileNumber
-
-//     // Send the response
-//     res.status(200).send({
-//       ok: true,
-//       msg: "mobileNumber sent",
-//     });
-//   } catch (error) {
-//     console.error("Error in sendOTPforverification:", error);
-//     res.status(500).send({
-//       msg: error.message,
-//     });
-//   }
-// };
+    // Send the response
+    res.status(200).send({
+      ok: true,
+      msg: "mobileNumber sent",
+    });
+  } catch (error) {
+    console.error("Error in sendOTPforverification:", error);
+    res.status(500).send({
+      msg: error.message,
+    });
+  }
+};
 
 // export const verifymobileotp = async (req, res) => {
 //   try {
