@@ -111,6 +111,20 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    if (users.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    return res.status(200).json(users);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
 // Controller function to update an existing user
 export const updateUser = async (req, res) => {
   const { id } = req.params;

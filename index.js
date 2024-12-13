@@ -52,6 +52,7 @@ app.get("/", (req, res) => {
   res.status(200).send("home");
 });
 
+app.use("/otp", otps);
 app.use("/auth", authRoute);
 app.use("/user", userRouter);
 app.use(authenticateToken);
@@ -66,5 +67,4 @@ app.use("/gst", gst);
 app.use("/expense", expense);
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
-app.use("/otp", otps);
 app.use(errorHandler);
