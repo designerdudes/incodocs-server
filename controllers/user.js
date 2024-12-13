@@ -26,6 +26,7 @@ export const addUser = async (req, res) => {
     const token = jwt.sign(
       {
         id: newUser._id,
+        role: newUser.role,
       },
       process.env.JWT_SECRETKEY
     );
@@ -37,17 +38,7 @@ export const addUser = async (req, res) => {
     res.status(201).json({
       message: "User created",
       token: token,
-      user: {
-        _id: newUser._id,
-        fullName: newUser.fullName,
-        email: newUser.email,
-        profileImg: newUser.profileImg,
-        ownedOrganizations: newUser.ownedOrganizations,
-        organizationMembers: newUser.organizationMembers,
-        isFactoryManagementEnabled: newUser.isFactoryManagementEnabled,
-        isExportDocumentationEnabled: newUser.isExportDocumentationEnabled,
-        isAccountingEnabled: newUser.isAccountingEnabled,
-      },
+      newUser: newUser,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -75,6 +66,7 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       {
         id: user._id,
+        role: user.role,
       },
       process.env.JWT_SECRETKEY
     );
@@ -86,17 +78,7 @@ export const loginUser = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token: token,
-      user: {
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        profileImg: user.profileImg,
-        ownedOrganizations: user.ownedOrganizations,
-        organizationMembers: user.organizationMembers,
-        isFactoryManagementEnabled: user.isFactoryManagementEnabled,
-        isExportDocumentationEnabled: user.isExportDocumentationEnabled,
-        isAccountingEnabled: user.isAccountingEnabled,
-      },
+      user: user,
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -135,6 +117,7 @@ export const updateUser = async (req, res) => {
   const {
     fullName,
     email,
+    role,
     mobileNumber,
     address,
     profileImg,
@@ -149,6 +132,7 @@ export const updateUser = async (req, res) => {
       {
         fullName,
         email,
+        role,
         mobileNumber,
         address,
         profileImg,

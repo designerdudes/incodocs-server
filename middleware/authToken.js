@@ -16,7 +16,6 @@ export const authenticateToken = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-
     // Check if the required role is present in the decoded token
     if (
       !decoded.role ||
