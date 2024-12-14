@@ -26,7 +26,7 @@ export const addUser = async (req, res) => {
       expireAt: new Date(Date.now() + 86400000),
     });
     await otp.save(); // Save the OTP to the database
-    await emailVerificationEmail(email, OTP, existingUser.fullName); // sending mail for otp
+    await emailVerificationEmail(email, OTP, newUser.fullName); // sending mail for otp
 
     res.status(201).json({
       message: "User created and email sent successfully",
@@ -53,21 +53,30 @@ export const loginUser = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
+    let OTP = Math.floor(Math.random() * 900000) + 100000;
+    // Create a new UserOTP instance
+    let otp = new UserOTP({
+      email: email,
+      otp: OTP,
+      createdAt: new Date(),
+      expireAt: new Date(Date.now() + 86400000),
+    });
+    await otp.save(); // Save the OTP to the database
+    await emailVerificationEmail(email, OTP, user.fullName); // sending mail for otp
+    // // Generate JWT token
+    // const token = jwt.sign(
+    //   {
+    //     id: user._id,
+    //     role: user.role,
+    //   },
+    //   process.env.JWT_SECRETKEY
+    // );
 
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: user._id,
-        role: user.role,
-      },
-      process.env.JWT_SECRETKEY
-    );
-
-    // Set token as a cookie
-    res.cookie("accessToken", token, { httpOnly: true });
+    // // Set token as a cookie
+    // res.cookie("accessToken", token, { httpOnly: true });
     res.status(200).json({
-      message: "Login successful",
-      token: token,
+      message: "otp sent successfully please verify to login",
+      // token: token,
       user: user,
     });
   } catch (error) {

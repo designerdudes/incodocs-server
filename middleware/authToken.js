@@ -16,19 +16,20 @@ export const authenticateToken = (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    console.log(decoded)
     // Check if the required role is present in the decoded token
     if (
       !decoded.role ||
       !["owner", "admin", "deliveryagent", "customer"].includes(decoded.role)
     ) {
-      return res.status(403).json({ message: "Forbidden" });
+      return res.status(403).json({ message: "Forbidden877" });
     }
 
     req.user = decoded;
     next();
   } catch (err) {
     console.error("Token verification error:", err.message);
-    return res.status(403).json({ message: "Forbidden" });
+    return res.status(403).json({ message: "Forbidden", error : err.message });
   }
 };
 

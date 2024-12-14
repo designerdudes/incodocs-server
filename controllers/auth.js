@@ -167,12 +167,12 @@ import unirest from "unirest";
 //     let user = req.body;
 //     const email = user.email; // this is req.body.email
 //     const validEmailUser = await User.findOne({ email });
-//     if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
-//       return res.status(403).json({
-//         msg: "User not authorized",
-//         ok: false,
-//       });
-//     }
+//     // if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
+//     //   return res.status(403).json({
+//     //     msg: "User not authorized",
+//     //     ok: false,
+//     //   });
+//     // }
 //     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
 //     // Create a new UserOTP instance
@@ -200,6 +200,31 @@ import unirest from "unirest";
 //   }
 // };
 
+export const resendOtp = async (req, res) => {
+  try {
+    let { email } = req.body;
+    const validEmailUser = await User.findOne({ email });
+    let OTP = Math.floor(Math.random() * 900000) + 100000;
+    let otp = new UserOTP({
+      email: email,
+      otp: OTP,
+      createdAt: new Date(),
+      expireAt: new Date(Date.now() + 86400000),
+    });
+    await otp.save();
+    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
+    res.status(200).send({
+      ok: true,
+      msg: "email sent",
+    });
+  } catch (error) {
+    console.error("Error in sendOTPforverification:", error);
+    res.status(500).send({
+      msg: error.message,
+    });
+  }
+};
+
 export const getotps = async (req, res) => {
   try {
     const otp = await UserOTP.find();
@@ -209,18 +234,19 @@ export const getotps = async (req, res) => {
   }
 };
 
-export const verifyotp = async (req, res) => {
+export const verifyemailotp = async (req, res) => {
   try {
     let { email, otp } = req.body;
     // const email = req.mobileNo || user.email;
 
     const user = await User.findOne({ email: email });
-    if (!user)
+    if (!user) {
       return res
         .status(404)
         .json({ message: `user with the email ${email} not found` });
-    if (user.isVerified)
-      return res.status(400).json({ message: " already verified" });
+    }
+    // if (user.isVerified)
+    //   return res.status(400).json({ message: " already verified" });
 
     // Find OTP records for the user's email
     const databaseotp = await UserOTP.find({
@@ -264,13 +290,12 @@ export const verifyotp = async (req, res) => {
     user.isVerified = true;
     await user.save();
 
-    // sending email to the user that emai is verified
+    // sending email is verified msg to the user
     await emailVerificationSuccess(email);
 
     res.status(200).send({
       msg: "Email verified",
       ok: true,
-      token: Token,
     });
   } catch (error) {
     console.error(error);
@@ -278,6 +303,69 @@ export const verifyotp = async (req, res) => {
       msg: "Internal Server Error",
       ok: false,
     });
+  }
+};
+
+export const verifyLoginOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email: email });
+    const databaseotp = await UserOTP.find({ email: email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `user with the email ${email} not found` });
+    }
+    if (!databaseotp || databaseotp.length === 0) {
+      return res.status(404).send({
+        msg: "No OTP records found",
+        ok: false,
+      });
+    }
+    const matchingOTP = databaseotp.find((e) => e.otp === otp);
+    if (!matchingOTP) {
+      return res.status(401).send({
+        msg: "Wrong OTP!",
+        ok: false,
+      });
+    }
+    // Calculate the time difference
+    const currentTime = new Date();
+    const createdAt = new Date(matchingOTP.createdAt);
+    const timeDifference = currentTime - createdAt;
+    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
+    if (timeDifference > 9000000) {
+      await UserOTP.deleteMany({ email: email }); // Delete OTP records for the user's email
+      return res.status(402).send({
+        msg: "Your OTP has expired, can't verify",
+        ok: false,
+      });
+    }
+    // Delete OTP records for the user's email
+    await UserOTP.deleteMany({
+      email: email,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRETKEY
+    );
+    console.log(user.role, user._id);
+    // Set token as a cookie
+    res.cookie("accessToken", token, { httpOnly: true });
+    res.status(200).send({
+      msg: "otp verified",
+      token: token,
+      ok: true,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
   }
 };
 
