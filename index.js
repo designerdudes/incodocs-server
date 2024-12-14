@@ -53,13 +53,13 @@ app.get("/", (req, res) => {
 });
 
 app.use("/otp", otps);
-app.use("/auth", authRoute);
 app.use("/user", userRouter);
+app.use("/auth", authRoute);
 app.use(authenticateToken);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
-app.use(adminAuthenticateToken);
 app.use("/factory", factory);
+app.use(adminAuthenticateToken);
 app.use("/factory-management", inventory);
 app.use("/accounting", customerAndSupplier);
 app.use("/transaction", purchasesAndSales);

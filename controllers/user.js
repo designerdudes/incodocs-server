@@ -1,43 +1,35 @@
 import User from "../models/user.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { UserOTP } from "../models/otp.js";
+import { emailVerificationEmail } from "../config/sendMail.js";
 
 // Controller function to add a new user
 export const addUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already exists" });
     }
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the new user with hashed password
     const newUser = await User.create({
       ...req.body,
       password: hashedPassword,
     });
+    let OTP = Math.floor(Math.random() * 900000) + 100000;
+    // Create a new UserOTP instance
+    let otp = new UserOTP({
+      email: email,
+      otp: OTP,
+      createdAt: new Date(),
+      expireAt: new Date(Date.now() + 86400000),
+    });
+    await otp.save(); // Save the OTP to the database
+    await emailVerificationEmail(email, OTP, existingUser.fullName); // sending mail for otp
 
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: newUser._id,
-        role: newUser.role,
-      },
-      process.env.JWT_SECRETKEY
-    );
-
-    // Set token as a cookie
-    res.cookie("accessToken", token, { httpOnly: true });
-
-    // Return success response with token and user details
     res.status(201).json({
-      message: "User created",
-      token: token,
+      message: "User created and email sent successfully",
       newUser: newUser,
     });
   } catch (error) {
@@ -52,9 +44,9 @@ export const loginUser = async (req, res) => {
 
     // Check if the user exists
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user.isVerified)
+      return res.status(400).json({ message: "Email not verified" });
 
     // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -73,8 +65,6 @@ export const loginUser = async (req, res) => {
 
     // Set token as a cookie
     res.cookie("accessToken", token, { httpOnly: true });
-
-    // Return success response with token and user details
     res.status(200).json({
       message: "Login successful",
       token: token,

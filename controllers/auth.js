@@ -14,122 +14,122 @@ import fast2sms from "fast-two-sms";
 import unirest from "unirest";
 // var unirest = require("unirest");
 
-export const register = async (req, res, next) => {
-  const {
-    id,
-    fullName,
-    mobileNumber,
-    role,
-    email,
-    customerType,
-    address,
-    profileImg,
-    pincode,
-  } = req.body;
+// export const register = async (req, res, next) => {
+//   const {
+//     id,
+//     fullName,
+//     mobileNumber,
+//     role,
+//     email,
+//     customerType,
+//     address,
+//     profileImg,
+//     pincode,
+//   } = req.body;
 
-  // Initialize userFields object
-  const userFields = {};
+//   // Initialize userFields object
+//   const userFields = {};
 
-  // Add fields if they exist in the request body
-  if (fullName) userFields.fullName = fullName;
-  if (profileImg) userFields.profileImg = profileImg;
-  if (role) userFields.role = role;
-  if (email) userFields.email = email;
-  if (customerType) userFields.customerType = customerType;
-  if (address) userFields.address = address;
-  if (pincode) userFields.pincode = pincode;
-  // Only include mobileNumber if it is provided and not null
-  if (mobileNumber !== undefined && mobileNumber !== null) {
-    userFields.mobileNumber = mobileNumber;
-  }
-  try {
-    if (id) {
-      // Update user if ID is provided
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        { $set: userFields },
-        { new: true }
-      );
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      const token = jwt.sign(
-        {
-          id: updatedUser._id,
-          role: updatedUser.role,
-        },
-        process.env.JWT_SECRETKEY
-      );
+//   // Add fields if they exist in the request body
+//   if (fullName) userFields.fullName = fullName;
+//   if (profileImg) userFields.profileImg = profileImg;
+//   if (role) userFields.role = role;
+//   if (email) userFields.email = email;
+//   if (customerType) userFields.customerType = customerType;
+//   if (address) userFields.address = address;
+//   if (pincode) userFields.pincode = pincode;
+//   // Only include mobileNumber if it is provided and not null
+//   if (mobileNumber !== undefined && mobileNumber !== null) {
+//     userFields.mobileNumber = mobileNumber;
+//   }
+//   try {
+//     if (id) {
+//       // Update user if ID is provided
+//       const updatedUser = await User.findByIdAndUpdate(
+//         id,
+//         { $set: userFields },
+//         { new: true }
+//       );
+//       if (!updatedUser) {
+//         return res.status(404).json({ message: "User not found" });
+//       }
+//       const token = jwt.sign(
+//         {
+//           id: updatedUser._id,
+//           role: updatedUser.role,
+//         },
+//         process.env.JWT_SECRETKEY
+//       );
 
-      return res
-        .cookie("accessToken", token, {
-          httpOnly: true,
-        })
-        .status(200)
-        .json({
-          message: "User updated",
-          user: token,
-        });
-    }
-    // Check if email is provided
-    if (email) {
-      const existingUserByEmail = await User.findOne({ email });
-      if (existingUserByEmail) {
-        return res
-          .status(409)
-          .json({ message: "User already exists", user: existingUserByEmail });
-      }
-    }
-    // Check if mobile number is provided
-    if (mobileNumber !== undefined && mobileNumber !== null) {
-      const existingUserByMobile = await User.findOne({ mobileNumber });
-      if (existingUserByMobile) {
-        return res
-          .status(409)
-          .json({ message: "User already exists", user: existingUserByMobile });
-      }
-    }
-    // Create a new user if ID is not provided
-    const newUser = new User(userFields);
-    // const customUserId = `APL${role.slice(0, 3).toUpperCase()}${new Date()
-    //   .getFullYear()
-    //   .toString()
-    //   .slice(2, 4)}${Math.floor(1000 + Math.random() * 9000)}`;
-    // console.log("hcfbvhhhhjbfhhj5", newUser, userFields);
+//       return res
+//         .cookie("accessToken", token, {
+//           httpOnly: true,
+//         })
+//         .status(200)
+//         .json({
+//           message: "User updated",
+//           user: token,
+//         });
+//     }
+//     // Check if email is provided
+//     if (email) {
+//       const existingUserByEmail = await User.findOne({ email });
+//       if (existingUserByEmail) {
+//         return res
+//           .status(409)
+//           .json({ message: "User already exists", user: existingUserByEmail });
+//       }
+//     }
+//     // Check if mobile number is provided
+//     if (mobileNumber !== undefined && mobileNumber !== null) {
+//       const existingUserByMobile = await User.findOne({ mobileNumber });
+//       if (existingUserByMobile) {
+//         return res
+//           .status(409)
+//           .json({ message: "User already exists", user: existingUserByMobile });
+//       }
+//     }
+//     // Create a new user if ID is not provided
+//     const newUser = new User(userFields);
+//     // const customUserId = `APL${role.slice(0, 3).toUpperCase()}${new Date()
+//     //   .getFullYear()
+//     //   .toString()
+//     //   .slice(2, 4)}${Math.floor(1000 + Math.random() * 9000)}`;
+//     // console.log("hcfbvhhhhjbfhhj5", newUser, userFields);
 
-    await newUser.save();
+//     await newUser.save();
 
-    res.status(200).json({
-      ok: true,
-      message: "New user created",
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(200).json({
+//       ok: true,
+//       message: "New user created",
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
-export const signin = async (req, res, next) => {
-  const { email } = req.body;
-  try {
-    const validEmailUser = await User.findOne({
-      email,
-    });
-    if (!validEmailUser) {
-      return next(errorHandeler(404, "User not found"));
-    }
+// export const signin = async (req, res, next) => {
+//   const { email } = req.body;
+//   try {
+//     const validEmailUser = await User.findOne({
+//       email,
+//     });
+//     if (!validEmailUser) {
+//       return next(errorHandeler(404, "User not found"));
+//     }
 
-    const token = jwt.sign(
-      { id: validEmailUser._id },
-      process.env.JWT_SECRETKEY
-    );
-    res
-      .cookie("accessToken", token, { httpOnly: true })
-      .status(200)
-      .json(token);
-  } catch (err) {
-    next(err);
-  }
-};
+//     const token = jwt.sign(
+//       { id: validEmailUser._id },
+//       process.env.JWT_SECRETKEY
+//     );
+//     res
+//       .cookie("accessToken", token, { httpOnly: true })
+//       .status(200)
+//       .json(token);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 // export const googleAuth = async (req, res, next) => {
 //   const { email } = req.body.userData;
@@ -162,43 +162,43 @@ export const signin = async (req, res, next) => {
 //   }
 // };
 
-export const sendOTPforAdminVerification = async (req, res) => {
-  try {
-    let user = req.body;
-    const email = user.email; // this is req.body.email
-    const validEmailUser = await User.findOne({ email });
-    // if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
-    //   return res.status(403).json({
-    //     msg: "User not authorized",
-    //     ok: false,
-    //   });
-    // }
-    let OTP = Math.floor(Math.random() * 900000) + 100000;
+// export const sendOTPforAdminVerification = async (req, res) => {
+//   try {
+//     let user = req.body;
+//     const email = user.email; // this is req.body.email
+//     const validEmailUser = await User.findOne({ email });
+//     if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
+//       return res.status(403).json({
+//         msg: "User not authorized",
+//         ok: false,
+//       });
+//     }
+//     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
-    // Create a new UserOTP instance
-    let otp = new UserOTP({
-      email: email,
-      otp: OTP,
-      createdAt: new Date(),
-      expireAt: new Date(Date.now() + 86400000),
-    });
-    await otp.save(); // Save the OTP to the database
+//     // Create a new UserOTP instance
+//     let otp = new UserOTP({
+//       email: email,
+//       otp: OTP,
+//       createdAt: new Date(),
+//       expireAt: new Date(Date.now() + 86400000),
+//     });
+//     await otp.save(); // Save the OTP to the database
 
-    // Continue with other operations, such as sending an email
-    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
+//     // Continue with other operations, such as sending an email
+//     await emailVerificationEmail(email, OTP, validEmailUser.fullName);
 
-    // Send the response
-    res.status(200).send({
-      ok: true,
-      msg: "email sent",
-    });
-  } catch (error) {
-    console.error("Error in sendOTPforverification:", error);
-    res.status(500).send({
-      msg: error.message,
-    });
-  }
-};
+//     // Send the response
+//     res.status(200).send({
+//       ok: true,
+//       msg: "email sent",
+//     });
+//   } catch (error) {
+//     console.error("Error in sendOTPforverification:", error);
+//     res.status(500).send({
+//       msg: error.message,
+//     });
+//   }
+// };
 
 export const getotps = async (req, res) => {
   try {
@@ -211,15 +211,21 @@ export const getotps = async (req, res) => {
 
 export const verifyotp = async (req, res) => {
   try {
-    let user = req.body;
-    const { otp } = req.body;
-    const email = req.mobileNo || user.email;
+    let { email, otp } = req.body;
+    // const email = req.mobileNo || user.email;
+
+    const user = await User.findOne({ email: email });
+    if (!user)
+      return res
+        .status(404)
+        .json({ message: `user with the email ${email} not found` });
+    if (user.isVerified)
+      return res.status(400).json({ message: " already verified" });
 
     // Find OTP records for the user's email
     const databaseotp = await UserOTP.find({
       email: email,
     });
-
     if (!databaseotp || databaseotp.length === 0) {
       return res.status(404).send({
         msg: "No OTP records found",
@@ -243,44 +249,24 @@ export const verifyotp = async (req, res) => {
 
     // Check if the time difference is more than 15 minutes (900,000 milliseconds)
     if (timeDifference > 9000000) {
-      // Delete OTP records for the user's email
-      await UserOTP.deleteMany({
-        email: email,
-      });
+      await UserOTP.deleteMany({ email: email }); // Delete OTP records for the user's email
       return res.status(402).send({
         msg: "Your OTP has expired, can't verify",
         ok: false,
       });
     }
 
-    // Update user's emailVerified status
-    const validEmailUser = await User.findOne({
-      email,
-    });
-    console.log(email, validEmailUser);
-    if (!validEmailUser) {
-      return res.status(404).send({
-        msg: "User not found",
-        ok: false,
-      });
-    }
-
-    // Include user ID and role in the JWT token payload
-    const tokenPayload = {
-      id: validEmailUser._id,
-      role: validEmailUser.role,
-    };
-
-    const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
-    res.cookie("accessToken", Token, {
-      httpOnly: true,
-    });
-
     // Delete OTP records for the user's email
     await UserOTP.deleteMany({
       email: email,
     });
+
+    user.isVerified = true;
+    await user.save();
+
+    // sending email to the user that emai is verified
     await emailVerificationSuccess(email);
+
     res.status(200).send({
       msg: "Email verified",
       ok: true,
@@ -346,93 +332,93 @@ export const verifyotp = async (req, res) => {
 //   }
 // };
 
-export const sendOTPforMobileverification = async (req, res) => {
-  try {
-    // var options = {
-    //   authorization: process.env.FAST_2_SMS_APIKEY,
-    //   message: "makikirkiri",
-    //   numbers: ["7702793710"],
-    // };
-    // await fast2sms
-    //   .sendMessage(options)
-    //   .then((res) => {
-    //     console.log("otp send");
-    //   })
-    //   .catch((err) => console.log(err)); //Asynchronous Function.
-    // res.status(200).send("otp send successfully");
-    let user = req.body;
-    console.log("req", req.body);
-    const { mobileNumber, email } = user;
-    const validmobileNumberUser = await User.findOne({
-      mobileNumber,
-    });
-    console.log("validmobileNumberUser", validmobileNumberUser);
-    // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
-    if (!validmobileNumberUser) {
-      return res.status(404).json({
-        msg: "User not found",
-        ok: false,
-      });
-    }
+// export const sendOTPforMobileverification = async (req, res) => {
+//   try {
+//     // var options = {
+//     //   authorization: process.env.FAST_2_SMS_APIKEY,
+//     //   message: "makikirkiri",
+//     //   numbers: ["7702793710"],
+//     // };
+//     // await fast2sms
+//     //   .sendMessage(options)
+//     //   .then((res) => {
+//     //     console.log("otp send");
+//     //   })
+//     //   .catch((err) => console.log(err)); //Asynchronous Function.
+//     // res.status(200).send("otp send successfully");
+//     let user = req.body;
+//     console.log("req", req.body);
+//     const { mobileNumber, email } = user;
+//     const validmobileNumberUser = await User.findOne({
+//       mobileNumber,
+//     });
+//     console.log("validmobileNumberUser", validmobileNumberUser);
+//     // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
+//     if (!validmobileNumberUser) {
+//       return res.status(404).json({
+//         msg: "User not found",
+//         ok: false,
+//       });
+//     }
 
-    let OTP = Math.floor(Math.random() * 900000) + 100000;
+//     let OTP = Math.floor(Math.random() * 900000) + 100000;
 
-    console.log("OTP is generated", OTP);
+//     console.log("OTP is generated", OTP);
 
-    // Create a new UserOTP instance
-    let otp = new UserOTP({
-      email: email,
-      mobileNumber: mobileNumber,
-      otp: OTP,
-      createdAt: new Date(),
-      expireAt: new Date() + 86400000,
-    });
+//     // Create a new UserOTP instance
+//     let otp = new UserOTP({
+//       email: email,
+//       mobileNumber: mobileNumber,
+//       otp: OTP,
+//       createdAt: new Date(),
+//       expireAt: new Date() + 86400000,
+//     });
 
-    console.log("OTP is about to be saved");
+//     console.log("OTP is about to be saved");
 
-    // Save the OTP to the database
-    await otp.save();
+//     // Save the OTP to the database
+//     await otp.save();
 
-    var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
+//     var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
 
-    req.headers({
-      authorization: process.env.FAST_2_SMS_APIKEY,
-    });
+//     req.headers({
+//       authorization: process.env.FAST_2_SMS_APIKEY,
+//     });
 
-    req.form({
-      variables_values: OTP,
-      route: "otp",
-      numbers: mobileNumber,
-    });
+//     req.form({
+//       variables_values: OTP,
+//       route: "otp",
+//       numbers: mobileNumber,
+//     });
 
-    req.end(function (response) {
-      if (response.error) {
-        console.error("Fast2SMS API Error:", response.error);
-        console.error("Response body:", response.body); // Log the body
-        throw new Error(response.error);
-      }
+//     req.end(function (response) {
+//       if (response.error) {
+//         console.error("Fast2SMS API Error:", response.error);
+//         console.error("Response body:", response.body); // Log the body
+//         throw new Error(response.error);
+//       }
 
-      console.log(response.body);
-    });
+//       console.log(response.body);
+//     });
 
-    // const verification = await sendVerificationCode(`+91${mobileNumber}`);
-    console.log("OTP is saved in the database");
+//     // const verification = await sendVerificationCode(`+91${mobileNumber}`);
+//     console.log("OTP is saved in the database");
 
-    console.log("mobileNumber ", mobileNumber);
-    // Continue with other operations, such as sending an mobileNumber
+//     console.log("mobileNumber ", mobileNumber);
+//     // Continue with other operations, such as sending an mobileNumber
 
-    // Send the response
-    res.status(200).send({
-      ok: true,
-      msg: "mobileNumber sent",
-    });
-  } catch (error) {
-    console.error("Error in sendOTPforverification:", error);
-    res.status(500).send({
-      msg: error.message,
-    });
-  }
-};
+//     // Send the response
+//     res.status(200).send({
+//       ok: true,
+//       msg: "mobileNumber sent",
+//     });
+//   } catch (error) {
+//     console.error("Error in sendOTPforverification:", error);
+//     res.status(500).send({
+//       msg: error.message,
+//     });
+//   }
+// };
 
 // export const verifymobileotp = async (req, res) => {
 //   try {

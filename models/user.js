@@ -36,8 +36,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["owner", "admin", "deliveryagent", "customer"],
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     address: addressSchema,
-    password: {
+    password: { 
       type: String,
       required: true,
     },
