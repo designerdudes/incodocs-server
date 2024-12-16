@@ -27,6 +27,7 @@ import {
   updateBlockCreateSlab,
   updateFinishedSlab,
   updateLot,
+  updateMultipleSlabs,
   updateSlabAddTrimData,
 } from "../../controllers/factoryManagement/inventory.js";
 
@@ -100,5 +101,8 @@ router.get("/inventory/getblocksbyfactory/:id", getBlocksByFactoryId);
 
 // get slabs by factoryId
 router.get("/inventory/getslabsbyfactory/:id", getSlabsByFactoryId);
+
+// update multiple slabs
+router.put("/inventory/updatemultipleslabs", updateMultipleSlabs);
 
 export default router;
