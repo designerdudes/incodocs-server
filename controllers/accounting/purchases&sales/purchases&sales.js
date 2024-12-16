@@ -370,7 +370,7 @@ export const updateSlabPurchase = async (req, res) => {
     if (findPurchase.length === 0) {
       return res.status(400).json({ message: "No Records Found" });
     }
-    const updatedPurchase = await slabPurchase.findByIdAndDelete(id, body, {
+    const updatedPurchase = await slabPurchase.findByIdAndUpdate(id, body, {
       new: true,
     });
     res.status(200).json(updatedPurchase);

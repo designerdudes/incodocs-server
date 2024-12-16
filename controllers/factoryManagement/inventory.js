@@ -389,6 +389,7 @@ export const getBlocksByLot = async (req, res) => {
     const updatedBlocks = blocks.map((block) => ({
       ...block.toObject(),
       lotName: findLot.lotName,
+      materialType: findLot.materialType,
     }));
     console.log(blocks.lotName);
     res.status(200).json(updatedBlocks);
@@ -716,5 +717,21 @@ export const getSlabsByFactoryId = async (req, res) => {
     res
       .status(500)
       .json({ error: "Internal Server Error", message: err.message });
+  }
+};
+
+export const updateMultipleSlabs = async (req, res) => {
+  try {
+    const { slabNumbers, status } = req.body;
+    await slabInventory.updateMany(
+      { slabNumber: { $in: slabNumbers } },
+      { $set: { status } },
+      { new: true }
+    );
+    res.status(200).json({ message: "updated successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
   }
 };

@@ -1,17 +1,18 @@
-// import mongoose from "mongoose";
-// import { errorHandeler } from "../middleware/errorHandeler.utils.js";
-// import User from "../models/user.js";
-// import bcryptjs from "bcryptjs";
-// import jwt from "jsonwebtoken";
-// import UserOTP from "../models/otp.js";
-// import {
-//   emailVerificationEmail,
-//   emailVerificationSuccess,
-// } from "../config/sendMail.js";
+import { errorHandeler } from "../middleware/errorHandeler.utils.js";
+import User from "../models/user.js";
+import jwt from "jsonwebtoken";
+import {
+  emailVerificationEmail,
+  emailVerificationSuccess,
+} from "../config/sendMail.js";
+import { UserOTP } from "../models/otp.js";
+import fast2sms from "fast-two-sms";
 // import { sendVerificationCode } from "../config/sendSms.js";
+// import mongoose from "mongoose";
+// import bcryptjs from "bcryptjs";
 // import axios from "axios";
-// import unirest from "unirest";
-// // var unirest = require("unirest");
+import unirest from "unirest";
+// var unirest = require("unirest");
 
 // export const register = async (req, res, next) => {
 //   const {
@@ -37,14 +38,10 @@
 //   if (customerType) userFields.customerType = customerType;
 //   if (address) userFields.address = address;
 //   if (pincode) userFields.pincode = pincode;
-//   console.log("hcfbvhhhhjbfhhj11");
-
 //   // Only include mobileNumber if it is provided and not null
 //   if (mobileNumber !== undefined && mobileNumber !== null) {
 //     userFields.mobileNumber = mobileNumber;
 //   }
-//   console.log("hcfbvhhhhjbfhhj2");
-
 //   try {
 //     if (id) {
 //       // Update user if ID is provided
@@ -74,8 +71,6 @@
 //           user: token,
 //         });
 //     }
-//     console.log("hcfbvhhhhjbfhhj3");
-
 //     // Check if email is provided
 //     if (email) {
 //       const existingUserByEmail = await User.findOne({ email });
@@ -85,7 +80,6 @@
 //           .json({ message: "User already exists", user: existingUserByEmail });
 //       }
 //     }
-
 //     // Check if mobile number is provided
 //     if (mobileNumber !== undefined && mobileNumber !== null) {
 //       const existingUserByMobile = await User.findOne({ mobileNumber });
@@ -95,18 +89,16 @@
 //           .json({ message: "User already exists", user: existingUserByMobile });
 //       }
 //     }
-//     console.log("hcfbvhhhhjbfhhj4");
-
 //     // Create a new user if ID is not provided
 //     const newUser = new User(userFields);
-//     const customUserId = `APL${role.slice(0, 3).toUpperCase()}${new Date()
-//       .getFullYear()
-//       .toString()
-//       .slice(2, 4)}${Math.floor(1000 + Math.random() * 9000)}`;
-//     console.log("hcfbvhhhhjbfhhj5", newUser, userFields);
+//     // const customUserId = `APL${role.slice(0, 3).toUpperCase()}${new Date()
+//     //   .getFullYear()
+//     //   .toString()
+//     //   .slice(2, 4)}${Math.floor(1000 + Math.random() * 9000)}`;
+//     // console.log("hcfbvhhhhjbfhhj5", newUser, userFields);
+
 //     await newUser.save();
 
-//     // Respond with success message
 //     res.status(200).json({
 //       ok: true,
 //       message: "New user created",
@@ -139,66 +131,59 @@
 //   }
 // };
 
-// // export const googleAuth = async (req, res, next) => {
-// //   const {email} = req.body.userData;
-// //   console.log(req.body.userData);
+// export const googleAuth = async (req, res, next) => {
+//   const { email } = req.body.userData;
+//   console.log(req.body.userData);
+//   try {
+//     const existingUser = await User.findOne({ email });
+//     if (!existingUser) {
+//       const newUser = new User({
+//         email,
+//       });
+//       await newUser.save();
 
-// //   try {
-// //     const existingUser = await User.findOne({ email });
-
-// //     if (!existingUser) {
-// //       const newUser = new User({
-// //                 email,
-
-// //       });
-
-// //       await newUser.save();
-// //       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRETKEY);
-// //       res.cookie('accessToken', token, { httpOnly: true }).status(201).json({ message: "User created", user: token });
-// //     } else {
-// //       const token = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRETKEY);
-// //       res.cookie('accessToken', token, { httpOnly: true }).status(200).json({ message: "User signed in", user: token });
-// //     }
-// //   } catch (err) {
-// //     next(err);
-// //   }
-// // };
+//       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRETKEY);
+//       res
+//         .cookie("accessToken", token, { httpOnly: true })
+//         .status(201)
+//         .json({ message: "User created", user: token });
+//     } else {
+//       const token = jwt.sign(
+//         { id: existingUser._id },
+//         process.env.JWT_SECRETKEY
+//       );
+//       res
+//         .cookie("accessToken", token, { httpOnly: true })
+//         .status(200)
+//         .json({ message: "User signed in", user: token });
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 // export const sendOTPforAdminVerification = async (req, res) => {
 //   try {
 //     let user = req.body;
-//     console.log("req", req.body);
-//     const email = user.email;
-
+//     const email = user.email; // this is req.body.email
 //     const validEmailUser = await User.findOne({ email });
-//     //uncomment this comment`
-//     if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
-//       return res.status(403).json({
-//         msg: "User not authorized",
-//         ok: false,
-//       });
-//     }
-
+//     // if (!validEmailUser || !["owner", "admin"].includes(validEmailUser.role)) {
+//     //   return res.status(403).json({
+//     //     msg: "User not authorized",
+//     //     ok: false,
+//     //   });
+//     // }
 //     let OTP = Math.floor(Math.random() * 900000) + 100000;
-
-//     console.log("OTP is generated", OTP);
 
 //     // Create a new UserOTP instance
 //     let otp = new UserOTP({
 //       email: email,
 //       otp: OTP,
 //       createdAt: new Date(),
-//       expireAt: new Date() + 86400000,
+//       expireAt: new Date(Date.now() + 86400000),
 //     });
+//     await otp.save(); // Save the OTP to the database
 
-//     console.log("OTP is about to be saved");
-
-//     // Save the OTP to the database
-//     await otp.save();
-
-//     console.log("OTP is saved in the database");
-
-//     console.log("email email", email);
 //     // Continue with other operations, such as sending an email
 //     await emailVerificationEmail(email, OTP, validEmailUser.fullName);
 
@@ -214,6 +199,175 @@
 //     });
 //   }
 // };
+
+export const resendOtp = async (req, res) => {
+  try {
+    let { email } = req.body;
+    const validEmailUser = await User.findOne({ email });
+    let OTP = Math.floor(Math.random() * 900000) + 100000;
+    let otp = new UserOTP({
+      email: email,
+      otp: OTP,
+      createdAt: new Date(),
+      expireAt: new Date(Date.now() + 86400000),
+    });
+    await otp.save();
+    await emailVerificationEmail(email, OTP, validEmailUser.fullName);
+    res.status(200).send({
+      ok: true,
+      msg: "email sent",
+    });
+  } catch (error) {
+    console.error("Error in sendOTPforverification:", error);
+    res.status(500).send({
+      msg: error.message,
+    });
+  }
+};
+
+export const getotps = async (req, res) => {
+  try {
+    const otp = await UserOTP.find();
+    res.status(200).send(otp);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const verifyemailotp = async (req, res) => {
+  try {
+    let { email, otp } = req.body;
+    // const email = req.mobileNo || user.email;
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `user with the email ${email} not found` });
+    }
+    // if (user.isVerified)
+    //   return res.status(400).json({ message: " already verified" });
+
+    // Find OTP records for the user's email
+    const databaseotp = await UserOTP.find({
+      email: email,
+    });
+    if (!databaseotp || databaseotp.length === 0) {
+      return res.status(404).send({
+        msg: "No OTP records found",
+        ok: false,
+      });
+    }
+
+    // Check if the provided OTP matches any of the OTP records
+    const matchingOTP = databaseotp.find((record) => record.otp == otp);
+    if (!matchingOTP) {
+      return res.status(401).send({
+        msg: "Wrong OTP!",
+        ok: false,
+      });
+    }
+
+    // Calculate the time difference
+    const currentTime = new Date();
+    const createdAt = new Date(matchingOTP.createdAt);
+    const timeDifference = currentTime - createdAt;
+
+    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
+    if (timeDifference > 9000000) {
+      await UserOTP.deleteMany({ email: email }); // Delete OTP records for the user's email
+      return res.status(402).send({
+        msg: "Your OTP has expired, can't verify",
+        ok: false,
+      });
+    }
+
+    // Delete OTP records for the user's email
+    await UserOTP.deleteMany({
+      email: email,
+    });
+
+    user.isVerified = true;
+    await user.save();
+
+    // sending email is verified msg to the user
+    await emailVerificationSuccess(email);
+
+    res.status(200).send({
+      msg: "Email verified",
+      ok: true,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      msg: "Internal Server Error",
+      ok: false,
+    });
+  }
+};
+
+export const verifyLoginOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email: email });
+    const databaseotp = await UserOTP.find({ email: email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: `user with the email ${email} not found` });
+    }
+    if (!databaseotp || databaseotp.length === 0) {
+      return res.status(404).send({
+        msg: "No OTP records found",
+        ok: false,
+      });
+    }
+    const matchingOTP = databaseotp.find((e) => e.otp === otp);
+    if (!matchingOTP) {
+      return res.status(401).send({
+        msg: "Wrong OTP!",
+        ok: false,
+      });
+    }
+    // Calculate the time difference
+    const currentTime = new Date();
+    const createdAt = new Date(matchingOTP.createdAt);
+    const timeDifference = currentTime - createdAt;
+    // Check if the time difference is more than 15 minutes (900,000 milliseconds)
+    if (timeDifference > 9000000) {
+      await UserOTP.deleteMany({ email: email }); // Delete OTP records for the user's email
+      return res.status(402).send({
+        msg: "Your OTP has expired, can't verify",
+        ok: false,
+      });
+    }
+    // Delete OTP records for the user's email
+    await UserOTP.deleteMany({
+      email: email,
+    });
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRETKEY
+    );
+    console.log(user.role, user._id);
+    // Set token as a cookie
+    res.cookie("accessToken", token, { httpOnly: true });
+    res.status(200).send({
+      msg: "otp verified",
+      token: token,
+      ok: true,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
 
 // export const sendOTPforverification = async (req, res) => {
 //   try {
@@ -268,16 +422,28 @@
 
 // export const sendOTPforMobileverification = async (req, res) => {
 //   try {
+//     // var options = {
+//     //   authorization: process.env.FAST_2_SMS_APIKEY,
+//     //   message: "makikirkiri",
+//     //   numbers: ["7702793710"],
+//     // };
+//     // await fast2sms
+//     //   .sendMessage(options)
+//     //   .then((res) => {
+//     //     console.log("otp send");
+//     //   })
+//     //   .catch((err) => console.log(err)); //Asynchronous Function.
+//     // res.status(200).send("otp send successfully");
 //     let user = req.body;
 //     console.log("req", req.body);
-//     const mobileNumber = user.mobileNumber;
+//     const { mobileNumber, email } = user;
 //     const validmobileNumberUser = await User.findOne({
 //       mobileNumber,
 //     });
 //     console.log("validmobileNumberUser", validmobileNumberUser);
 //     // mobileNumberVerificationmobileNumber(mobileNumber, OTP);
 //     if (!validmobileNumberUser) {
-//       return res.status(404).send({
+//       return res.status(404).json({
 //         msg: "User not found",
 //         ok: false,
 //       });
@@ -289,6 +455,7 @@
 
 //     // Create a new UserOTP instance
 //     let otp = new UserOTP({
+//       email: email,
 //       mobileNumber: mobileNumber,
 //       otp: OTP,
 //       createdAt: new Date(),
@@ -303,8 +470,7 @@
 //     var req = unirest("POST", "https://www.fast2sms.com/dev/bulkV2");
 
 //     req.headers({
-//       authorization:
-//         "eRQO6sBudTDi8gtqCIboSG1Z3fEvJYPahWy9pxjXKzVw2l50HUaLsFVcx5dXJoGMwWe32ImyHYSNTk4A",
+//       authorization: process.env.FAST_2_SMS_APIKEY,
 //     });
 
 //     req.form({
@@ -313,18 +479,20 @@
 //       numbers: mobileNumber,
 //     });
 
-//     req.end(function (res) {
-//       if (res.error) throw new Error(res.error);
+//     req.end(function (response) {
+//       if (response.error) {
+//         console.error("Fast2SMS API Error:", response.error);
+//         console.error("Response body:", response.body); // Log the body
+//         throw new Error(response.error);
+//       }
 
-//       console.log(res.body);
+//       console.log(response.body);
 //     });
-
-//     console.log("res", res.data);
 
 //     // const verification = await sendVerificationCode(`+91${mobileNumber}`);
 //     console.log("OTP is saved in the database");
 
-//     console.log("mobileNumber mobileNumber", mobileNumber);
+//     console.log("mobileNumber ", mobileNumber);
 //     // Continue with other operations, such as sending an mobileNumber
 
 //     // Send the response
@@ -336,106 +504,6 @@
 //     console.error("Error in sendOTPforverification:", error);
 //     res.status(500).send({
 //       msg: error.message,
-//     });
-//   }
-// };
-
-// export const verifyotp = async (req, res) => {
-//   try {
-//     let user = req.body;
-//     console.log("user", user.email);
-//     const email = req.mobileNo || user.email;
-
-//     if (!user) {
-//       return res.status(404).send({
-//         msg: "User not found",
-//         ok: false,
-//       });
-//     }
-
-//     const { otp } = req.body;
-
-//     // Find OTP records for the user's email
-//     const databaseotp = await UserOTP.find({
-//       email: email,
-//     });
-
-//     if (!databaseotp || databaseotp.length === 0) {
-//       return res.status(404).send({
-//         msg: "No OTP records found",
-//         ok: false,
-//       });
-//     }
-
-//     // Check if the provided OTP matches any of the OTP records
-//     const matchingOTP = databaseotp.find((record) => record.otp == otp);
-
-//     if (!matchingOTP) {
-//       return res.status(401).send({
-//         msg: "Wrong OTP!",
-//         ok: false,
-//       });
-//     }
-
-//     // Calculate the time difference
-//     const currentTime = new Date();
-//     const createdAt = new Date(matchingOTP.createdAt);
-//     const timeDifference = currentTime - createdAt;
-//     //uncomment this comment`
-
-//     // Check if the time difference is more than 15 minutes (900,000 milliseconds)
-//     // if (timeDifference > 900000) {
-//     //   // Delete OTP records for the user's email
-//     //   await UserOTP.deleteMany({
-//     //     email: email
-//     //   });
-
-//     //   return res
-//     //     .status(402)
-//     //     .send({
-//     //       msg: "Your OTP has expired, can't verify",
-//     //       ok: false
-//     //     });
-//     // }
-
-//     // Update user's emailVerified status
-//     const validEmailUser = await User.findOne({
-//       email,
-//     });
-//     console.log(email, validEmailUser);
-//     if (!validEmailUser) {
-//       return res.status(404).send({
-//         msg: "User not found",
-//         ok: false,
-//       });
-//     }
-
-//     // Include user ID and role in the JWT token payload
-//     const tokenPayload = {
-//       id: validEmailUser._id,
-//       role: validEmailUser.role,
-//     };
-
-//     const Token = jwt.sign(tokenPayload, process.env.JWT_SECRETKEY);
-//     res.cookie("accessToken", Token, {
-//       httpOnly: true,
-//     });
-
-//     // Delete OTP records for the user's email
-//     await UserOTP.deleteMany({
-//       email: email,
-//     });
-//     await emailVerificationSuccess(email);
-//     res.status(200).send({
-//       msg: "Email verified",
-//       ok: true,
-//       token: Token,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send({
-//       msg: "Internal Server Error",
-//       ok: false,
 //     });
 //   }
 // };
@@ -701,12 +769,10 @@
 //     );
 
 //     if (!isAddressTypeUnique) {
-//       return res
-//         .status(400)
-//         .json({
-//           success: false,
-//           message: "AddressType must be unique for the user",
-//         });
+//       return res.status(400).json({
+//         success: false,
+//         message: "AddressType must be unique for the user",
+//       });
 //     }
 
 //     const existingAddress = user.address.id(addressId);
@@ -724,13 +790,11 @@
 
 //     await user.save();
 
-//     return res
-//       .status(200)
-//       .json({
-//         success: true,
-//         message: "Address added/updated successfully",
-//         data: user,
-//       });
+//     return res.status(200).json({
+//       success: true,
+//       message: "Address added/updated successfully",
+//       data: user,
+//     });
 //   } catch (error) {
 //     console.error(error);
 //     return res
@@ -760,13 +824,11 @@
 
 //     await user.save();
 
-//     return res
-//       .status(200)
-//       .json({
-//         success: true,
-//         message: "Address deleted successfully",
-//         data: user,
-//       });
+//     return res.status(200).json({
+//       success: true,
+//       message: "Address deleted successfully",
+//       data: user,
+//     });
 //   } catch (error) {
 //     console.error(error);
 //     return res
