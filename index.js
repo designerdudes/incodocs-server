@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 import authRoute from "./routes/auth.js";
-import {
-  authenticateToken,
-  adminAuthenticateToken,
-} from "./middleware/authToken.js";
+// import {
+//   authenticateToken,
+//   adminAuthenticateToken,
+// } from "./middleware/authToken.js";
 
 import errorHandler from "./middleware/error.js";
 import userRouter from "./routes/user.js";
@@ -55,11 +55,11 @@ app.get("/", (req, res) => {
 app.use("/otp", otps);
 app.use("/user", userRouter);
 app.use("/auth", authRoute);
-app.use(authenticateToken);
+// app.use(authenticateToken);
 app.use("/organizations", organizationRouter);
 app.use("/shipment", shipmentRouter);
 app.use("/factory", factory);
-app.use(adminAuthenticateToken);
+// app.use(adminAuthenticateToken);
 app.use("/factory-management", inventory);
 app.use("/accounting", customerAndSupplier);
 app.use("/transaction", purchasesAndSales);
