@@ -21,7 +21,7 @@ export const getAllBlocks = async (req, res) => {
   }
 };
 
-export const getSingleBlock = async (req, res) => {
+export const getSingleBlock = async (req, res) => { 
   try {
     const { id } = req.params;
     const Block = await blockInventory
@@ -705,7 +705,7 @@ export const getSlabsByFactoryId = async (req, res) => {
     }
     const getSlabs = findSlabs.SlabsId;
     if (getSlabs.length === 0) {
-      return status(404).json({ msg: "No records found" });
+      return res.status(404).json({ msg: "No records found" });
     }
     const updatedSlabs = getSlabs.map((e) => ({
       ...e.toObject(),
