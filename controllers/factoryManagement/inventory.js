@@ -21,7 +21,7 @@ export const getAllBlocks = async (req, res) => {
   }
 };
 
-export const getSingleBlock = async (req, res) => {
+export const getSingleBlock = async (req, res) => { 
   try {
     const { id } = req.params;
     const Block = await blockInventory
@@ -699,18 +699,18 @@ export const getBlocksByFactoryId = async (req, res) => {
 export const getSlabsByFactoryId = async (req, res) => {
   try {
     const { id } = req.params;
-    const findSlabs = await factory.findById(id).populate("SlabsId");
-    if (!findSlabs) {
+    const findFactory = await factory.findById(id).populate("SlabsId");
+    if (!findFactory) {
       return res.status(404).json({ message: "No Recors Found" });
     }
-    const getSlabs = findSlabs.SlabsId;
+    const getSlabs = findFactory.SlabsId;
     if (getSlabs.length === 0) {
-      return status(404).json({ msg: "No records found" });
+      return res.status(404).json({ msg: "No records found" });
     }
     const updatedSlabs = getSlabs.map((e) => ({
       ...e.toObject(),
-      workersCuttingPay: findSlabs.workersCuttingPay,
-      workersPolishingPay: findSlabs.workersPolishingPay,
+      workersCuttingPay: findFactory.workersCuttingPay,
+      workersPolishingPay: findFactory.workersPolishingPay,
     }));
     res.status(200).json(updatedSlabs);
   } catch (err) {
