@@ -10,23 +10,27 @@ export const getAllBlocks = async (req, res) => {
   try {
     const Blocks = await blockInventory
       .find({}, { __v: 0 })
-      .populate("lotId", "lotName");
+      .populate("lotId", "lotName")
+      .populate("SlabsId", "slabNumber");
     if (Blocks.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
       res.status(200).send(Blocks);
     }
   } catch (err) {
-    res.status(500).json({ msg: "Internal server error" });
+    res
+      .status(500)
+      .json({ msg: "Internal server error", message: err.message });
   }
 };
 
-export const getSingleBlock = async (req, res) => { 
+export const getSingleBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const Block = await blockInventory
       .findById(id)
-      .populate("lotId", "lotName");
+      .populate("lotId", "lotName")
+      .populate("SlabsId", "slabNumber");
     if (!Block) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
