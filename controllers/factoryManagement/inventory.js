@@ -687,7 +687,7 @@ export const getSlabsBystatus = async (req, res) => {
 export const getBlocksByFactoryId = async (req, res) => {
   try {
     const { id } = req.params;
-    const findBlocks = await factory.findById(id).populate("BlocksId");
+    const findBlocks = await factory.findById(id).populate("BlocksId", "blockNumber");
     if (!findBlocks) {
       return res.status(404).json({ message: "No Recors Found" });
     }
@@ -703,7 +703,7 @@ export const getBlocksByFactoryId = async (req, res) => {
 export const getSlabsByFactoryId = async (req, res) => {
   try {
     const { id } = req.params;
-    const findFactory = await factory.findById(id).populate("SlabsId");
+    const findFactory = await factory.findById(id).populate("SlabsId", "slabNumber");
     if (!findFactory) {
       return res.status(404).json({ message: "No Recors Found" });
     }
