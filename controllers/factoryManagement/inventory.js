@@ -395,7 +395,6 @@ export const getBlocksByLot = async (req, res) => {
       lotName: findLot.lotName,
       materialType: findLot.materialType,
     }));
-    console.log(blocks.lotName, 'blocks.lotName');
     res.status(200).json(updatedBlocks);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
@@ -693,7 +692,6 @@ export const getBlocksByFactoryId = async (req, res) => {
         select: "slabNumber",
       },
     });
-    const findBlocks = await factory.findById(id).populate("BlocksId", "blockNumber");
     if (!findBlocks) {
       return res.status(404).json({ message: "No Recors Found" });
     }
