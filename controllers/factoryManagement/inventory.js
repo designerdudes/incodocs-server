@@ -395,7 +395,7 @@ export const getBlocksByLot = async (req, res) => {
       lotName: findLot.lotName,
       materialType: findLot.materialType,
     }));
-    console.log(blocks.lotName);
+    console.log(blocks.lotName, 'blocks.lotName');
     res.status(200).json(updatedBlocks);
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
@@ -664,7 +664,6 @@ export const getBlocksBystatus = async (req, res) => {
     if (findBlock.length === 0)
       return res.status(404).json({ msg: "No records found" });
     res.status(200).json(findBlock);
-    console.log("e");
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }
