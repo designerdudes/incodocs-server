@@ -707,7 +707,7 @@ export const getBlocksByFactoryId = async (req, res) => {
 export const getSlabsByFactoryId = async (req, res) => {
   try {
     const { id } = req.params;
-    const findFactory = await factory.findById(id).populate("SlabsId", "slabNumber");
+    const findFactory = await factory.findById(id).populate("SlabsId");
     if (!findFactory) {
       return res.status(404).json({ message: "No Recors Found" });
     }
