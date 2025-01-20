@@ -688,8 +688,7 @@ export const getBlocksByFactoryId = async (req, res) => {
     const findBlocks = await factory.findById(id).populate({
       path: "BlocksId",
       populate: {
-        path: "SlabsId",
-        select: "slabNumber",
+        path: "SlabsId"
       },
     });
     if (!findBlocks) {
