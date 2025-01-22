@@ -29,7 +29,7 @@ export const getSingleBlock = async (req, res) => {
     const { id } = req.params;
     const Block = await blockInventory
       .findById(id)
-      .populate("lotId", "lotName")
+      .populate("lotId", "lotName materialType")
       .populate("SlabsId", "slabNumber");
     if (!Block) {
       res.status(404).json({ msg: "No Records Found" });
