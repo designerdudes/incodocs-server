@@ -432,11 +432,15 @@ export const getSlabsByBlock = async (req, res) => {
       return res.status(404).json({ msg: "Block not found" });
     }
     const slabs = blockData.SlabsId;
+    const updatedSlabs = slabs.map((e) => ({
+      ...e.toObject(),
+      materialType: blockData.materialType,
+    }));
     if (slabs.length === 0) {
       res.status(404).json({ msg: "No records found" });
       return;
     }
-    res.status(200).json(slabs);
+    res.status(200).json(updatedSlabs);
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }
