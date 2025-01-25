@@ -693,7 +693,7 @@ export const getBlocksByFactoryId = async (req, res) => {
       path: "BlocksId",
       populate: [
         { path: "SlabsId" }, // Populate slabs
-        { path: "lotId", select: "lotName" }, // Populate lots
+        { path: "lotId", select: "lotName materialType" }, // Populate lots
       ],
     });
     if (!findBlocks) {
