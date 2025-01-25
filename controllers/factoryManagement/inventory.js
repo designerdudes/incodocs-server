@@ -747,3 +747,64 @@ export const updateMultipleSlabs = async (req, res) => {
       .json({ error: "Internal server error", message: err.message });
   }
 };
+
+export const deleteMultipleLots = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const findlots = await lotInventory.find({ _id: ids }).populate("blocksId");
+    if (findlots.length === 0) {
+      return res.status(404).json({ message: "no lots found" });
+    }
+    const blockIds = findlots.flatMap((lot) =>
+      lot.blocksId.map((block) => block._id)
+    );
+    const slabIds = findlots.flatMap((lot) =>
+      lot.blocksId.map((block) => block.SlabsId || [])
+    );
+    const finalslabid = slabIds.flat();
+
+    // console.log(ids, "lotid");
+    // console.log(blockIds, "blocks id");
+    // console.log(finalslabid, "slabids");
+
+    await slabInventory.deleteMany({ _id: { $in: finalslabid } });
+    await blockInventory.deleteMany({ _id: { $in: blockIds } });
+    const deleteLot = await lotInventory.deleteMany({ _id: { $in: ids } });
+
+    if (!deleteLot) {
+      return res.status(404).json({ message: "no lots found" });
+    }
+
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "internal server error", error: err.message });
+  }
+};
+
+export const deleteMultipleBlocks = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const findBlocks = await blockInventory.find({ _id: ids });
+    if (!findBlocks.length) {
+      return res.status(404).json({ message: "No blocks found" });
+    }
+
+    // Extract SlabsId from blocks
+    const slabIds = findBlocks
+      .flatMap((block) => block.SlabsId)
+      .map((slab) => slab._id);
+
+    if (slabIds.length > 0) {
+      await slabInventory.deleteMany({ _id: { $in: slabIds } });
+    }
+    await blockInventory.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "internal server error", error: err.message });
+  }
+};
