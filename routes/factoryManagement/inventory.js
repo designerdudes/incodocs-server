@@ -6,6 +6,8 @@ import {
   addLotAndBlocks,
   deleteBlocksInLot,
   deleteLotsInFactory,
+  deleteMultipleBlocks,
+  deleteMultipleLots,
   deleteSlabsInBlock,
   getAllBlocks,
   getAllFinishedSlabs,
@@ -104,5 +106,11 @@ router.get("/inventory/getslabsbyfactory/:id", getSlabsByFactoryId);
 
 // update multiple slabs
 router.put("/inventory/updatemultipleslabs", updateMultipleSlabs);
+
+// delete multiple lots
+router.delete("/inventory/deletemultiplelots", deleteMultipleLots);
+
+// delete multiple blocks
+router.delete("/inventory/deletemultipleblocks", deleteMultipleBlocks);
 
 export default router;
