@@ -135,7 +135,7 @@ export const getSingleFinishedSlab = async (req, res) => {
     const { id } = req.params;
     const FinishedSlabs = await slabInventory
       .findById(id)
-      .populate("blockId", "blockNumber");
+      .populate("blockId", "blockNumber materialType");
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
