@@ -13,7 +13,7 @@ const lotSchema = new mongoose.Schema(
     materialCost: { type: Number },
     marketCost: { type: Number },
     transportCost: { type: Number },
-    marketOperatorName: { type: String },
+    markerOperatorName: { type: String },
     vehicleNumber: { type: String },
     noOfBlocks: { type: Number },
     blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
