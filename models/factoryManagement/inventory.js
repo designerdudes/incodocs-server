@@ -11,7 +11,7 @@ const lotSchema = new mongoose.Schema(
     },
     materialType: { type: String },
     materialCost: { type: Number },
-    marketCost: { type: Number },
+    markerCost: { type: Number },
     transportCost: { type: Number },
     markerOperatorName: { type: String },
     vehicleNumber: { type: String },
