@@ -477,6 +477,11 @@ export const addLotAndBlocks = async (req, res) => {
       factoryId,
       organizationId,
       materialType,
+      materialCost,
+      marketCost,
+      transportCost,
+      marketOperatorName,
+      vehicleNumber,
       noOfBlocks,
       blocks,
     } = req.body;
@@ -492,6 +497,11 @@ export const addLotAndBlocks = async (req, res) => {
       lotName,
       organizationId,
       materialType,
+      materialCost,
+      marketCost,
+      transportCost,
+      marketOperatorName,
+      vehicleNumber,
       noOfBlocks,
     });
     await addLot.save();
