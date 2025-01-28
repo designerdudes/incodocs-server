@@ -10,6 +10,11 @@ const lotSchema = new mongoose.Schema(
       ref: "Organization",
     },
     materialType: { type: String },
+    materialCost: { type: Number },
+    marketCost: { type: Number },
+    transportCost: { type: Number },
+    marketOperatorName: { type: String },
+    vehicleNumber: { type: String },
     noOfBlocks: { type: Number },
     blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
   },
@@ -26,7 +31,7 @@ const blockInventorySchema = new mongoose.Schema(
     materialType: { type: String },
     dimensions: {
       weight: {
-        value: { type: Number, required: true },
+        value: { type: Number },
         units: { type: String, default: "tons" },
       },
       length: {
@@ -56,7 +61,9 @@ const blockInventorySchema = new mongoose.Schema(
 // Middleware to auto-generate unique blockNumber
 blockInventorySchema.pre("save", async function (next) {
   if (this.isNew) {
-    const lastBlock = await this.constructor.findOne().sort({ blockNumber: -1 });
+    const lastBlock = await this.constructor
+      .findOne()
+      .sort({ blockNumber: -1 });
     this.blockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1; // Start with 1 if no blocks exist
   }
   next();
