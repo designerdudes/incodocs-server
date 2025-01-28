@@ -30,7 +30,7 @@ export const getSingleBlock = async (req, res) => {
     const Block = await blockInventory
       .findById(id)
       .populate("lotId", "lotName materialType")
-      .populate("SlabsId", "slabNumber");
+      .populate("SlabsId");
     if (!Block) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -135,7 +135,7 @@ export const getSingleFinishedSlab = async (req, res) => {
     const { id } = req.params;
     const FinishedSlabs = await slabInventory
       .findById(id)
-      .populate("blockId", "blockNumber");
+      .populate("blockId", "blockNumber materialType");
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -477,6 +477,11 @@ export const addLotAndBlocks = async (req, res) => {
       factoryId,
       organizationId,
       materialType,
+      materialCost,
+      marketCost,
+      transportCost,
+      marketOperatorName,
+      vehicleNumber,
       noOfBlocks,
       blocks,
     } = req.body;
@@ -492,6 +497,11 @@ export const addLotAndBlocks = async (req, res) => {
       lotName,
       organizationId,
       materialType,
+      materialCost,
+      marketCost,
+      transportCost,
+      marketOperatorName,
+      vehicleNumber,
       noOfBlocks,
     });
     await addLot.save();
@@ -711,7 +721,13 @@ export const getBlocksByFactoryId = async (req, res) => {
 export const getSlabsByFactoryId = async (req, res) => {
   try {
     const { id } = req.params;
-    const findFactory = await factory.findById(id).populate("SlabsId");
+    const findFactory = await factory.findById(id).populate({
+      path: "SlabsId",
+      populate: {
+        path: "blockId",
+        select: "materialType",
+      },
+    });
     if (!findFactory) {
       return res.status(404).json({ message: "No Recors Found" });
     }
