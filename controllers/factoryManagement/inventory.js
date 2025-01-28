@@ -480,7 +480,7 @@ export const addLotAndBlocks = async (req, res) => {
       materialCost,
       marketCost,
       transportCost,
-      marketOperatorName,
+      markerOperatorName,
       vehicleNumber,
       noOfBlocks,
       blocks,
@@ -500,7 +500,7 @@ export const addLotAndBlocks = async (req, res) => {
       materialCost,
       marketCost,
       transportCost,
-      marketOperatorName,
+      markerOperatorName,
       vehicleNumber,
       noOfBlocks,
     });
