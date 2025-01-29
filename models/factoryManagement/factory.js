@@ -9,6 +9,7 @@ const factorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
     },
+    gstNo: { type: String, required: true },
     userId: [{ type: mongoose.Schema.Types.ObjectId }],
     address: { type: addressSchema, sparse: true },
     lotId: [
@@ -23,12 +24,14 @@ const factorySchema = new mongoose.Schema(
         ref: "slabInventory",
       },
     ],
-    // BlocksId: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "blockInventory",
-    //   },
-    // ],
+    BlocksId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "blockInventory",
+      },
+    ],
+    workersCuttingPay: { type: Number },
+    workersPolishingPay: { type: Number },
   },
   { timestamps: true }
 );

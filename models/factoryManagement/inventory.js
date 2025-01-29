@@ -10,6 +10,10 @@ const lotSchema = new mongoose.Schema(
       ref: "Organization",
     },
     materialType: { type: String },
+    materialCost: { type: Number },
+    markerCost: { type: Number },
+    transportCost: { type: Number },
+    markerOperatorName: { type: String },
     noOfBlocks: { type: Number },
     blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
   },
@@ -21,24 +25,26 @@ const lotInventory = mongoose.model("lotInventory", lotSchema);
 const blockInventorySchema = new mongoose.Schema(
   {
     lotId: { type: mongoose.Schema.Types.ObjectId, ref: "lotInventory" },
-    blockNumber: { type: Number, required: true, unique: true },
+    factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
+    blockNumber: { type: Number, unique: true },
     materialType: { type: String },
+    vehicleNumber: { type: String },
     dimensions: {
       weight: {
-        value: { type: Number, required: true },
+        value: { type: Number },
         units: { type: String, default: "tons" },
       },
       length: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
       breadth: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
       height: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
     },
     SlabsId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],
@@ -51,6 +57,18 @@ const blockInventorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Middleware to auto-generate unique blockNumber
+blockInventorySchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastBlock = await this.constructor
+      .findOne()
+      .sort({ blockNumber: -1 });
+    this.blockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1; // Start with 1 if no blocks exist
+  }
+  next();
+});
+
 const blockInventory = mongoose.model("blockInventory", blockInventorySchema);
 
 // Slab inventory schema
@@ -64,31 +82,22 @@ const slabInventorySchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "factory",
     },
-    slabNumber : {type: Number},
-    blockNumber: { type: Number},
+    slabNumber: { type: Number },
+    blockNumber: { type: Number },
     productName: { type: String },
-    quantity: { type: Number, required: true },
     dimensions: {
-      thickness: {
-        value: { type: Number },
-        units: { type: String, default: "inch" },
-      },
       length: {
-        value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
-      },
-      breadth: {
         value: { type: Number },
         units: { type: String, default: "inch" },
       },
       height: {
-        value: { type: Number, required: true },
+        value: { type: Number },
         units: { type: String, default: "inch" },
       },
     },
     status: {
       type: String,
-      enum: ["readyForPolish", 'inPolishing', "polished"],
+      enum: ["readyForPolish", "inPolishing", "polished"],
       default: "readyForPolish",
     },
     inStock: { type: Boolean },
@@ -105,6 +114,16 @@ const slabInventorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Middleware to auto-generate unique slabNumber
+slabInventorySchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastBlock = await this.constructor.findOne().sort({ slabNumber: -1 });
+    this.slabNumber = lastBlock ? lastBlock.slabNumber + 1 : 1; // Start with 1 if no slab exist
+  }
+  next();
+});
+
 const slabInventory = mongoose.model("slabInventory", slabInventorySchema);
 
 export { blockInventory, slabInventory, lotInventory };

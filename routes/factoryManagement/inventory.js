@@ -6,10 +6,13 @@ import {
   addLotAndBlocks,
   deleteBlocksInLot,
   deleteLotsInFactory,
+  deleteMultipleBlocks,
+  deleteMultipleLots,
   deleteSlabsInBlock,
   getAllBlocks,
   getAllFinishedSlabs,
   getAllLots,
+  getBlocksByFactoryId,
   getBlocksByLot,
   getBlocksBystatus,
   getLotByFactory,
@@ -17,6 +20,7 @@ import {
   getSingleBlock,
   getSingleFinishedSlab,
   getSlabsByBlock,
+  getSlabsByFactoryId,
   getSlabsBystatus,
   removeBlock,
   removeFinishedSlab,
@@ -25,6 +29,7 @@ import {
   updateBlockCreateSlab,
   updateFinishedSlab,
   updateLot,
+  updateMultipleSlabs,
   updateSlabAddTrimData,
 } from "../../controllers/factoryManagement/inventory.js";
 
@@ -92,5 +97,20 @@ router.get("/inventory/getblocksbystatus", getBlocksBystatus);
 
 // Get blocks by status
 router.get("/inventory/getslabsbystatus", getSlabsBystatus);
+
+// get blocks by factoryId
+router.get("/inventory/getblocksbyfactory/:id", getBlocksByFactoryId);
+
+// get slabs by factoryId
+router.get("/inventory/getslabsbyfactory/:id", getSlabsByFactoryId);
+
+// update multiple slabs
+router.put("/inventory/updatemultipleslabs", updateMultipleSlabs);
+
+// delete multiple lots
+router.delete("/inventory/deletemultiplelots", deleteMultipleLots);
+
+// delete multiple blocks
+router.delete("/inventory/deletemultipleblocks", deleteMultipleBlocks);
 
 export default router;

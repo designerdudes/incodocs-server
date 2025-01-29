@@ -37,6 +37,7 @@ export const getFactories = async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+
 export const getFactoriesByUser = async (req, res) => {
   try {
     console.log(req.user);
@@ -98,7 +99,7 @@ export const updateFactory = async (req, res) => {
     const { organizationId } = body;
     const findFactory = await factory.findById(id);
     if (!findFactory) {
-      res.status(404).json({ msg: "Factory not found" });
+      return res.status(404).json({ msg: "Factory not found" });
     }
     const isOrgId = await factory.findById(organizationId);
     if (!isOrgId) {
