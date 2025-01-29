@@ -8,6 +8,7 @@ import {
   deleteLotsInFactory,
   deleteMultipleBlocks,
   deleteMultipleLots,
+  deleteMultipleSlabs,
   deleteSlabsInBlock,
   getAllBlocks,
   getAllFinishedSlabs,
@@ -112,5 +113,8 @@ router.delete("/inventory/deletemultiplelots", deleteMultipleLots);
 
 // delete multiple blocks
 router.delete("/inventory/deletemultipleblocks", deleteMultipleBlocks);
+
+// delete multiple slabs
+router.delete("/inventory/deletemultipleslabs", deleteMultipleSlabs);
 
 export default router;
