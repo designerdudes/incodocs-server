@@ -14,7 +14,6 @@ const lotSchema = new mongoose.Schema(
     markerCost: { type: Number },
     transportCost: { type: Number },
     markerOperatorName: { type: String },
-    vehicleNumber: { type: String },
     noOfBlocks: { type: Number },
     blocksId: [{ type: mongoose.Schema.Types.ObjectId, ref: "blockInventory" }],
   },
@@ -29,6 +28,7 @@ const blockInventorySchema = new mongoose.Schema(
     factoryId: { type: mongoose.Schema.Types.ObjectId, ref: "factory" },
     blockNumber: { type: Number, unique: true },
     materialType: { type: String },
+    vehicleNumber: { type: String },
     dimensions: {
       weight: {
         value: { type: Number },
@@ -36,15 +36,15 @@ const blockInventorySchema = new mongoose.Schema(
       },
       length: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
       breadth: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
       height: {
         value: { type: Number, required: true },
-        units: { type: String, default: "inch" },
+        units: { type: String, default: "cm" },
       },
     },
     SlabsId: [{ type: mongoose.Schema.Types.ObjectId, ref: "slabInventory" }],

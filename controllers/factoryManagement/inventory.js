@@ -481,7 +481,6 @@ export const addLotAndBlocks = async (req, res) => {
       markerCost,
       transportCost,
       markerOperatorName,
-      vehicleNumber,
       noOfBlocks,
       blocks,
     } = req.body;
@@ -501,7 +500,6 @@ export const addLotAndBlocks = async (req, res) => {
       markerCost,
       transportCost,
       markerOperatorName,
-      vehicleNumber,
       noOfBlocks,
     });
     await addLot.save();
@@ -519,6 +517,7 @@ export const addLotAndBlocks = async (req, res) => {
         factoryId: addLot.factoryId,
         blockNumber: nextBlockNumber++,
         materialType: block.materialType,
+        vehicleNumber: block.vehicleNumber,
         dimensions: block.dimensions,
         status: block.status,
         inStock: block.inStock,
@@ -725,7 +724,11 @@ export const getSlabsByFactoryId = async (req, res) => {
       path: "SlabsId",
       populate: {
         path: "blockId",
-        select: "materialType",
+        select: "_id",
+        populate: {
+          path: "lotId",
+          select: "materialType",
+        },
       },
     });
     if (!findFactory) {
