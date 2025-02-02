@@ -827,3 +827,18 @@ export const deleteMultipleBlocks = async (req, res) => {
       .json({ message: "internal server error", error: err.message });
   }
 };
+
+export const deleteMultipleSlabs = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const deleteSlabs = await slabInventory.deleteMany({ _id: { $in: ids } });
+    if (!deleteSlabs) {
+      return res.status(200).json({ message: "slabs not found" });
+    }
+    res.status(200).json({ message: "slabs deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "internal server error", error: err.message });
+  }
+};
