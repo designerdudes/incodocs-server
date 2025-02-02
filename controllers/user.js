@@ -45,38 +45,38 @@ export const loginUser = async (req, res) => {
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (!user.isVerified)
-      return res.status(400).json({ message: "Email not verified" });
+    // if (!user.isVerified)
+    //   return res.status(400).json({ message: "Email not verified" });
 
     // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    let OTP = Math.floor(Math.random() * 900000) + 100000;
+    // let OTP = Math.floor(Math.random() * 900000) + 100000;
     // Create a new UserOTP instance
-    let otp = new UserOTP({
-      email: email,
-      otp: OTP,
-      createdAt: new Date(),
-      expireAt: new Date(Date.now() + 86400000),
-    });
-    await otp.save(); // Save the OTP to the database
-    await emailVerificationEmail(email, OTP, user.fullName); // sending mail for otp
-    // // Generate JWT token
-    // const token = jwt.sign(
-    //   {
-    //     id: user._id,
-    //     role: user.role,
-    //   },
-    //   process.env.JWT_SECRETKEY
-    // );
+    // let otp = new UserOTP({
+    //   email: email,
+    //   otp: OTP,
+    //   createdAt: new Date(),
+    //   expireAt: new Date(Date.now() + 86400000),
+    // });
+    // await otp.save(); // Save the OTP to the database
+    // await emailVerificationEmail(email, OTP, user.fullName); // sending mail for otp
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRETKEY
+    );
 
     // // Set token as a cookie
-    // res.cookie("accessToken", token, { httpOnly: true });
+    res.cookie("accessToken", token, { httpOnly: true });
     res.status(200).json({
-      message: "otp sent successfully please verify to login",
-      // token: token,
+      message: "login successful",
+      token: token,
       user: user,
     });
   } catch (error) {
