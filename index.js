@@ -55,7 +55,7 @@ storage
   .getBuckets()
   .then((results) =>
     console.log(
-      "Buckets:",
+      "Bucket connected:",
       results[0].map((bucket) => bucket.name)
     )
   )
