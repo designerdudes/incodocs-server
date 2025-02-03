@@ -32,6 +32,8 @@ export const uploadFile = async (req, res) => {
     });
 
     blobStream.on('finish', async () => {
+      await blob.makePublic();
+
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
       console.log('File uploaded:', publicUrl);
       res.status(200).json({ message: 'File uploaded successfully', url: publicUrl });
