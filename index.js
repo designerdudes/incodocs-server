@@ -49,6 +49,8 @@ app.use(cors({ origin: "*" }));
 const storage = new Storage({
   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
 });
+
+// checking the bucket connection
 storage
   .getBuckets()
   .then((results) =>
