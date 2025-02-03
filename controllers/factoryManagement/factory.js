@@ -13,7 +13,7 @@ export const addFactoryToOrg = async (req, res) => {
     const newFactory = new factory(body);
     newFactory.userId = req.user.id;
     await newFactory.save();
-    console.log(newFactory);
+    // console.log(newFactory);
     await Organization.findByIdAndUpdate(
       organizationId,
       { $push: { factory: newFactory._id } },

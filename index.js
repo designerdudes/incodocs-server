@@ -20,6 +20,7 @@ import purchasesAndSales from "./routes/accounting/purchase&sale.js";
 import gst from "./routes/accounting/gst.js";
 import expense from "./routes/accounting/expenses.js";
 import otps from "./routes/otp.js";
+import uploadFiles from "./routes/uploadfile/upload.js";
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ app.use("/accounting", customerAndSupplier);
 app.use("/transaction", purchasesAndSales);
 app.use("/gst", gst);
 app.use("/expense", expense);
+app.use("/shipmentdocsfile", uploadFiles)
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
 app.use(errorHandler);
