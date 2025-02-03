@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import { Storage } from "@google-cloud/storage";
 
 import authRoute from "./routes/auth.js";
 // import {
@@ -45,6 +46,19 @@ app.use(express.json());
 
 app.use(cors({ origin: "*" }));
 
+const storage = new Storage({
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+});
+storage
+  .getBuckets()
+  .then((results) =>
+    console.log(
+      "Buckets:",
+      results[0].map((bucket) => bucket.name)
+    )
+  )
+  .catch((err) => console.error("Error fetching buckets:", err));
+
 app.listen(process.env.PORT, () => {
   console.log("Server listening on port " + process.env.PORT);
 });
@@ -66,7 +80,7 @@ app.use("/accounting", customerAndSupplier);
 app.use("/transaction", purchasesAndSales);
 app.use("/gst", gst);
 app.use("/expense", expense);
-app.use("/shipmentdocsfile", uploadFiles)
+app.use("/shipmentdocsfile", uploadFiles);
 // checkSubscription.start()
 // createSubscriptionOrdersCron.start()
 app.use(errorHandler);

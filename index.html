@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Test</title>
+</head>
+<body>
+    <h2>Upload File to Google Cloud Storage</h2>
+    <form id="uploadForm">
+        <input type="file" id="fileInput" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+    <p id="message"></p>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                document.getElementById('message').innerText = 'Please select a file first!';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch('http://localhost:4080/shipmentdocsfile/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                document.getElementById('message').innerText = result.message;
+                if (result.url) {
+                    const link = document.createElement('a');
+                    link.href = result.url;
+                    link.innerText = 'View Uploaded File';
+                    link.target = '_blank';
+                    document.getElementById('message').appendChild(document.createElement('br'));
+                    document.getElementById('message').appendChild(link);
+                }
+            } catch (error) {
+                document.getElementById('message').innerText = 'Error uploading file!';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
