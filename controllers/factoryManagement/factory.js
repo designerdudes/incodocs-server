@@ -29,8 +29,7 @@ export const getFactories = async (req, res) => {
   try {
     const getFactory = await factory.find({}, { __v: 0 });
     if (getFactory.length === 0) {
-      res.status(404).send("No Records Found");
-      return;
+      return res.status(404).send("No Records Found");
     }
     res.status(200).send(getFactory);
   } catch (err) {
