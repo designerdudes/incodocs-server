@@ -1,5 +1,10 @@
 import { factory, worker } from "../../models/factoryManagement/factory.js";
 import Organization from "../../models/documentation/organization.js";
+import {
+  blockInventory,
+  lotInventory,
+  slabInventory,
+} from "../../models/factoryManagement/inventory.js";
 
 //Factory Controllers
 export const addFactoryToOrg = async (req, res) => {
@@ -76,15 +81,38 @@ export const removeFactoryFrommOrg = async (req, res) => {
   try {
     const { id } = req.params;
     const findFactory = await factory.find({ _id: id });
+
     if (!findFactory) {
       res.status(404).json({ msg: "Factory not found" });
     }
+
+    const lotIds = findFactory.lotId || [];
+
+    const blockIds = lotIds.flatMap((lot) => lot.blocksId);
+
+    const slabIds = blockIds.flatMap((block) => block.SlabsId || []);
+
+    if (slabIds.length > 0) {
+      await slabInventory.deleteMany({ _id: { $in: slabIds } });
+    }
+
+    if (blockIds.length > 0) {
+      await blockInventory.deleteMany({ _id: { $in: blockIds } });
+    }
+
+    if (lotIds.length > 0) {
+      await lotInventory.deleteMany({ _id: { $in: lotIds } });
+    }
+
     await Organization.findOneAndUpdate(
       { factory: id },
       { $pull: { factory: id } },
       { new: true }
     );
+
+    // Delete the factory itself
     await factory.findByIdAndDelete(id);
+
     res.status(200).json({ msg: "Factory removed successfully" });
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error" });
