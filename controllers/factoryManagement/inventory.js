@@ -10,7 +10,7 @@ export const getAllBlocks = async (req, res) => {
   try {
     const Blocks = await blockInventory
       .find({}, { __v: 0 })
-      .populate("lotId", "lotName")
+      .populate("lotId", "lotName materialType")
       .populate("SlabsId", "slabNumber");
     if (Blocks.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
@@ -92,22 +92,37 @@ export const removeBlock = async (req, res) => {
   try {
     const { id } = req.params;
     const findBlock = await blockInventory.findById(id);
+
     if (!findBlock) {
       res.status(404).json({ message: "Block not found" });
       return;
     }
-    const { lotId, factoryId } = findBlock;
-    await lotInventory.findByIdAndUpdate(
-      lotId,
-      { $pull: { blocksId: id } },
-      { new: true }
-    );
+
+    const { lotId, factoryId, SlabsId } = findBlock;
+
     await factory.findByIdAndUpdate(
       factoryId,
-      { $pull: { BlocksId: id } },
+      {
+        $pull: {
+          BlocksId: findBlock._id,
+          SlabsId: { $in: SlabsId },
+        },
+      },
       { new: true }
     );
+
+    await lotInventory.findByIdAndUpdate(
+      lotId,
+      { $pull: { blocksId: findBlock._id } },
+      { new: true }
+    );
+
+    if (SlabsId && SlabsId.length > 0) {
+      await slabInventory.deleteMany({ _id: { $in: SlabsId } });
+    }
+
     await blockInventory.findByIdAndDelete(id);
+
     res.status(200).json({ msg: "Block removed successfully" });
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
@@ -117,9 +132,11 @@ export const removeBlock = async (req, res) => {
 // Finished Inventory APIs
 export const getAllFinishedSlabs = async (req, res) => {
   try {
-    const finishedSlabs = await slabInventory
-      .find({}, { __v: 0 })
-      .populate("blockId", "blockNumber");
+    const finishedSlabs = await slabInventory.find({}, { __v: 0 }).populate({
+      path: "blockId",
+      select: "lotId",
+      populate: { path: "lotId", select: "materialType" },
+    });
     if (finishedSlabs.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -133,11 +150,11 @@ export const getAllFinishedSlabs = async (req, res) => {
 export const getSingleFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
-    const FinishedSlabs = await slabInventory
-      .findById(id)
-      .populate({
-        path: "blockId", select: "lotId", populate: { path: "lotId", select: "materialType" }
-      });
+    const FinishedSlabs = await slabInventory.findById(id).populate({
+      path: "blockId",
+      select: "lotId",
+      populate: { path: "lotId", select: "materialType" },
+    });
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -230,12 +247,12 @@ export const removeFinishedSlab = async (req, res) => {
     const { factoryId, blockId } = findSlab;
     await factory.findByIdAndUpdate(
       factoryId,
-      { $pull: { SlabsId: id } },
+      { $pull: { SlabsId: findSlab._id } },
       { new: true }
     );
     await blockInventory.findByIdAndUpdate(
       blockId,
-      { $pull: { SlabsId: id } },
+      { $pull: { SlabsId: findSlab._id } },
       { new: true }
     );
     await slabInventory.findByIdAndDelete(id);
@@ -319,20 +336,49 @@ export const getLotById = async (req, res) => {
 };
 
 export const removeLot = async (req, res) => {
-  const { id } = req.params;
   try {
+    const { id } = req.params;
     const findLot = await lotInventory.findById(id);
     if (!findLot) {
       res.status(404).json({ msg: "Lot not found" });
       return;
     }
-    await lotInventory.findByIdAndDelete(id);
-    await blockInventory.deleteMany({ lotId: id });
+
+    const blockIds = findLot.blocksId || [];
+
     await factory.findOneAndUpdate(
       { lotId: findLot._id },
-      { $pull: { lotId: id } },
-      { new: true }
+      { $pull: { lotId: findLot._id } }
     );
+
+    // Pull the block IDs from the factory (if they are linked to this lot)
+    await factory.updateMany(
+      { BlocksId: { $in: blockIds } },
+      { $pull: { BlocksId: { $in: blockIds } } }
+    );
+
+    const slabs = await blockInventory.find(
+      { _id: { $in: blockIds } },
+      "SlabsId"
+    );
+    const slabIds = slabs.flatMap((block) => block.SlabsId).filter(Boolean); // Ensure no null values
+
+    // console.log("Slab IDs to be removed:", slabIds);
+
+    // Pull the slab IDs from the factory (if they are linked to the blocks)
+    if (slabIds.length > 0) {
+      await factory.updateMany(
+        { SlabsId: { $in: slabIds } },
+        { $pull: { SlabsId: { $in: slabIds } } }
+      );
+    }
+
+    await slabInventory.deleteMany({ blockId: { $in: blockIds } });
+
+    await blockInventory.deleteMany({ lotId: id });
+
+    await lotInventory.findByIdAndDelete(id);
+
     res.status(200).json({ msg: "Lot deleted successfully " });
   } catch (error) {
     res.status(500).json({ msg: "Internal Server Error" });
@@ -369,7 +415,28 @@ export const deleteLotsInFactory = async (req, res) => {
     }
 
     const lotIds = factoryData.lotId;
+
+    const blocks = await blockInventory.find({ lotId: { $in: lotIds } });
+    const blockIds = blocks.map((block) => block._id);
+    const slabIds = blocks.flatMap((block) => block.SlabsId);
+
+    await slabInventory.deleteMany({ _id: { $in: slabIds } });
+
+    await blockInventory.deleteMany({ lotId: { $in: lotIds } });
+
     await lotInventory.deleteMany({ _id: { $in: lotIds } });
+
+    await factory.findByIdAndUpdate(
+      id,
+      {
+        $pull: {
+          lotId: { $in: lotIds },
+          BlocksId: { $in: blockIds },
+          SlabsId: { $in: slabIds },
+        },
+      },
+      { new: true }
+    );
 
     factoryData.lotId = [];
     await factoryData.save();
@@ -407,16 +474,29 @@ export const deleteBlocksInLot = async (req, res) => {
   try {
     const { id } = req.params;
     const lotData = await lotInventory.findOne({ _id: id });
+
     if (!lotData) {
       return res.status(404).json({ msg: "Lots not found" });
     }
 
     const blocksIds = lotData.blocksId;
 
+    const blocks = await blockInventory.find({ _id: { $in: blocksIds } });
+    const slabIds = blocks.flatMap((block) => block.SlabsId);
+
+    await factory.findOneAndUpdate(
+      { lotId: lotData._id },
+      { $pull: { BlocksId: { $in: blocksIds }, SlabsId: { $in: slabIds } } },
+      { new: true }
+    );
+
+    await slabInventory.deleteMany({ blockId: { $in: blocksIds } });
     await blockInventory.deleteMany({ _id: { $in: blocksIds } });
 
     lotData.blocksId = [];
     await lotData.save();
+
+    res.status(200).json({ message: "blocks deleted successfully" });
   } catch (err) {
     res.status(500).json({ msg: "Internal server error" });
   }
@@ -460,6 +540,12 @@ export const deleteSlabsInBlock = async (req, res) => {
     if (slabs.length === 0) {
       return res.status(404).json({ msg: "No records found" });
     }
+
+    await factory.findOneAndUpdate(
+      { _id: blockData.factoryId },
+      { $pull: { SlabsId: { $in: slabs } } },
+      { new: true }
+    );
 
     await slabInventory.deleteMany({ _id: { $in: slabs } });
 
@@ -708,7 +794,7 @@ export const getBlocksByFactoryId = async (req, res) => {
       ],
     });
     if (!findBlocks) {
-      return res.status(404).json({ message: "No Recors Found" });
+      return res.status(404).json({ message: "No Records Found" });
     }
     res.status(200).json(findBlocks.BlocksId);
   } catch (err) {
@@ -788,6 +874,17 @@ export const deleteMultipleLots = async (req, res) => {
     // console.log(blockIds, "blocks id");
     // console.log(finalslabid, "slabids");
 
+    await factory.updateMany(
+      { lotId: { $in: ids } }, // Match factories that have these lotIds
+      {
+        $pull: {
+          lotId: { $in: ids },
+          BlocksId: { $in: blockIds },
+          SlabsId: { $in: finalslabid },
+        },
+      } // Remove the lotId from the factory
+    );
+
     await slabInventory.deleteMany({ _id: { $in: finalslabid } });
     await blockInventory.deleteMany({ _id: { $in: blockIds } });
     const deleteLot = await lotInventory.deleteMany({ _id: { $in: ids } });
@@ -796,7 +893,9 @@ export const deleteMultipleLots = async (req, res) => {
       return res.status(404).json({ message: "no lots found" });
     }
 
-    res.status(200).json({ message: "deleted successfully" });
+    res
+      .status(200)
+      .json({ message: "Lots, blocks, and slabs deleted successfully" });
   } catch (err) {
     res
       .status(500)
@@ -817,9 +916,28 @@ export const deleteMultipleBlocks = async (req, res) => {
       .flatMap((block) => block.SlabsId)
       .map((slab) => slab._id);
 
+    const lotIds = findBlocks.map((block) => block.lotId);
+    const factoryIds = findBlocks.map((block) => block.factoryId);
+
+    await lotInventory.updateMany(
+      { _id: { $in: lotIds } },
+      { $pull: { blocksId: { $in: ids } } }
+    );
+
+    await factory.updateMany(
+      { _id: { $in: factoryIds } },
+      {
+        $pull: {
+          BlocksId: { $in: ids },
+          SlabsId: { $in: slabIds }, // Also pull slabs from factory
+        },
+      }
+    );
+
     if (slabIds.length > 0) {
       await slabInventory.deleteMany({ _id: { $in: slabIds } });
     }
+
     await blockInventory.deleteMany({ _id: { $in: ids } });
 
     res.status(200).json({ message: "deleted successfully" });
@@ -833,6 +951,26 @@ export const deleteMultipleBlocks = async (req, res) => {
 export const deleteMultipleSlabs = async (req, res) => {
   try {
     const { ids } = req.body;
+
+    const findSlabs = await slabInventory.find({ _id: { $in: ids } });
+
+    if (findSlabs.length === 0) {
+      return res.status(404).json({ message: "No slabs found" });
+    }
+
+    const blockIds = findSlabs.map((slab) => slab.blockId);
+    const factoryIds = findSlabs.map((slab) => slab.factoryId);
+
+    await blockInventory.updateMany(
+      { _id: { $in: blockIds } },
+      { $pull: { SlabsId: { $in: ids } } }
+    );
+
+    await factory.updateMany(
+      { _id: { $in: factoryIds } },
+      { $pull: { SlabsId: { $in: ids } } }
+    );
+
     const deleteSlabs = await slabInventory.deleteMany({ _id: { $in: ids } });
     if (!deleteSlabs) {
       return res.status(200).json({ message: "slabs not found" });
