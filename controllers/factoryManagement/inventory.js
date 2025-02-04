@@ -132,9 +132,11 @@ export const removeBlock = async (req, res) => {
 // Finished Inventory APIs
 export const getAllFinishedSlabs = async (req, res) => {
   try {
-    const finishedSlabs = await slabInventory
-      .find({}, { __v: 0 })
-      .populate("blockId", "blockNumber");
+    const finishedSlabs = await slabInventory.find({}, { __v: 0 }).populate({
+      path: "blockId",
+      select: "lotId",
+      populate: { path: "lotId", select: "materialType" },
+    });
     if (finishedSlabs.length === 0) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -148,11 +150,11 @@ export const getAllFinishedSlabs = async (req, res) => {
 export const getSingleFinishedSlab = async (req, res) => {
   try {
     const { id } = req.params;
-    const FinishedSlabs = await slabInventory
-      .findById(id)
-      .populate({
-        path: "blockId", select: "lotId", populate: { path: "lotId", select: "materialType" }
-      });
+    const FinishedSlabs = await slabInventory.findById(id).populate({
+      path: "blockId",
+      select: "lotId",
+      populate: { path: "lotId", select: "materialType" },
+    });
     if (!FinishedSlabs) {
       res.status(404).json({ msg: "No Records Found" });
     } else {
@@ -346,32 +348,28 @@ export const removeLot = async (req, res) => {
 
     await factory.findOneAndUpdate(
       { lotId: findLot._id },
-      { $pull: { lotId: findLot._id } },
-      { new: true }
+      { $pull: { lotId: findLot._id } }
     );
 
     // Pull the block IDs from the factory (if they are linked to this lot)
     await factory.updateMany(
-      { blocksId: { $in: blockIds } },
-      { $pull: { BlocksId: { $in: blockIds } } },
-      { new: true }
+      { BlocksId: { $in: blockIds } },
+      { $pull: { BlocksId: { $in: blockIds } } }
     );
 
-    // Find slab IDs related to the blocks
-    const slabIds = blockIds.flatMap((blockId) => {
-      return (
-        findLot.blocksId.find(
-          (block) => block._id.toString() === blockId.toString()
-        )?.SlabsId || []
-      );
-    });
+    const slabs = await blockInventory.find(
+      { _id: { $in: blockIds } },
+      "SlabsId"
+    );
+    const slabIds = slabs.flatMap((block) => block.SlabsId).filter(Boolean); // Ensure no null values
+
+    // console.log("Slab IDs to be removed:", slabIds);
 
     // Pull the slab IDs from the factory (if they are linked to the blocks)
     if (slabIds.length > 0) {
       await factory.updateMany(
-        { slabsId: { $in: slabIds } },
-        { $pull: { slabsId: { $in: slabIds } } },
-        { new: true }
+        { SlabsId: { $in: slabIds } },
+        { $pull: { SlabsId: { $in: slabIds } } }
       );
     }
 
