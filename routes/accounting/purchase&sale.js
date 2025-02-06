@@ -42,19 +42,19 @@ router.post("/purchase/addslabgst", addSlabPurchaseByGst);
 
 router.post("/purchase/addslab", addActualSlabPurchase);
 
-router.get("/purchase/slabgetbyid/:id", getAnySlabPurchaseById);
+router.get("/purchase/slabgetbyid/:id/:factoryId", getAnySlabPurchaseById);
 
-router.get("/purchase/getallslabgst", getAllSlabPurchaseByGst);
+router.get("/purchase/getallslabgst/:factoryId", getAllSlabPurchaseByGst);
 
-router.get("/purchase/getallslab", getAllActualSlabPurchases);
+router.get("/purchase/getallslab/:factoryId", getAllActualSlabPurchases);
 
 router.get(
-  "/purchase/getgstslabbysupplier/:id",
+  "/purchase/getgstslabbysupplier/:id/:factoryId",
   getAllGstSlabPurchasesBySupplierId
 );
 
 router.get(
-  "/purchase/getslabbysupplier/:id",
+  "/purchase/getslabbysupplier/:id/:factoryId",
   getAllActualSlabPurchasesBySupplierId
 );
 
@@ -68,28 +68,28 @@ router.get(
   getAllGstSlabPurchasesByFactoryId
 );
 
-router.put("/purchase/updateslab/:id", updateSlabPurchase);
+router.put("/purchase/updateslab/:id/:factoryId", updateSlabPurchase);
 
-router.delete("/purchase/deleteslab/:id", deleteSlabPurchase);
+router.delete("/purchase/deleteslab/:id/:factoryId", deleteSlabPurchase);
 
 // raw purchase routes
 router.post("/purchase/addrawgst", addRawPurchaseByGst);
 
 router.post("/purchase/addraw", addActualRawPurchase);
 
-router.get("/purchase/rawgetbyid/:id", getAnyRawPurchaseById);
+router.get("/purchase/rawgetbyid/:id/:factoryId", getAnyRawPurchaseById);
 
-router.get("/purchase/getallrawgst", getAllRawPurchaseByGst);
+router.get("/purchase/getallrawgst/:factoryId", getAllRawPurchaseByGst);
 
-router.get("/purchase/getallraw", getAllActualRawPurchases);
+router.get("/purchase/getallraw/:factoryId", getAllActualRawPurchases);
 
 router.get(
-  "/purchase/getgstrawbysupplier/:id",
+  "/purchase/getgstrawbysupplier/:id/:factoryId",
   getAllGstRawPurchasesBySupplierId
 );
 
 router.get(
-  "/purchase/getrawbysupplier/:id",
+  "/purchase/getrawbysupplier/:id/:factoryId",
   getAllActualRawPurchasesBySupplierId
 );
 
@@ -103,31 +103,37 @@ router.get(
   getAllActualRawPurchasesByFactoryId
 );
 
-router.put("/purchase/updateraw/:id", updateRawPurchase);
+router.put("/purchase/updateraw/:id/:factoryId", updateRawPurchase);
 
-router.delete("/purchase/deleteraw/:id", deleteRawPurchase);
+router.delete("/purchase/deleteraw/:id/:factoryId", deleteRawPurchase);
 
 // sale routes
 router.post("/sale/add", createActualSale);
 
 router.post("/sale/addgst", createGstSale);
 
-router.get("/sale/getbyid/:id", getAnySaleById);
+router.get("/sale/getbyid/:id/:factoryId", getAnySaleById);
 
-router.get("/sale/getgstsale", getAllSalesByGst);
+router.get("/sale/getgstsale/:factoryId", getAllSalesByGst);
 
-router.get("/sale/getsale", getAllActualSales);
+router.get("/sale/getsale/:factoryId", getAllActualSales);
 
-router.get("/sale/getgstsalebycustomer/:id", getAllGstSalesByCustomerId);
+router.get(
+  "/sale/getgstsalebycustomer/:id/:factoryId",
+  getAllGstSalesByCustomerId
+);
 
-router.get("/sale/getsalebycustomer/:id", getAllActualSalesByCustomerId);
+router.get(
+  "/sale/getsalebycustomer/:id/:factoryId",
+  getAllActualSalesByCustomerId
+);
 
 router.get("/sale/getsalebyfactory/:id", getAllActualSalesByFactoryId);
 
 router.get("/sale/getgstsalebyfactory/:id", getAllGstSalesByFactoryId);
 
-router.put("/sale/updatesale/:id", updateSale);
+router.put("/sale/updatesale/:id/:factoryId", updateSale);
 
-router.delete("/sale/deletesale/:id", deleteSale);
+router.delete("/sale/deletesale/:id/:factoryId", deleteSale);
 
 export default router;

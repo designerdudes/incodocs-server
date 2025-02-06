@@ -222,8 +222,8 @@ export const addActualSlabPurchase = async (req, res) => {
 
 export const getAnySlabPurchaseById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const getPurchase = await slabPurchase.find({
       factoryId: factoryId,
       _id: id,
@@ -242,7 +242,7 @@ export const getAnySlabPurchaseById = async (req, res) => {
 
 export const getAllSlabPurchaseByGst = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const purchaseByGst = await slabPurchase.find({
       factoryId: factoryId,
       gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has gstPercentage and excludes the purchases who's gstPercentage is null
@@ -260,7 +260,7 @@ export const getAllSlabPurchaseByGst = async (req, res) => {
 
 export const getAllActualSlabPurchases = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const actualPurchase = await slabPurchase.find({
       factoryId: factoryId,
       actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
@@ -278,8 +278,8 @@ export const getAllActualSlabPurchases = async (req, res) => {
 
 export const getAllGstSlabPurchasesBySupplierId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const purchases = await slabPurchase.find({
       supplierId: id,
       factoryId: factoryId,
@@ -298,8 +298,8 @@ export const getAllGstSlabPurchasesBySupplierId = async (req, res) => {
 
 export const getAllActualSlabPurchasesBySupplierId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const purchases = await slabPurchase.find({
       supplierId: id,
       factoryId: factoryId,
@@ -360,8 +360,8 @@ export const getAllGstSlabPurchasesByFactoryId = async (req, res) => {
 
 export const updateSlabPurchase = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const body = req.body;
     const findPurchase = await slabPurchase.find({
       factoryId: factoryId,
@@ -383,8 +383,8 @@ export const updateSlabPurchase = async (req, res) => {
 
 export const deleteSlabPurchase = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const findPurchase = await slabPurchase.find({
       factoryId: factoryId,
       _id: id,
@@ -631,8 +631,8 @@ export const addActualRawPurchase = async (req, res) => {
 
 export const getAnyRawPurchaseById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const getPurchase = await rawPurchase.find({
       factoryId: factoryId,
       _id: id,
@@ -651,7 +651,7 @@ export const getAnyRawPurchaseById = async (req, res) => {
 
 export const getAllRawPurchaseByGst = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const purchaseByGst = await rawPurchase.find({
       factoryId: factoryId,
       gstPercentage: { $exists: true, $ne: null }, // finds the purchases who has gstPercentage and excludes the purchases who's gstPercentage is null
@@ -669,7 +669,7 @@ export const getAllRawPurchaseByGst = async (req, res) => {
 
 export const getAllActualRawPurchases = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const actualPurchase = await rawPurchase.find({
       factoryId: factoryId,
       actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
@@ -687,8 +687,8 @@ export const getAllActualRawPurchases = async (req, res) => {
 
 export const getAllGstRawPurchasesBySupplierId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const purchases = await rawPurchase.find({
       supplierId: id,
       factoryId: factoryId,
@@ -707,8 +707,8 @@ export const getAllGstRawPurchasesBySupplierId = async (req, res) => {
 
 export const getAllActualRawPurchasesBySupplierId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const purchases = await rawPurchase.find({
       supplierId: id,
       factoryId: factoryId,
@@ -736,7 +736,7 @@ export const getAllActualRawPurchasesByFactoryId = async (req, res) => {
       actualInvoiceValue: { $exists: true, $ne: null }, // finds the purchases who has actualInvoiceValue and excludes the purchases who's actualInvoiceValue is null
     });
     if (actualPurchase.length === 0) {
-      return res.stauts(404).json({ message: "No records found" });
+      return res.status(404).json({ message: "No records found" });
     }
     res.status(200).json(actualPurchase);
   } catch (err) {
@@ -769,8 +769,8 @@ export const getAllGstRawPurchasesByFactoryId = async (req, res) => {
 
 export const updateRawPurchase = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const body = req.body;
     const findPurchase = await rawPurchase.find({
       factoryId: factoryId,
@@ -792,8 +792,8 @@ export const updateRawPurchase = async (req, res) => {
 
 export const deleteRawPurchase = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const findPurchase = await rawPurchase.find({
       factoryId: factoryId,
       _id: id,
@@ -844,7 +844,7 @@ export const createGstSale = async (req, res) => {
       });
       // getting gst value
       const gstValue = (invoiceValue * gstPercentage) / 100;
-      
+
       // Extract the first two letters
       const supplierPrefix = findcustomerId.gstNo.slice(0, 2).toUpperCase();
       const factoryPrefix = findFactory.gstNo.slice(0, 2).toUpperCase();
@@ -952,7 +952,7 @@ export const createActualSale = async (req, res) => {
       const objectIds = slabIds.map((id) => new ObjectId(id));
       await slabInventory.updateMany(
         { _id: { $in: objectIds } },
-        { $set: { inStock: false } },
+        { $set: { inStock: false } }
       );
       return res.status(200).json(sale);
     }
@@ -978,7 +978,7 @@ export const createActualSale = async (req, res) => {
       const objectIds = slabIds.map((id) => new ObjectId(id));
       await slabInventory.updateMany(
         { _id: { $in: objectIds } },
-        { $set: { inStock: false } },
+        { $set: { inStock: false } }
       );
       return res.status(200).json(sale);
     }
@@ -991,8 +991,8 @@ export const createActualSale = async (req, res) => {
 
 export const getAnySaleById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const getSale = await sales.find({
       factoryId: factoryId,
       _id: id,
@@ -1011,7 +1011,7 @@ export const getAnySaleById = async (req, res) => {
 
 export const getAllSalesByGst = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const slawsByGst = await sales.find({
       factoryId: factoryId,
       gstPercentage: { $exists: true, $ne: null },
@@ -1029,7 +1029,7 @@ export const getAllSalesByGst = async (req, res) => {
 
 export const getAllActualSales = async (req, res) => {
   try {
-    const { factoryId } = req.body;
+    const { factoryId } = req.params;
     const actualSales = await sales.find({
       factoryId: factoryId,
       actualInvoiceValue: { $exists: true, $ne: null },
@@ -1047,8 +1047,8 @@ export const getAllActualSales = async (req, res) => {
 
 export const getAllGstSalesByCustomerId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const sale = await sales.find({
       customerId: id,
       factoryId: factoryId,
@@ -1067,8 +1067,8 @@ export const getAllGstSalesByCustomerId = async (req, res) => {
 
 export const getAllActualSalesByCustomerId = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const sale = await sales.find({
       customerId: id,
       factoryId: factoryId,
@@ -1129,8 +1129,8 @@ export const getAllActualSalesByFactoryId = async (req, res) => {
 
 export const updateSale = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const body = req.body;
     const findSale = await sales.find({
       factoryId: factoryId,
@@ -1152,8 +1152,8 @@ export const updateSale = async (req, res) => {
 
 export const deleteSale = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { factoryId } = req.body;
+    const { id, factoryId } = req.params;
+    // const { factoryId } = req.body;
     const findSale = await sales.find({
       factoryId: factoryId,
       _id: id,
