@@ -31,6 +31,7 @@ import {
   updateFinishedSlab,
   updateLot,
   updateMultipleSlabs,
+  updateMultipleSlabsValue,
   updateSlabAddTrimData,
 } from "../../controllers/factoryManagement/inventory.js";
 
@@ -107,6 +108,9 @@ router.get("/inventory/getslabsbyfactory/:id", getSlabsByFactoryId);
 
 // update multiple slabs
 router.put("/inventory/updatemultipleslabs", updateMultipleSlabs);
+
+// update multiple slabs values
+router.put("/inventory/updateMultipleSlabsValue", updateMultipleSlabsValue);
 
 // delete multiple lots
 router.delete("/inventory/deletemultiplelots", deleteMultipleLots);
