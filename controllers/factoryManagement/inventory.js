@@ -781,6 +781,27 @@ export const updateBlockCreateSlab = async (req, res) => {
   }
 };
 
+// update multiple slabs and add trim data
+export const AddTrimDataToMultipleSlabs = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const { trim } = req.body;
+    const findSlabs = await slabInventory.find({ _id: { $in: ids } });
+    if (!findSlabs) {
+      return res.status(404).json({ message: "no slabs found" });
+    }
+    const updatedSlabs = await slabInventory.updateMany(
+      { _id: { $in: ids } },
+      { $set: { status: "polished", trim } }
+    );
+    res.status(200).json({ message: "updated successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
 // add trim data when status is polished
 export const updateSlabAddTrimData = async (req, res) => {
   try {
