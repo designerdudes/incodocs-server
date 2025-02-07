@@ -636,6 +636,78 @@ export const addLotAndBlocks = async (req, res) => {
   }
 };
 
+// update lot add blocks
+export const updateLotAddBlocks = async (req, res) => {
+  try {
+    var { id } = req.params;
+    const existingLot = await lotInventory.findById(id);
+    const {
+      lotName,
+      factoryId,
+      organizationId,
+      materialType,
+      materialCost,
+      markerCost,
+      transportCost,
+      markerOperatorName,
+      noOfBlocks,
+      blocks,
+    } = req.body;
+    const payload = {
+      lotName: lotName ?? existingLot.lotName,
+      factoryId: factoryId ?? existingLot.factoryId,
+      organizationId: organizationId ?? existingLot.organizationId,
+      materialType: materialType ?? existingLot.materialType,
+      materialCost: materialCost ?? existingLot.materialCost,
+      markerCost: markerCost ?? existingLot.markerCost,
+      transportCost: transportCost ?? existingLot.transportCost,
+      markerOperatorName: markerOperatorName ?? existingLot.markerOperatorName,
+      noOfBlocks: noOfBlocks ?? existingLot.noOfBlocks,
+    };
+    const updatedLot = await lotInventory.findByIdAndUpdate(id, payload, {
+      new: true,
+    });
+
+    if (blocks) {
+      const lastBlock = await blockInventory
+        .findOne()
+        .sort({ blockNumber: -1 });
+      let nextBlockNumber = lastBlock ? lastBlock.blockNumber + 1 : 1;
+
+      const newBlock = blocks.map((block) => ({
+        lotId: id,
+        factoryId: existingLot.factoryId,
+        blockNumber: nextBlockNumber++,
+        vehicleNumber: block.vehicleNumber,
+        dimensions: block.dimensions,
+        status: block.status,
+        inStock: block.inStock,
+      }));
+      var addBlocks = await slabInventory.insertMany(newBlock);
+      const getBlocksId = addBlocks.map((block) => block._id);
+      var newLot = await lotInventory.findByIdAndUpdate(
+        id,
+        { $push: { blocksId: { $each: getBlocksId } } },
+        { new: true }
+      );
+      await factory.findByIdAndUpdate(
+        updatedLot.factoryId,
+        { $push: { BlocksId: { $each: getBlocksId } } },
+        { new: true }
+      );
+    }
+    res.status(200).json({
+      msg: "updated successfully",
+      updatedLot: newLot,
+      addedBlocks: addBlocks,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
 // Update block and add slabs
 export const updateBlockCreateSlab = async (req, res) => {
   try {

@@ -30,6 +30,7 @@ import {
   updateBlockCreateSlab,
   updateFinishedSlab,
   updateLot,
+  updateLotAddBlocks,
   updateMultipleSlabs,
   updateSlabAddTrimData,
 } from "../../controllers/factoryManagement/inventory.js";
@@ -86,6 +87,9 @@ router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
 
 // Add Lot with Blocks
 router.post("/inventory/addlotandblocks", addLotAndBlocks);
+
+// Update Block create slab
+router.put("/inventory/updatelotaddslabs/:id", updateLotAddBlocks);
 
 // Update Block create slab
 router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
