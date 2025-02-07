@@ -10,7 +10,6 @@ const bookingDetailsSchema = new mongoose.Schema({
   truckDriverNumber: String,
 });
 
-
 const shippingDetailsSchema = new mongoose.Schema({
   shippingLine: String,
   forwarder: String,
@@ -42,6 +41,7 @@ const supplierDetailsSchema = new mongoose.Schema({
 });
 
 const saleInvoiceDetailsSchema = new mongoose.Schema({
+  uploadCommercialInvoice: String,
   commercialInvoiceNumber: String,
   commercialInvoiceDate: Date,
   consigneeDetails: String,

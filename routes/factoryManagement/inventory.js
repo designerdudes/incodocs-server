@@ -30,6 +30,7 @@ import {
   updateBlockCreateSlab,
   updateFinishedSlab,
   updateLot,
+  updateLotAddBlocks,
   updateMultipleSlabs,
   updateMultipleSlabsValue,
   updateSlabAddTrimData,
@@ -87,6 +88,9 @@ router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
 
 // Add Lot with Blocks
 router.post("/inventory/addlotandblocks", addLotAndBlocks);
+
+// Update Block create slab
+router.put("/inventory/updatelotaddblocks/:id", updateLotAddBlocks);
 
 // Update Block create slab
 router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
