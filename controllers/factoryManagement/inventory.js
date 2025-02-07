@@ -683,7 +683,7 @@ export const updateLotAddBlocks = async (req, res) => {
         status: block.status,
         inStock: block.inStock,
       }));
-      var addBlocks = await slabInventory.insertMany(newBlock);
+      var addBlocks = await blockInventory.insertMany(newBlock);
       const getBlocksId = addBlocks.map((block) => block._id);
       var newLot = await lotInventory.findByIdAndUpdate(
         id,
