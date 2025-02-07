@@ -89,7 +89,7 @@ router.delete("/inventory/slabsbyblock/delete/:id", deleteSlabsInBlock);
 router.post("/inventory/addlotandblocks", addLotAndBlocks);
 
 // Update Block create slab
-router.put("/inventory/updatelotaddslabs/:id", updateLotAddBlocks);
+router.put("/inventory/updatelotaddblocks/:id", updateLotAddBlocks);
 
 // Update Block create slab
 router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
