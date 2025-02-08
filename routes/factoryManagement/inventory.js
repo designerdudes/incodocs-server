@@ -4,6 +4,7 @@ import {
   addFinishedSlab,
   addLot,
   addLotAndBlocks,
+  AddTrimDataToMultipleSlabs,
   deleteBlocksInLot,
   deleteLotsInFactory,
   deleteMultipleBlocks,
@@ -94,6 +95,9 @@ router.put("/inventory/updatelotaddblocks/:id", updateLotAddBlocks);
 
 // Update Block create slab
 router.put("/inventory/updateblockaddslab/:id", updateBlockCreateSlab);
+
+// update multiple slabs add trim data
+router.put("/inventory/addtrim-multipleslabs", AddTrimDataToMultipleSlabs);
 
 // add trim data in slab
 router.put("/inventory/addtrim/:id", updateSlabAddTrimData);
