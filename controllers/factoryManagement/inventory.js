@@ -787,10 +787,13 @@ export const AddTrimDataToMultipleSlabs = async (req, res) => {
     const { ids } = req.body;
     const { trim } = req.body;
     const findSlabs = await slabInventory.find({ _id: { $in: ids } });
+    if (trim.length === 0) {
+      return res.status(400).json({ message: "trim data not found" });
+    }
     if (!findSlabs) {
       return res.status(404).json({ message: "no slabs found" });
     }
-    const updatedSlabs = await slabInventory.updateMany(
+    await slabInventory.updateMany(
       { _id: { $in: ids } },
       { $set: { status: "polished", trim } }
     );
