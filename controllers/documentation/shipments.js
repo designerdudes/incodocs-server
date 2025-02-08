@@ -259,6 +259,27 @@ export const addContainer = async (req, res) => {
   }
 };
 
+export const deleteMultipleShipments = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const findShipments = await Shipment.find({ _id: { $in: ids } });
+    const orgId = findShipments.map((shipment) => shipment.organization);
+    if (findShipments.length === 0) {
+      return res.status(404).json({ message: "no records found to delete" });
+    }
+    await Organization.updateMany(
+      { _id: { $in: orgId } },
+      { $pull: { shipments: { $in: ids } } },
+      { new: true }
+    );
+    await Shipment.deleteMany({ _id: { $in: ids } });
+    res.status(200).json({ message: "shipments deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "internal server error", error: err.message });
+  }
+};
 // export const addContainerToShipment = async (req, res) => {
 //   const { shipmentId } = req.params; // assuming shipment ID is passed as a URL parameter
 //   const { containerNumber } = req.body; // assuming container number is passed in the request body
