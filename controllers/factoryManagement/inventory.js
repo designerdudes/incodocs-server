@@ -724,6 +724,11 @@ export const updateBlockCreateSlab = async (req, res) => {
       inStock,
       slabs,
     } = req.body;
+
+    if (!exitstingBlock) {
+      return res.status(404).json({ message: "block not found" });
+    }
+
     const payload = {
       lotId: lotId ?? exitstingBlock.lotId,
       factoryId: factoryId ?? exitstingBlock.factoryId,
