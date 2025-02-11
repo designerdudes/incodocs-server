@@ -84,7 +84,9 @@ export const updateBlock = async (req, res) => {
     }
     res.status(200).json({ msg: "updated successfully" });
   } catch (err) {
-    res.status(500).json({ msg: "Internal server error" });
+    res
+      .status(500)
+      .json({ msg: "Internal server error", message: err.message });
   }
 };
 
@@ -949,6 +951,23 @@ export const updateMultipleSlabs = async (req, res) => {
       { new: true }
     );
     res.status(200).json({ message: "updated successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: err.message });
+  }
+};
+
+export const updateMultipleSlabsValue = async (req, res) => {
+  try {
+    const { slabNumbers, dimensions } = req.body;
+
+    await slabInventory.updateMany(
+      { slabNumber: { $in: slabNumbers } }, // Filtering slabs by slabNumbers array
+      { $set: { dimensions } } // Updating length, height, and status
+    );
+
+    res.status(200).json({ message: "Updated successfully" });
   } catch (err) {
     res
       .status(500)
