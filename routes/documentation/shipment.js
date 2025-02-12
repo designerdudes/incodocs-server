@@ -18,7 +18,7 @@ import {
 const router = express.Router();
 
 // Routes for adding, updating, and deleting shipments
-router.post("/add", addShipment);
+router.post("/add/:orgId", addShipment);
 router.put("/:id", updateShipment);
 router.delete("/:id", deleteShipmentById);
 router.delete("/delete/all", deleteMultipleShipments);

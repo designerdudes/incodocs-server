@@ -4,14 +4,19 @@ import Shipment from "../../models/documentation/shipment.js";
 // Controller function to add a new shipment
 export const addShipment = async (req, res) => {
   try {
-    const { organization } = req.body;
-    const newShipment = await Shipment.create(req.body);
+    const { organizationId } = req.body;
+    const body = req.body;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+    const newShipment = await Shipment.create(body);
     await Organization.findByIdAndUpdate(
-      organization,
+      newShipment.organizationId,
       { $push: { shipments: newShipment._id } },
       { new: true }
     );
-    res.status(201).json(newShipment);
+    res.status(200).json(newShipment);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

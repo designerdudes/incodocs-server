@@ -102,7 +102,7 @@ const shipmentSchema = new mongoose.Schema(
     saleInvoiceDetails: saleInvoiceDetailsSchema,
     blDetails: blDetailsSchema,
     certificateOfOrigin: certificateOfOriginSchema,
-    organization: {
+    organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
     },
