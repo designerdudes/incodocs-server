@@ -1,39 +1,39 @@
 import mongoose from "mongoose";
 
-const tileSchema = new mongoose.Schema({
-  noOfBoxes: Number,
-  noOfPiecesPerBoxes: Number,
-  sizePerTile: {
-    length: {
-      value: { type: Number },
-      units: { type: String, enum: ["inch", "cm"] },
-    },
-    breadth: {
-      value: { type: Number },
-      units: { type: String, enum: ["inch", "cm"] },
-    },
-  },
-});
+// const tileSchema = new mongoose.Schema({
+//   noOfBoxes: Number,
+//   noOfPiecesPerBoxes: Number,
+//   sizePerTile: {
+//     length: {
+//       value: { type: Number },
+//       units: { type: String, enum: ["inch", "cm"] },
+//     },
+//     breadth: {
+//       value: { type: Number },
+//       units: { type: String, enum: ["inch", "cm"] },
+//     },
+//   },
+// });
 
-const slabSchema = new mongoose.Schema({
-  noOfBundles: Number,
-  noOfSlabsPerBundle: Number,
-  uploadMeasurementSheetUrl: String,
-  totalSQMTRorSQFTwithAllowance: String,
-  totalSQMTRorSMFTwithoutAllowance: String,
-});
+// const slabSchema = new mongoose.Schema({
+//   noOfBundles: Number,
+//   noOfSlabsPerBundle: Number,
+//   uploadMeasurementSheetUrl: String,
+//   totalSQMTRorSQFTwithAllowance: String,
+//   totalSQMTRorSMFTwithoutAllowance: String,
+// });
 
-const productDetailsSchema = new mongoose.Schema(
-  {
-    productCategory: { type: String, enum: ["Granite & marble", "Ceramic"] },
-    graniteAndMarble: { type: String, enum: ["tiles", "Slabs"] },
-    tiles: tileSchema,
-    slabs: slabSchema,
-  },
-  { timestamps: true }
-);
+// const productDetailsSchema = new mongoose.Schema(
+//   {
+//     productCategory: { type: String, enum: ["Granite & marble", "Ceramic"] },
+//     graniteAndMarble: { type: String, enum: ["tiles", "Slabs"] },
+//     tiles: tileSchema,
+//     slabs: slabSchema,
+//   },
+//   { timestamps: true }
+// );
 
-const productDetails = mongoose.model("productDetails", productDetailsSchema);
+// const productDetails = mongoose.model("productDetails", productDetailsSchema);
 
 const consigneeSchema = new mongoose.Schema(
   {
@@ -51,4 +51,4 @@ const consigneeSchema = new mongoose.Schema(
 
 const consignee = mongoose.model("consignee", consigneeSchema);
 
-export { consignee, productDetails };
+export { consignee }; //, productDetails

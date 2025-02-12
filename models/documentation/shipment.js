@@ -1,13 +1,36 @@
 import mongoose from "mongoose";
 
+const productDetailsSchema = new mongoose.Schema({
+  productCategory: { type: String, enum: ["Granite & marble", "Ceramic"] },
+  graniteAndMarble: { type: String, enum: ["tiles", "Slabs"] },
+  tiles: {
+    noOfBoxes: Number,
+    noOfPiecesPerBoxes: Number,
+    sizePerTile: {
+      length: {
+        value: { type: Number },
+        units: { type: String, enum: ["inch", "cm"] },
+      },
+      breadth: {
+        value: { type: Number },
+        units: { type: String, enum: ["inch", "cm"] },
+      },
+    },
+  },
+  slabs: {
+    noOfBundles: Number,
+    noOfSlabsPerBundle: Number,
+    uploadMeasurementSheetUrl: String,
+    totalSQMTRorSQFTwithAllowance: String,
+    totalSQMTRorSMFTwithoutAllowance: String,
+  },
+});
+
 const containersSchema = new mongoose.Schema({
   containerNumber: { type: Number },
   truckNumber: { type: String },
   trukDriverContactNumber: { type: Number },
-  addProductDetails: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "productDetails",
-  },
+  addProductDetails: productDetailsSchema,
 });
 
 const bookingDetailsSchema = new mongoose.Schema({

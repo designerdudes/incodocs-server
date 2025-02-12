@@ -386,7 +386,7 @@ export const deleteMultipleShipments = async (req, res) => {
   try {
     const { ids } = req.body;
     const findShipments = await Shipment.find({ _id: { $in: ids } });
-    const orgId = findShipments.map((shipment) => shipment.organization);
+    const orgId = findShipments.map((shipment) => shipment.organizationId);
     if (findShipments.length === 0) {
       return res.status(404).json({ message: "no records found to delete" });
     }
@@ -403,26 +403,22 @@ export const deleteMultipleShipments = async (req, res) => {
       .json({ message: "internal server error", error: err.message });
   }
 };
-// export const addContainerToShipment = async (req, res) => {
-//   const { shipmentId } = req.params; // assuming shipment ID is passed as a URL parameter
-//   const { containerNumber } = req.body; // assuming container number is passed in the request body
 
-//   try {
-//     // Find the shipment by ID
-//     const shipment = await Shipment.findById(shipmentId);
-
-//     if (!shipment) {
-//       return res.status(404).json({ message: "Shipment not found" });
-//     }
-
-//     // Add the new container number to the array
-//     shipment.bookingDetails.containerNumber.push(containerNumber);
-
-//     // Save the updated shipment
-//     await shipment.save();
-
-//     res.status(200).json(shipment);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
+export const addShippingBillsInShippingBillDetails = async (req, res) => {
+  try {
+    const { shipmentId, shippingBillDetails } = req.body;
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "no shipment found" });
+    }
+    const shippingBills = shippingBillDetails.ShippingBills;
+    const addedShipmentBill = await Shipment.findByIdAndUpdate(shipmentId, {
+      $push: { "shippingBillDetails.ShippingBills": { $each: shippingBills } },
+    });
+    res.status(200).json(addedShipmentBill);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
