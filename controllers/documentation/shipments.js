@@ -18,7 +18,9 @@ export const addShipment = async (req, res) => {
     );
     res.status(200).json(newShipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
@@ -45,21 +47,29 @@ export const addOrUpdateShippingDetails = async (req, res) => {
     }
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to update an existing shipment
 export const updateShipment = async (req, res) => {
-  const { id } = req.params;
-  const payload = req.body;
   try {
-    const Updatedshipment = await Shipment.findByIdAndUpdate(id, payload, {
+    const { id } = req.params;
+    const body = req.body;
+    const findShipment = await Shipment.findById(id);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shipment not found" });
+    }
+    const Updatedshipment = await Shipment.findByIdAndUpdate(id, body, {
       new: true,
     });
-    res.json(Updatedshipment);
+    res.status(200).json(Updatedshipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
