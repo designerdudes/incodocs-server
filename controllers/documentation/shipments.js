@@ -457,7 +457,7 @@ export const getAllConsignee = async (req, res) => {
 
 export const getAllConsigneeByOrg = async (req, res) => {
   try {
-    const { organizationId } = req.body;
+    const { organizationId } = req.params;
     const findOrg = await Organization.findById(organizationId);
     if (!findOrg) {
       return res.status(404).json({ message: "no records found" });
@@ -469,6 +469,55 @@ export const getAllConsigneeByOrg = async (req, res) => {
       return res.status(404).json({ message: "no records found" });
     }
     res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getSingleConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getConsignee = await consignee.findById(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const getConsignee = await consignee.findById(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "consignee not found" });
+    }
+    const updatedConsignee = await consignee.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    res.status(200).json(updatedConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getConsignee = await consignee.findByIdAndDelete(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "consignee not found to delete" });
+    }
+    res.status(200).json({ message: "deleted successfully" });
   } catch (err) {
     res
       .status(500)
