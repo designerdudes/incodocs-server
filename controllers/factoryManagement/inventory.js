@@ -655,17 +655,36 @@ export const updateLotAddBlocks = async (req, res) => {
       noOfBlocks,
       blocks,
     } = req.body;
+
+    if (markerCost || materialCost || transportCost) {
+      var newMarkerCost =
+        markerCost !== undefined
+          ? existingLot.markerCost + markerCost
+          : existingLot.markerCost;
+
+      var newmaterialCost =
+        materialCost !== undefined
+          ? existingLot.materialCost + materialCost
+          : existingLot.materialCost;
+
+      var newtransportCost =
+        transportCost !== undefined
+          ? existingLot.transportCost + transportCost
+          : existingLot.transportCost;
+    }
+
     const payload = {
       lotName: lotName ?? existingLot.lotName,
       factoryId: factoryId ?? existingLot.factoryId,
       organizationId: organizationId ?? existingLot.organizationId,
       materialType: materialType ?? existingLot.materialType,
-      materialCost: materialCost ?? existingLot.materialCost,
-      markerCost: markerCost ?? existingLot.markerCost,
-      transportCost: transportCost ?? existingLot.transportCost,
+      materialCost: newmaterialCost,
+      markerCost: newMarkerCost,
+      transportCost: newtransportCost,
       markerOperatorName: markerOperatorName ?? existingLot.markerOperatorName,
       noOfBlocks: noOfBlocks ?? existingLot.noOfBlocks,
     };
+
     const updatedLot = await lotInventory.findByIdAndUpdate(id, payload, {
       new: true,
     });
@@ -726,6 +745,11 @@ export const updateBlockCreateSlab = async (req, res) => {
       inStock,
       slabs,
     } = req.body;
+
+    if (!exitstingBlock) {
+      return res.status(404).json({ message: "block not found" });
+    }
+
     const payload = {
       lotId: lotId ?? exitstingBlock.lotId,
       factoryId: factoryId ?? exitstingBlock.factoryId,
