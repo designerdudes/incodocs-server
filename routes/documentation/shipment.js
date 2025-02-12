@@ -38,13 +38,13 @@ router.post("/addshipping-bills", addShippingBillsInShippingBillDetails);
 router.post("/add-container", addContainer);
 
 router.get("/getAll", getAllShipments);
-router.get("/getbyorg/:id", getShipmentsByOrganizationId);
 router.get("/getbyid/:id", getShipmentById);
+router.get("/getbyorg/:id", getShipmentsByOrganizationId);
 
 router.put("/update/:id", updateShipment);
 
 router.delete("/delete/:id", deleteShipmentById);
-router.delete("/delete/all", deleteMultipleShipments);
+router.delete("/deleteall", deleteMultipleShipments);
 
 // consignee routes
 router.get("/consignee/getall", getAllConsignee);

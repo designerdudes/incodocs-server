@@ -39,7 +39,7 @@ const consigneeSchema = new mongoose.Schema(
   {
     name: String,
     address: String,
-    TelephoneNo: Number,
+    telephoneNo: Number,
     email: String,
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,

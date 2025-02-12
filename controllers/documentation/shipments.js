@@ -289,7 +289,7 @@ export const getAllShipments = async (req, res) => {
   try {
     const shipments = await Shipment.find().populate("organizationId");
     if (shipments.length === 0) {
-      return res.status(404).jaon({ message: "no records found" });
+      return res.status(404).json({ message: "no records found" });
     }
     res.status(200).json(shipments);
   } catch (error) {
@@ -311,7 +311,7 @@ export const getShipmentsByOrganizationId = async (req, res) => {
       "organizationId"
     );
     if (shipments.length === 0) {
-      return res.status(404).jaon({ message: "no records found" });
+      return res.status(404).json({ message: "no records found" });
     }
     res.status(200).json(shipments);
   } catch (error) {
