@@ -51,4 +51,4 @@ const consigneeSchema = new mongoose.Schema(
 
 const consignee = mongoose.model("consignee", consigneeSchema);
 
-export { consignee }; //, productDetails
+export default consignee ; //, productDetails

@@ -1,3 +1,4 @@
+import consignee from "../../models/documentation/consignee&productDetails.js";
 import Organization from "../../models/documentation/organization.js";
 import Shipment from "../../models/documentation/shipment.js";
 
@@ -416,6 +417,58 @@ export const addShippingBillsInShippingBillDetails = async (req, res) => {
       $push: { "shippingBillDetails.ShippingBills": { $each: shippingBills } },
     });
     res.status(200).json(addedShipmentBill);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const createConsignee = async (req, res) => {
+  try {
+    const { organizationId } = req.body;
+    const body = req.body;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(200).json({ message: "orgagnization not found" });
+    }
+    const addedConsignee = await consignee.create(body);
+    res.status(200).json(addedConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getAllConsignee = async (req, res) => {
+  try {
+    const getConsignee = await consignee.find();
+    if (getConsignee.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getAllConsigneeByOrg = async (req, res) => {
+  try {
+    const { organizationId } = req.body;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    const getConsignee = await consignee.find({
+      organizationId: organizationId,
+    });
+    if (getConsignee.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
   } catch (err) {
     res
       .status(500)
