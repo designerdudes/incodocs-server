@@ -655,17 +655,38 @@ export const updateLotAddBlocks = async (req, res) => {
       noOfBlocks,
       blocks,
     } = req.body;
+
+    if (markerCost) {
+      var newMarkerCost =
+        markerCost !== undefined
+          ? existingLot.markerCost + markerCost
+          : existingLot.markerCost;
+    }
+    if (materialCost) {
+      var newmaterialCost =
+        materialCost !== undefined
+          ? existingLot.materialCost + materialCost
+          : existingLot.materialCost;
+    }
+    if (transportCost) {
+      var newtransportCost =
+        transportCost !== undefined
+          ? existingLot.transportCost + transportCost
+          : existingLot.transportCost;
+    }
+
     const payload = {
       lotName: lotName ?? existingLot.lotName,
       factoryId: factoryId ?? existingLot.factoryId,
       organizationId: organizationId ?? existingLot.organizationId,
       materialType: materialType ?? existingLot.materialType,
-      materialCost: materialCost ?? existingLot.materialCost,
-      markerCost: markerCost ?? existingLot.markerCost,
-      transportCost: transportCost ?? existingLot.transportCost,
+      materialCost: newmaterialCost,
+      markerCost: newMarkerCost,
+      transportCost: newtransportCost,
       markerOperatorName: markerOperatorName ?? existingLot.markerOperatorName,
       noOfBlocks: noOfBlocks ?? existingLot.noOfBlocks,
     };
+
     const updatedLot = await lotInventory.findByIdAndUpdate(id, payload, {
       new: true,
     });
