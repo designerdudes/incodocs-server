@@ -25,7 +25,8 @@ export const addShipment = async (req, res) => {
 // Controller function to add or update shipping details for a shipment
 export const addOrUpdateShippingDetails = async (req, res) => {
   try {
-    const { shipmentId, shippingDetails } = req.body; //
+    const { shipmentId, shippingDetails, organizationId } = req.body; //
+
     let shipment;
 
     if (shipmentId) {
@@ -35,15 +36,13 @@ export const addOrUpdateShippingDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ shippingDetails });
-      const organizationId = shippingDetails.organization;
+      shipment = await Shipment.create({ shippingDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
     res.status(400).json({ message: error.message });
