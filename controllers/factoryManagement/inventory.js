@@ -656,19 +656,17 @@ export const updateLotAddBlocks = async (req, res) => {
       blocks,
     } = req.body;
 
-    if (markerCost) {
+    if (markerCost || materialCost || transportCost) {
       var newMarkerCost =
         markerCost !== undefined
           ? existingLot.markerCost + markerCost
           : existingLot.markerCost;
-    }
-    if (materialCost) {
+
       var newmaterialCost =
         materialCost !== undefined
           ? existingLot.materialCost + materialCost
           : existingLot.materialCost;
-    }
-    if (transportCost) {
+
       var newtransportCost =
         transportCost !== undefined
           ? existingLot.transportCost + transportCost
