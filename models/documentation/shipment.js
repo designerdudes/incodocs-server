@@ -16,7 +16,7 @@ const bookingDetailsSchema = new mongoose.Schema({
   destinationPort: String,
   vesselSailingDate: Date,
   vesselArrivingDate: Date,
-  numberOfContainers: [containersSchema],
+  containers: [containersSchema],
 });
 
 const shippingDetailsSchema = new mongoose.Schema({

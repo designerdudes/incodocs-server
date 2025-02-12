@@ -286,12 +286,32 @@ export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
 // Controller function to get all shipments
 export const getAllShipments = async (req, res) => {
   try {
+    const shipments = await Shipment.find().populate("organizationId");
+    if (shipments.length === 0) {
+      return res.status(404).jaon({ message: "no records found" });
+    }
+    res.status(200).json(shipments);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+// get shipments by organization Id
+export const getShipmentsByOrganizationId = async (req, res) => {
+  try {
     const { id } = req.params;
     const findOrg = await Organization.findById(id);
     if (!findOrg) {
       return res.status(404).json({ message: "organization not found" });
     }
-    const shipments = await Shipment.find().populate("organization");
+    const shipments = await Shipment.find({ organizationId: id }).populate(
+      "organizationId"
+    );
+    if (shipments.length === 0) {
+      return res.status(404).jaon({ message: "no records found" });
+    }
     res.status(200).json(shipments);
   } catch (error) {
     res
@@ -302,31 +322,13 @@ export const getAllShipments = async (req, res) => {
 
 // Controller function to get a shipment by ID
 export const getShipmentById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const shipment = await Shipment.findById(id).populate("organization");
+    const { id } = req.params;
+    const shipment = await Shipment.findById(id).populate("organizationId");
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }
     res.status(200).json(shipment);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Controller function to get shipments by organization ID
-export const getShipmentsByOrganizationId = async (req, res) => {
-  const { organizationId } = req.params;
-  try {
-    const shipments = await Shipment.find({
-      organization: organizationId,
-    }).populate("organization");
-    if (!shipments) {
-      return res
-        .status(404)
-        .json({ message: "No shipments found for the organization" });
-    }
-    res.status(200).json(shipments);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -342,7 +344,7 @@ export const deleteShipmentById = async (req, res) => {
     }
 
     await Organization.findByIdAndUpdate(
-      shipment.organization,
+      shipment.organizationId,
       { $pull: { shipments: id } },
       { new: true }
     );
@@ -355,26 +357,26 @@ export const deleteShipmentById = async (req, res) => {
   }
 };
 
-// addding container in booking details
+// addding containers in booking details
 export const addContainer = async (req, res) => {
   const { shipmentId, bookingDetails } = req.body;
   try {
     const shipment = await Shipment.findById(shipmentId);
     if (!shipment) {
       return res.status(404).json({ message: "shipment not found" });
-    } else {
-      const containerNumber = bookingDetails.containerNumber;
-      const updatedContainer = await Shipment.findByIdAndUpdate(
-        shipmentId,
-        {
-          $push: {
-            "bookingDetails.containerNumber": { $each: containerNumber }, //      { $push: { bookingDetails.containerNumber : containerNumber } },
-          },
-        },
-        { new: true }
-      );
-      res.status(200).json({ updatedContainer });
     }
+
+    const containers = bookingDetails.containers;
+    const updatedContainer = await Shipment.findByIdAndUpdate(
+      shipmentId,
+      {
+        $push: {
+          "bookingDetails.containers": { $each: containers },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({ updatedContainer });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
