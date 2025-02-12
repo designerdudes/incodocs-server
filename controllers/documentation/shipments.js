@@ -24,6 +24,60 @@ export const addShipment = async (req, res) => {
   }
 };
 
+// Controller function to update an existing shipment
+export const updateShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const findShipment = await Shipment.findById(id);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shipment not found" });
+    }
+    const Updatedshipment = await Shipment.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    res.status(200).json(Updatedshipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+// Controller function to add or update booking details for a shipment
+export const addOrUpdateBookingDetails = async (req, res) => {
+  try {
+    const { shipmentId, bookingDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { bookingDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({ bookingDetails, organizationId });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
 // Controller function to add or update shipping details for a shipment
 export const addOrUpdateShippingDetails = async (req, res) => {
   try {
@@ -50,52 +104,6 @@ export const addOrUpdateShippingDetails = async (req, res) => {
     res
       .status(400)
       .json({ error: "internal server error", message: error.message });
-  }
-};
-
-// Controller function to update an existing shipment
-export const updateShipment = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const body = req.body;
-    const findShipment = await Shipment.findById(id);
-    if (!findShipment) {
-      return res.status(404).json({ message: "shipment not found" });
-    }
-    const Updatedshipment = await Shipment.findByIdAndUpdate(id, body, {
-      new: true,
-    });
-    res.status(200).json(Updatedshipment);
-  } catch (error) {
-    res
-      .status(400)
-      .json({ error: "internal server error", message: error.message });
-  }
-};
-
-// Controller function to add or update booking details for a shipment
-export const addOrUpdateBookingDetails = async (req, res) => {
-  try {
-    const { shipmentId, bookingDetails } = req.body;
-    let shipment;
-    if (shipmentId) {
-      shipment = await Shipment.findByIdAndUpdate(
-        shipmentId,
-        { bookingDetails },
-        { new: true }
-      );
-    } else {
-      shipment = await Shipment.create({ bookingDetails });
-      const organizationId = bookingDetails.organization;
-      await Organization.findByIdAndUpdate(
-        organizationId,
-        { $push: { shipments: shipment._id } },
-        { new: true }
-      );
-    }
-    res.status(200).json(shipment);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
   }
 };
 
