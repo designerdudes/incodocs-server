@@ -101,7 +101,7 @@ const shipmentSchema = new mongoose.Schema(
     supplierDetails: supplierDetailsSchema,
     saleInvoiceDetails: saleInvoiceDetailsSchema,
     blDetails: blDetailsSchema,
-    certificateOfOrigin: certificateOfOriginSchema,
+    certificateOfOriginDetails: certificateOfOriginSchema,
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",

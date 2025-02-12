@@ -83,6 +83,11 @@ export const addOrUpdateShippingDetails = async (req, res) => {
   try {
     const { shipmentId, shippingDetails, organizationId } = req.body; //
 
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -110,7 +115,13 @@ export const addOrUpdateShippingDetails = async (req, res) => {
 // Controller function to add or update shipping bill details for a shipment
 export const addOrUpdateShippingBillDetails = async (req, res) => {
   try {
-    const { shipmentId, shippingBillDetails } = req.body;
+    const { shipmentId, shippingBillDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -120,25 +131,64 @@ export const addOrUpdateShippingBillDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ shippingBillDetails });
-      const organizationId = shippingBillDetails.organization;
+      shipment = await Shipment.create({ shippingBillDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+export const addorUpdateSupplierDetails = async (req, res) => {
+  try {
+    const { shipmentId, supplierDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { supplierDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({ supplierDetails, organizationId });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
   }
 };
 
 // Controller function to add or update sale invoice details for a shipment
 export const addOrUpdateSaleInvoiceDetails = async (req, res) => {
   try {
-    const { shipmentId, saleInvoiceDetails } = req.body;
+    const { shipmentId, saleInvoiceDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -148,25 +198,31 @@ export const addOrUpdateSaleInvoiceDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ saleInvoiceDetails });
-      const organizationId = saleInvoiceDetails.organization;
+      shipment = await Shipment.create({ saleInvoiceDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to add or update BL details for a shipment
 export const addOrUpdateBlDetails = async (req, res) => {
   try {
-    const { shipmentId, blDetails } = req.body;
+    const { shipmentId, blDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -176,28 +232,71 @@ export const addOrUpdateBlDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ blDetails });
-      const organizationId = blDetails.organization;
+      shipment = await Shipment.create({ blDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
+  try {
+    const { shipmentId, certificateOfOriginDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { certificateOfOriginDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({
+        certificateOfOriginDetails,
+        organizationId,
+      });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to get all shipments
 export const getAllShipments = async (req, res) => {
   try {
+    const { id } = req.params;
+    const findOrg = await Organization.findById(id);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
     const shipments = await Shipment.find().populate("organization");
     res.status(200).json(shipments);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
