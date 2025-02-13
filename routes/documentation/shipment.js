@@ -13,27 +13,48 @@ import {
   deleteShipmentById,
   addContainer,
   deleteMultipleShipments,
+  addorUpdateSupplierDetails,
+  addOrUpdatecertificateOfOriginDetails,
+  addShippingBillsInShippingBillDetails,
+  createConsignee,
+  getAllConsignee,
+  getAllConsigneeByOrg,
+  getSingleConsignee,
+  updateConsignee,
+  deleteConsignee,
 } from "../../controllers/documentation/shipments.js";
 
 const router = express.Router();
 
-// Routes for adding, updating, and deleting shipments
 router.post("/add", addShipment);
-router.put("/:id", updateShipment);
-router.delete("/:id", deleteShipmentById);
-router.delete("/delete/all", deleteMultipleShipments);
-
-// Routes for adding or updating shipment details
 router.post("/booking-details", addOrUpdateBookingDetails);
 router.post("/shipping-details", addOrUpdateShippingDetails);
 router.post("/shipping-bill-details", addOrUpdateShippingBillDetails);
+router.post("/supplier-details", addorUpdateSupplierDetails);
 router.post("/sale-invoice-details", addOrUpdateSaleInvoiceDetails);
 router.post("/bl-details", addOrUpdateBlDetails);
+router.post("coo-details", addOrUpdatecertificateOfOriginDetails);
+router.post("/addshipping-bills", addShippingBillsInShippingBillDetails);
 router.post("/add-container", addContainer);
 
-// Routes for fetching shipments
 router.get("/getAll", getAllShipments);
-router.get("/get/:id", getShipmentById);
-router.get("/organization/:organizationId", getShipmentsByOrganizationId);
+router.get("/getbyid/:id", getShipmentById);
+router.get("/getbyorg/:id", getShipmentsByOrganizationId);
+
+router.put("/update/:id", updateShipment);
+
+router.delete("/delete/:id", deleteShipmentById);
+router.delete("/deleteall", deleteMultipleShipments);
+
+// consignee routes
+router.get("/consignee/getall", getAllConsignee);
+router.get("/consignee/getbyorg/:organizationId", getAllConsigneeByOrg);
+router.get("/consignee/getone/:id", getSingleConsignee);
+
+router.post("/consignee/create", createConsignee);
+
+router.put("/consignee/update/:id", updateConsignee);
+
+router.delete("/consignee/delete/:id", deleteConsignee);
 
 export default router;

@@ -1,26 +1,94 @@
+import consignee from "../../models/documentation/consignee&productDetails.js";
 import Organization from "../../models/documentation/organization.js";
 import Shipment from "../../models/documentation/shipment.js";
 
 // Controller function to add a new shipment
 export const addShipment = async (req, res) => {
   try {
-    const { organization } = req.body;
-    const newShipment = await Shipment.create(req.body);
+    const { organizationId } = req.body;
+    const body = req.body;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+    const newShipment = await Shipment.create(body);
     await Organization.findByIdAndUpdate(
-      organization,
+      newShipment.organizationId,
       { $push: { shipments: newShipment._id } },
       { new: true }
     );
-    res.status(201).json(newShipment);
+    res.status(200).json(newShipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+// Controller function to update an existing shipment
+export const updateShipment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const findShipment = await Shipment.findById(id);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shipment not found" });
+    }
+    const Updatedshipment = await Shipment.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    res.status(200).json(Updatedshipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+// Controller function to add or update booking details for a shipment
+export const addOrUpdateBookingDetails = async (req, res) => {
+  try {
+    const { shipmentId, bookingDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { bookingDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({ bookingDetails, organizationId });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to add or update shipping details for a shipment
 export const addOrUpdateShippingDetails = async (req, res) => {
   try {
-    const { shipmentId, shippingDetails } = req.body; //
+    const { shipmentId, shippingDetails, organizationId } = req.body; //
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -30,49 +98,7 @@ export const addOrUpdateShippingDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ shippingDetails });
-      const organizationId = shippingDetails.organization;
-      await Organization.findByIdAndUpdate(
-        organizationId,
-        { $push: { shipments: shipment._id } },
-        { new: true }
-      );
-    }
-
-    res.status(200).json(shipment);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// Controller function to update an existing shipment
-export const updateShipment = async (req, res) => {
-  const { id } = req.params;
-  const payload = req.body;
-  try {
-    const Updatedshipment = await Shipment.findByIdAndUpdate(id, payload, {
-      new: true,
-    });
-    res.json(Updatedshipment);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// Controller function to add or update booking details for a shipment
-export const addOrUpdateBookingDetails = async (req, res) => {
-  try {
-    const { shipmentId, bookingDetails } = req.body;
-    let shipment;
-    if (shipmentId) {
-      shipment = await Shipment.findByIdAndUpdate(
-        shipmentId,
-        { bookingDetails },
-        { new: true }
-      );
-    } else {
-      shipment = await Shipment.create({ bookingDetails });
-      const organizationId = bookingDetails.organization;
+      shipment = await Shipment.create({ shippingDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
@@ -81,14 +107,22 @@ export const addOrUpdateBookingDetails = async (req, res) => {
     }
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to add or update shipping bill details for a shipment
 export const addOrUpdateShippingBillDetails = async (req, res) => {
   try {
-    const { shipmentId, shippingBillDetails } = req.body;
+    const { shipmentId, shippingBillDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -98,25 +132,64 @@ export const addOrUpdateShippingBillDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ shippingBillDetails });
-      const organizationId = shippingBillDetails.organization;
+      shipment = await Shipment.create({ shippingBillDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+export const addorUpdateSupplierDetails = async (req, res) => {
+  try {
+    const { shipmentId, supplierDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { supplierDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({ supplierDetails, organizationId });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
   }
 };
 
 // Controller function to add or update sale invoice details for a shipment
 export const addOrUpdateSaleInvoiceDetails = async (req, res) => {
   try {
-    const { shipmentId, saleInvoiceDetails } = req.body;
+    const { shipmentId, saleInvoiceDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -126,25 +199,31 @@ export const addOrUpdateSaleInvoiceDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ saleInvoiceDetails });
-      const organizationId = saleInvoiceDetails.organization;
+      shipment = await Shipment.create({ saleInvoiceDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to add or update BL details for a shipment
 export const addOrUpdateBlDetails = async (req, res) => {
   try {
-    const { shipmentId, blDetails } = req.body;
+    const { shipmentId, blDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -154,58 +233,103 @@ export const addOrUpdateBlDetails = async (req, res) => {
         { new: true }
       );
     } else {
-      shipment = await Shipment.create({ blDetails });
-      const organizationId = blDetails.organization;
+      shipment = await Shipment.create({ blDetails, organizationId });
       await Organization.findByIdAndUpdate(
         organizationId,
         { $push: { shipments: shipment._id } },
         { new: true }
       );
     }
-
     res.status(200).json(shipment);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
+  try {
+    const { shipmentId, certificateOfOriginDetails, organizationId } = req.body;
+
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+
+    let shipment;
+
+    if (shipmentId) {
+      shipment = await Shipment.findByIdAndUpdate(
+        shipmentId,
+        { certificateOfOriginDetails },
+        { new: true }
+      );
+    } else {
+      shipment = await Shipment.create({
+        certificateOfOriginDetails,
+        organizationId,
+      });
+      await Organization.findByIdAndUpdate(
+        organizationId,
+        { $push: { shipments: shipment._id } },
+        { new: true }
+      );
+    }
+    res.status(200).json(shipment);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to get all shipments
 export const getAllShipments = async (req, res) => {
   try {
-    const shipments = await Shipment.find().populate("organization");
+    const shipments = await Shipment.find().populate("organizationId");
+    if (shipments.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
     res.status(200).json(shipments);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+// get shipments by organization Id
+export const getShipmentsByOrganizationId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findOrg = await Organization.findById(id);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+    const shipments = await Shipment.find({ organizationId: id }).populate(
+      "organizationId"
+    );
+    if (shipments.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(shipments);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: error.message });
   }
 };
 
 // Controller function to get a shipment by ID
 export const getShipmentById = async (req, res) => {
-  const { id } = req.params;
   try {
-    const shipment = await Shipment.findById(id).populate("organization");
+    const { id } = req.params;
+    const shipment = await Shipment.findById(id).populate("organizationId");
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }
     res.status(200).json(shipment);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Controller function to get shipments by organization ID
-export const getShipmentsByOrganizationId = async (req, res) => {
-  const { organizationId } = req.params;
-  try {
-    const shipments = await Shipment.find({
-      organization: organizationId,
-    }).populate("organization");
-    if (!shipments) {
-      return res
-        .status(404)
-        .json({ message: "No shipments found for the organization" });
-    }
-    res.status(200).json(shipments);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -221,7 +345,7 @@ export const deleteShipmentById = async (req, res) => {
     }
 
     await Organization.findByIdAndUpdate(
-      shipment.organization,
+      shipment.organizationId,
       { $pull: { shipments: id } },
       { new: true }
     );
@@ -234,26 +358,26 @@ export const deleteShipmentById = async (req, res) => {
   }
 };
 
-// addding container in booking details
+// addding containers in booking details
 export const addContainer = async (req, res) => {
   const { shipmentId, bookingDetails } = req.body;
   try {
     const shipment = await Shipment.findById(shipmentId);
     if (!shipment) {
       return res.status(404).json({ message: "shipment not found" });
-    } else {
-      const containerNumber = bookingDetails.containerNumber;
-      const updatedContainer = await Shipment.findByIdAndUpdate(
-        shipmentId,
-        {
-          $push: {
-            "bookingDetails.containerNumber": { $each: containerNumber }, //      { $push: { bookingDetails.containerNumber : containerNumber } },
-          },
-        },
-        { new: true }
-      );
-      res.status(200).json({ updatedContainer });
     }
+
+    const containers = bookingDetails.containers;
+    const updatedContainer = await Shipment.findByIdAndUpdate(
+      shipmentId,
+      {
+        $push: {
+          "bookingDetails.containers": { $each: containers },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({ updatedContainer });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -263,7 +387,7 @@ export const deleteMultipleShipments = async (req, res) => {
   try {
     const { ids } = req.body;
     const findShipments = await Shipment.find({ _id: { $in: ids } });
-    const orgId = findShipments.map((shipment) => shipment.organization);
+    const orgId = findShipments.map((shipment) => shipment.organizationId);
     if (findShipments.length === 0) {
       return res.status(404).json({ message: "no records found to delete" });
     }
@@ -280,26 +404,123 @@ export const deleteMultipleShipments = async (req, res) => {
       .json({ message: "internal server error", error: err.message });
   }
 };
-// export const addContainerToShipment = async (req, res) => {
-//   const { shipmentId } = req.params; // assuming shipment ID is passed as a URL parameter
-//   const { containerNumber } = req.body; // assuming container number is passed in the request body
 
-//   try {
-//     // Find the shipment by ID
-//     const shipment = await Shipment.findById(shipmentId);
+export const addShippingBillsInShippingBillDetails = async (req, res) => {
+  try {
+    const { shipmentId, shippingBillDetails } = req.body;
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "no shipment found" });
+    }
+    const shippingBills = shippingBillDetails.ShippingBills;
+    const addedShipmentBill = await Shipment.findByIdAndUpdate(shipmentId, {
+      $push: { "shippingBillDetails.ShippingBills": { $each: shippingBills } },
+    });
+    res.status(200).json(addedShipmentBill);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
 
-//     if (!shipment) {
-//       return res.status(404).json({ message: "Shipment not found" });
-//     }
+export const createConsignee = async (req, res) => {
+  try {
+    const { organizationId } = req.body;
+    const body = req.body;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(200).json({ message: "orgagnization not found" });
+    }
+    const addedConsignee = await consignee.create(body);
+    res.status(200).json(addedConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
 
-//     // Add the new container number to the array
-//     shipment.bookingDetails.containerNumber.push(containerNumber);
+export const getAllConsignee = async (req, res) => {
+  try {
+    const getConsignee = await consignee.find();
+    if (getConsignee.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
 
-//     // Save the updated shipment
-//     await shipment.save();
+export const getAllConsigneeByOrg = async (req, res) => {
+  try {
+    const { organizationId } = req.params;
+    const findOrg = await Organization.findById(organizationId);
+    if (!findOrg) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    const getConsignee = await consignee.find({
+      organizationId: organizationId,
+    });
+    if (getConsignee.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
 
-//     res.status(200).json(shipment);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// };
+export const getSingleConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getConsignee = await consignee.findById(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(getConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const getConsignee = await consignee.findById(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "consignee not found" });
+    }
+    const updatedConsignee = await consignee.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    res.status(200).json(updatedConsignee);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteConsignee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const getConsignee = await consignee.findByIdAndDelete(id);
+    if (!getConsignee) {
+      return res.status(404).json({ message: "consignee not found to delete" });
+    }
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
