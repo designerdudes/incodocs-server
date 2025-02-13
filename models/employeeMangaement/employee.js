@@ -26,8 +26,6 @@ const employeeSchema = new mongoose.Schema(
       pincode: {
         type: Number,
         required: true,
-        min: [100000, "Pincode must be a 6-digit number"],
-        max: [999999, "Pincode must be a 6-digit number"],
       },
     },
     role: {
@@ -46,16 +44,16 @@ const employeeSchema = new mongoose.Schema(
       email: {
         type: String,
         required: true,
-        match: [/^\S+@\S+\.\S+$/, "Invalid email address"],
+        // match: [/^\S+@\S+\.\S+$/, "Invalid email address"],
       },
       phoneNumber: {
         type: String,
         required: true,
-        match: [/^\d{10}$/, "Phone number must be 10 digits"],
+        // match: [/^\d{10}$/, "Phone number must be 10 digits"],
       },
       alternatePhone: {
         type: String,
-        match: [/^\d{10}$/, "Alternate phone number must be 10 digits"],
+        // match: [/^\d{10}$/, "Alternate phone number must be 10 digits"],
       },
     },
   },
