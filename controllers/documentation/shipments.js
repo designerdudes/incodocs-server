@@ -74,6 +74,11 @@ export const addOrUpdateBookingDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shipment not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -106,6 +111,11 @@ export const addOrUpdateShippingDetails = async (req, res) => {
     const findOrg = await Organization.findById(organizationId);
     if (!findOrg) {
       return res.status(404).json({ message: "organization not found" });
+    }
+
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shipment not found" });
     }
 
     let shipment;
@@ -142,6 +152,11 @@ export const addOrUpdateShippingBillDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shiopment not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -173,6 +188,11 @@ export const addorUpdateSupplierDetails = async (req, res) => {
     const findOrg = await Organization.findById(organizationId);
     if (!findOrg) {
       return res.status(404).json({ message: "organization not found" });
+    }
+
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shiopment not found" });
     }
 
     let shipment;
@@ -209,6 +229,11 @@ export const addOrUpdateSaleInvoiceDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shiopment not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -243,6 +268,11 @@ export const addOrUpdateBlDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shiopment not found" });
+    }
+
     let shipment;
 
     if (shipmentId) {
@@ -274,6 +304,11 @@ export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
     const findOrg = await Organization.findById(organizationId);
     if (!findOrg) {
       return res.status(404).json({ message: "organization not found" });
+    }
+
+    const findShipment = await Shipment.findById(shipmentId);
+    if (!findShipment) {
+      return res.status(404).json({ message: "shiopment not found" });
     }
 
     let shipment;
@@ -443,6 +478,41 @@ export const addShippingBillsInShippingBillDetails = async (req, res) => {
   }
 };
 
+export const updateContainer = async (req, res) => {
+  try {
+    const { shipmentId, containerId } = req.params;
+    const updateData = req.body;
+
+    const shipment = await Shipment.findById(shipmentId);
+    if (!shipment) {
+      return res.status(404).json({ message: "Shipment not found" });
+    }
+
+    const container = shipment.bookingDetails.containers.find(
+      (c) => c._id.toString() === containerId
+    );
+
+    if (!container) {
+      return res.status(404).json({ message: "Container not found" });
+    }
+
+    // Merge new data into the existing container (without overwriting the entire object)
+    Object.assign(container, updateData);
+
+    // Save the updated shipment document
+    await shipment.save();
+
+    res
+      .status(200)
+      .json({ message: "Container updated successfully", container });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", message: error.message });
+  }
+};
+
+// consignee controllers
 export const createConsignee = async (req, res) => {
   try {
     const { organizationId } = req.body;
