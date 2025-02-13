@@ -102,9 +102,21 @@ export const addOrUpdateBookingDetails = async (req, res) => {
     let shipment;
 
     if (shipmentId) {
+      // Extract the existing containers before merging
+      const existingContainers = findShipment.bookingDetails.containers || [];
+
+      // Merge new booking details but exclude containers
+      findShipment.bookingDetails = {
+        ...findShipment.bookingDetails,
+        ...bookingDetails,
+      };
+
+      // Restore the original containers
+      findShipment.bookingDetails.containers = existingContainers;
+
       shipment = await Shipment.findByIdAndUpdate(
         shipmentId,
-        { bookingDetails },
+        { $set: { bookingDetails: findShipment.bookingDetails } },
         { new: true }
       );
     } else {
