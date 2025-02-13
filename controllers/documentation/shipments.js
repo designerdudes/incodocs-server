@@ -36,15 +36,16 @@ export const updateShipment = async (req, res) => {
     }
     const deepMerge = (existingShipment, newShipmentData) => {
       for (const key of Object.keys(newShipmentData)) {
+        // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
         if (
           newShipmentData[key] &&
           typeof newShipmentData[key] === "object" &&
           !Array.isArray(newShipmentData[key])
         ) {
-          existingShipment[key] = existingShipment[key] || {}; // Ensure target[key] exists
-          deepMerge(existingShipment[key], newShipmentData[key]); // Recursively merge nested objects
+          existingShipment[key] = existingShipment[key] || {};
+          deepMerge(existingShipment[key], newShipmentData[key]);
         } else {
-          existingShipment[key] = newShipmentData[key]; // Directly assign primitive values and arrays
+          existingShipment[key] = newShipmentData[key];
         }
       }
       return existingShipment;
