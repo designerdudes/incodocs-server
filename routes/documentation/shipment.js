@@ -22,6 +22,7 @@ import {
   getSingleConsignee,
   updateConsignee,
   deleteConsignee,
+  updateContainer,
 } from "../../controllers/documentation/shipments.js";
 
 const router = express.Router();
@@ -42,6 +43,7 @@ router.get("/getbyid/:id", getShipmentById);
 router.get("/getbyorg/:id", getShipmentsByOrganizationId);
 
 router.put("/update/:id", updateShipment);
+router.post("/update-container", updateContainer);
 
 router.delete("/delete/:id", deleteShipmentById);
 router.delete("/deleteall", deleteMultipleShipments);
