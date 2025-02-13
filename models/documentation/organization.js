@@ -54,6 +54,7 @@ const organizationSchema = new mongoose.Schema(
         ref: "factory",
       },
     ],
+    employees: [{ type: mongoose.Schema.Types.ObjectId, ref: "employee" }],
   },
   {
     timestamps: true,
