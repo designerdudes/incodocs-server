@@ -34,10 +34,28 @@ export const updateShipment = async (req, res) => {
     if (!findShipment) {
       return res.status(404).json({ message: "shipment not found" });
     }
-    const Updatedshipment = await Shipment.findByIdAndUpdate(id, body, {
+    const deepMerge = (existingShipment, newShipmentData) => {
+      for (const key of Object.keys(newShipmentData)) {
+        if (
+          newShipmentData[key] &&
+          typeof newShipmentData[key] === "object" &&
+          !Array.isArray(newShipmentData[key])
+        ) {
+          existingShipment[key] = existingShipment[key] || {}; // Ensure target[key] exists
+          deepMerge(existingShipment[key], newShipmentData[key]); // Recursively merge nested objects
+        } else {
+          existingShipment[key] = newShipmentData[key]; // Directly assign primitive values and arrays
+        }
+      }
+      return existingShipment;
+    };
+
+    const mergedData = deepMerge(findShipment.toObject(), body);
+
+    const updatedShipment = await Shipment.findByIdAndUpdate(id, mergedData, {
       new: true,
     });
-    res.status(200).json(Updatedshipment);
+    res.status(200).json(updatedShipment);
   } catch (error) {
     res
       .status(400)
