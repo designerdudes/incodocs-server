@@ -979,13 +979,15 @@ export const updateMultipleSlabs = async (req, res) => {
 
 export const updateMultipleSlabsValue = async (req, res) => {
   try {
-    const { slabNumbers, dimensions } = req.body;
-
-    await slabInventory.updateMany(
-      { slabNumber: { $in: slabNumbers } }, // Filtering slabs by slabNumbers array
-      { $set: { dimensions } } // Updating length, height, and status
+    const { slabs } = req.body;
+    slabs.map(
+      async (slab) =>
+        await slabInventory.findOneAndUpdate(
+          { slabNumber: slab.slabNumber },
+          { dimensions: slab.dimensions },
+          { new: true }
+        )
     );
-
     res.status(200).json({ message: "Updated successfully" });
   } catch (err) {
     res
