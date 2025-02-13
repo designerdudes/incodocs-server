@@ -25,6 +25,26 @@ export const addShipment = async (req, res) => {
   }
 };
 
+const deepMerge = (existingShipment, newShipmentData) => {
+  for (const key of Object.keys(newShipmentData)) {
+    // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
+    if (key === "containers") {
+      continue;
+    }
+    if (
+      newShipmentData[key] &&
+      typeof newShipmentData[key] === "object" &&
+      !Array.isArray(newShipmentData[key])
+    ) {
+      existingShipment[key] = existingShipment[key] || {};
+      deepMerge(existingShipment[key], newShipmentData[key]);
+    } else {
+      existingShipment[key] = newShipmentData[key];
+    }
+  }
+  return existingShipment;
+};
+
 // Controller function to update an existing shipment
 export const updateShipment = async (req, res) => {
   try {
@@ -34,22 +54,22 @@ export const updateShipment = async (req, res) => {
     if (!findShipment) {
       return res.status(404).json({ message: "shipment not found" });
     }
-    const deepMerge = (existingShipment, newShipmentData) => {
-      for (const key of Object.keys(newShipmentData)) {
-        // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
-        if (
-          newShipmentData[key] &&
-          typeof newShipmentData[key] === "object" &&
-          !Array.isArray(newShipmentData[key])
-        ) {
-          existingShipment[key] = existingShipment[key] || {};
-          deepMerge(existingShipment[key], newShipmentData[key]);
-        } else {
-          existingShipment[key] = newShipmentData[key];
-        }
-      }
-      return existingShipment;
-    };
+    // const deepMerge = (existingShipment, newShipmentData) => {
+    //   for (const key of Object.keys(newShipmentData)) {
+    //     // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
+    //     if (
+    //       newShipmentData[key] &&
+    //       typeof newShipmentData[key] === "object" &&
+    //       !Array.isArray(newShipmentData[key])
+    //     ) {
+    //       existingShipment[key] = existingShipment[key] || {};
+    //       deepMerge(existingShipment[key], newShipmentData[key]);
+    //     } else {
+    //       existingShipment[key] = newShipmentData[key];
+    //     }
+    //   }
+    //   return existingShipment;
+    // };
 
     const mergedData = deepMerge(findShipment.toObject(), body);
 
@@ -483,7 +503,7 @@ export const updateContainer = async (req, res) => {
     const { shipmentId, containerId } = req.params;
     const updateData = req.body;
 
-    const shipment = await Shipment.findById(shipmentId);
+    const shipment = await Shipment.findById(shipmentId); // this shipment variable has become a mongoose document which means it has special Mongoose functions like .save().
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }

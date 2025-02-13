@@ -43,7 +43,7 @@ router.get("/getbyid/:id", getShipmentById);
 router.get("/getbyorg/:id", getShipmentsByOrganizationId);
 
 router.put("/update/:id", updateShipment);
-router.post("/update-container", updateContainer);
+router.put("/update-container/:shipmentId/:containerId", updateContainer);
 
 router.delete("/delete/:id", deleteShipmentById);
 router.delete("/deleteall", deleteMultipleShipments);
