@@ -94,21 +94,25 @@ export const addOrUpdateBookingDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
-    const findShipment = await Shipment.findById(shipmentId);
-    if (!findShipment) {
-      return res.status(404).json({ message: "shipment not found" });
-    }
-
     let shipment;
 
     if (shipmentId) {
-      // Extract the existing containers before merging
-      const existingContainers = findShipment.bookingDetails.containers || [];
+      const findShipment = await Shipment.findById(shipmentId);
+      if (!findShipment) {
+        return res.status(404).json({ message: "shipment not found" });
+      }
 
-      // Merge new booking details but exclude containers
+      // Store a copy of existing containers to avoid reference issues
+      const existingContainers = [
+        ...(findShipment.bookingDetails?.containers || []),
+      ];
+
+      // Exclude containers while merging using rest operator
+      const { containers, ...restBookingDetails } = bookingDetails || {};
+
       findShipment.bookingDetails = {
         ...findShipment.bookingDetails,
-        ...bookingDetails,
+        ...restBookingDetails, // Merge everything except containers
       };
 
       // Restore the original containers
@@ -213,6 +217,7 @@ export const addOrUpdateShippingBillDetails = async (req, res) => {
   }
 };
 
+// controller function to add or update supplier details for a shipment
 export const addorUpdateSupplierDetails = async (req, res) => {
   try {
     const { shipmentId, supplierDetails, organizationId } = req.body;
