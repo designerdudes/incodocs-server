@@ -158,6 +158,7 @@ const otherDetailsSchema = new mongoose.Schema({
 
 const shipmentSchema = new mongoose.Schema(
   {
+    shipmentId: String,
     bookingDetails: bookingDetailsSchema,
     shippingDetails: shippingDetailsSchema,
     shippingBillDetails: shippingBillDetailsSchema,
@@ -172,6 +173,26 @@ const shipmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+shipmentSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastShipment = await this.constructor
+      .findOne()
+      .sort({ shipmentId: -1 })
+      .select("shipmentId");
+
+    let lastNumber = 0;
+
+    if (lastShipment && lastShipment.shipmentId) {
+      const match = lastShipment.shipmentId.match(/\d+$/); //  \d+ → Matches one or more digits (0-9).    $ → Ensures the match is at the end of the string.
+      if (match) {
+        lastNumber = parseInt(match[0], 10); // match returns an array thats why we are doing match[0] example: if shipmentId number was 10 so match stores ['10'] thats why we have to use parseInt
+      }
+    }
+    this.shipmentId = `JE${lastNumber + 1}`;
+  }
+  next();
+});
 
 const Shipment = mongoose.model("Shipment", shipmentSchema);
 
