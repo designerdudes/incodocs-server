@@ -23,6 +23,21 @@ import {
   updateConsignee,
   deleteConsignee,
   updateContainer,
+  createShippingLine,
+  getShippingLine,
+  getSingleShippingLine,
+  updateShippingLine,
+  deleteShippingLine,
+  createTransporter,
+  getTransporter,
+  getSingleTransporter,
+  updateTransporter,
+  deleteTransporter,
+  deleteForwarder,
+  updateForwarder,
+  getSingleForwarder,
+  getForwarder,
+  createForwarder,
 } from "../../controllers/documentation/shipments.js";
 
 const router = express.Router();
@@ -59,4 +74,33 @@ router.put("/consignee/update/:id", updateConsignee);
 
 router.delete("/consignee/delete/:id", deleteConsignee);
 
+//shipping line routes
+router.post("/shippingline/create", createShippingLine);
+
+router.get("/shippingline/getall", getShippingLine);
+router.get("/shippingline/getone/:id", getSingleShippingLine);
+
+router.put("/shippingline/put/:id", updateShippingLine);
+
+router.delete("/shippingline/delete/:id", deleteShippingLine);
+
+//transporter line routes
+router.post("/transporter/create", createTransporter);
+
+router.get("/transporter/getall", getTransporter);
+router.get("/transporter/getone/:id", getSingleTransporter);
+
+router.put("/transporter/put/:id", updateTransporter);
+
+router.delete("/transporter/delete/:id", deleteTransporter);
+
+//forwarder line routes
+router.post("/forwarder/create", createForwarder);
+
+router.get("/forwarder/getall", getForwarder);
+router.get("/forwarder/getone/:id", getSingleForwarder);
+
+router.put("/forwarder/put/:id", updateForwarder);
+
+router.delete("/forwarder/delete/:id", deleteForwarder);
 export default router;

@@ -30,7 +30,7 @@ const shippingLineSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const shipmentline = mongoose.model("shipmentline", shippingLineSchema);
+export const shippingline = mongoose.model("shippingline", shippingLineSchema);
 
 const forwarderSchema = new mongoose.Schema(
   {
