@@ -92,7 +92,7 @@ const shippingBillSchema = new mongoose.Schema({
   shippingBillNumber: { type: String },
   shippingBillDate: { type: Date },
   drawbackValue: { type: String },
-  roadtepValue: { type: String },
+  rodtepValue: { type: String },
 });
 
 const shippingBillDetailsSchema = new mongoose.Schema({
@@ -104,12 +104,17 @@ const shippingBillDetailsSchema = new mongoose.Schema({
 
 const clearanceSchema = new mongoose.Schema({
   supplierName: String,
-  supplierGSTN: String,
-  supplierInvoiceNumber: String,
-  supplierInvoiceDate: Date,
-  supplierInvoiceValueWithGST: String,
-  supplierInvoiceValueWithOutGST: String,
-  clearanceSupplierInvoiceUrl: String,
+  noOfInvoices: { type: Number },
+  invoices: [
+    {
+      supplierGSTN: String,
+      supplierInvoiceNumber: String,
+      supplierInvoiceDate: Date,
+      supplierInvoiceValueWithGST: String,
+      supplierInvoiceValueWithOutGST: String,
+      clearanceSupplierInvoiceUrl: String,
+    },
+  ],
 });
 
 const actualSchema = new mongoose.Schema({
