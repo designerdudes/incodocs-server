@@ -42,14 +42,49 @@ const bookingDetailsSchema = new mongoose.Schema({
   containers: [containersSchema],
 });
 
+const shippingLineSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+const transporterInvoiceSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+const forwarderInvoiceSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+
 const shippingDetailsSchema = new mongoose.Schema({
-  shippingLine: String,
-  forwarderName: String,
-  forwarderInvoice: String,
-  valueOfForwarderInvoice: String,
-  transporter: String,
-  transporterInvoice: String,
-  valueOfTransporterInvoice: String,
+  shipmentLineName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "shipmentline",
+  },
+  noOfShipmentinvoices: { type: Number },
+  shippingLineInvoices: [shippingLineSchema],
+
+  transporterName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "transportername",
+  },
+  noOftransportinvoices: { type: Number },
+  transporterInvoices: [transporterInvoiceSchema],
+
+  forwarderName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "forwardername",
+  },
+  noOfForwarderinvoices: { type: Number },
+  forwarderInvoices: [forwarderInvoiceSchema],
 });
 
 const shippingBillSchema = new mongoose.Schema({

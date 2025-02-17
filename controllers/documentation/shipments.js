@@ -1,4 +1,4 @@
-import consignee from "../../models/documentation/consignee&productDetails.js";
+import { consignee } from "../../models/documentation/consignee&productDetails.js";
 import Organization from "../../models/documentation/organization.js";
 import Shipment from "../../models/documentation/shipment.js";
 

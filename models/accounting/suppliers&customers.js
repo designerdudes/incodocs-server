@@ -5,6 +5,8 @@ const supplierSchema = new mongoose.Schema(
   {
     supplierName: { type: String },
     gstNo: { type: String },
+    address: { type: String },
+    responsiblePerson: { type: String },
     mobileNumber: { type: Number },
     state: { type: String },
     factoryAddress: { type: String },
