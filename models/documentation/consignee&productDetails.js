@@ -1,46 +1,14 @@
 import mongoose from "mongoose";
 
-// const tileSchema = new mongoose.Schema({
-//   noOfBoxes: Number,
-//   noOfPiecesPerBoxes: Number,
-//   sizePerTile: {
-//     length: {
-//       value: { type: Number },
-//       units: { type: String, enum: ["inch", "cm"] },
-//     },
-//     breadth: {
-//       value: { type: Number },
-//       units: { type: String, enum: ["inch", "cm"] },
-//     },
-//   },
-// });
-
-// const slabSchema = new mongoose.Schema({
-//   noOfBundles: Number,
-//   noOfSlabsPerBundle: Number,
-//   uploadMeasurementSheetUrl: String,
-//   totalSQMTRorSQFTwithAllowance: String,
-//   totalSQMTRorSMFTwithoutAllowance: String,
-// });
-
-// const productDetailsSchema = new mongoose.Schema(
-//   {
-//     productCategory: { type: String, enum: ["Granite & marble", "Ceramic"] },
-//     graniteAndMarble: { type: String, enum: ["tiles", "Slabs"] },
-//     tiles: tileSchema,
-//     slabs: slabSchema,
-//   },
-//   { timestamps: true }
-// );
-
-// const productDetails = mongoose.model("productDetails", productDetailsSchema);
-
 const consigneeSchema = new mongoose.Schema(
   {
     name: String,
     address: String,
-    telephoneNo: Number,
+    responsiblePerson: String,
+    mobileNo: Number,
     email: String,
+    vatNo: String,
+    taxId: String,
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
@@ -49,6 +17,46 @@ const consigneeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const consignee = mongoose.model("consignee", consigneeSchema);
+export const consignee = mongoose.model("consignee", consigneeSchema);
 
-export default consignee ; //, productDetails
+const shippingLineSchema = new mongoose.Schema(
+  {
+    shippingLineName: { type: String },
+    address: { type: String },
+    responsiblePerson: { type: String },
+    mobileNo: { type: Number },
+    email: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const shippingline = mongoose.model("shippingline", shippingLineSchema);
+
+const forwarderSchema = new mongoose.Schema(
+  {
+    forwarderName: { type: String },
+    address: { type: String },
+    responsiblePerson: { type: String },
+    mobileNo: { type: Number },
+    email: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const forwardername = mongoose.model("forwardername", forwarderSchema);
+
+const transporterSchema = new mongoose.Schema(
+  {
+    transporterName: { type: String },
+    address: { type: String },
+    responsiblePerson: { type: String },
+    mobileNo: { type: Number },
+    email: { type: String },
+  },
+  { timestamps: true }
+);
+
+export const transportername = mongoose.model(
+  "transportername",
+  transporterSchema
+);

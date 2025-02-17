@@ -42,14 +42,49 @@ const bookingDetailsSchema = new mongoose.Schema({
   containers: [containersSchema],
 });
 
+const shippingLineSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+const transporterInvoiceSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+const forwarderInvoiceSchema = new mongoose.Schema({
+  invoiceNumber: { type: String },
+  uploadInvoiceUrl: { type: String },
+  date: { type: Date },
+  valueWithGst: { type: Number },
+  valueWithoutGst: { type: Number },
+});
+
 const shippingDetailsSchema = new mongoose.Schema({
-  shippingLine: String,
-  forwarderName: String,
-  forwarderInvoice: String,
-  valueOfForwarderInvoice: String,
-  transporter: String,
-  transporterInvoice: String,
-  valueOfTransporterInvoice: String,
+  shipmentLineName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "shippingline",
+  },
+  noOfShipmentinvoices: { type: Number },
+  shippingLineInvoices: [shippingLineSchema],
+
+  transporterName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "transportername",
+  },
+  noOftransportinvoices: { type: Number },
+  transporterInvoices: [transporterInvoiceSchema],
+
+  forwarderName: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "forwardername",
+  },
+  noOfForwarderinvoices: { type: Number },
+  forwarderInvoices: [forwarderInvoiceSchema],
 });
 
 const shippingBillSchema = new mongoose.Schema({
@@ -57,7 +92,7 @@ const shippingBillSchema = new mongoose.Schema({
   shippingBillNumber: { type: String },
   shippingBillDate: { type: Date },
   drawbackValue: { type: String },
-  roadtepValue: { type: String },
+  rodtepValue: { type: String },
 });
 
 const shippingBillDetailsSchema = new mongoose.Schema({
@@ -69,12 +104,17 @@ const shippingBillDetailsSchema = new mongoose.Schema({
 
 const clearanceSchema = new mongoose.Schema({
   supplierName: String,
-  supplierGSTN: String,
-  supplierInvoiceNumber: String,
-  supplierInvoiceDate: Date,
-  supplierInvoiceValueWithGST: String,
-  supplierInvoiceValueWithOutGST: String,
-  clearanceSupplierInvoiceUrl: String,
+  noOfInvoices: { type: Number },
+  invoices: [
+    {
+      supplierGSTN: String,
+      supplierInvoiceNumber: String,
+      supplierInvoiceDate: Date,
+      supplierInvoiceValueWithGST: String,
+      supplierInvoiceValueWithOutGST: String,
+      clearanceSupplierInvoiceUrl: String,
+    },
+  ],
 });
 
 const actualSchema = new mongoose.Schema({
@@ -109,7 +149,7 @@ const blDetailsSchema = new mongoose.Schema({
   uploadBLUrl: String,
 });
 
-const certificateOfOriginSchema = new mongoose.Schema({
+const otherDetailsSchema = new mongoose.Schema({
   certificateOfOriginNumber: String,
   date: Date,
   issuerOfCOO: String,
@@ -118,13 +158,14 @@ const certificateOfOriginSchema = new mongoose.Schema({
 
 const shipmentSchema = new mongoose.Schema(
   {
+    shipmentId: String,
     bookingDetails: bookingDetailsSchema,
     shippingDetails: shippingDetailsSchema,
     shippingBillDetails: shippingBillDetailsSchema,
     supplierDetails: supplierDetailsSchema,
     saleInvoiceDetails: saleInvoiceDetailsSchema,
     blDetails: blDetailsSchema,
-    certificateOfOriginDetails: certificateOfOriginSchema,
+    otherDetails: otherDetailsSchema,
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",
@@ -132,6 +173,26 @@ const shipmentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+shipmentSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const lastShipment = await this.constructor
+      .findOne()
+      .sort({ shipmentId: -1 })
+      .select("shipmentId");
+
+    let lastNumber = 0;
+
+    if (lastShipment && lastShipment.shipmentId) {
+      const match = lastShipment.shipmentId.match(/\d+$/); //  \d+ → Matches one or more digits (0-9).    $ → Ensures the match is at the end of the string.
+      if (match) {
+        lastNumber = parseInt(match[0], 10); // match returns an array thats why we are doing match[0] example: if shipmentId number was 10 so match stores ['10'] thats why we have to use parseInt
+      }
+    }
+    this.shipmentId = `JE${lastNumber + 1}`;
+  }
+  next();
+});
 
 const Shipment = mongoose.model("Shipment", shipmentSchema);
 

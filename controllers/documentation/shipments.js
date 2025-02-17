@@ -1,4 +1,9 @@
-import consignee from "../../models/documentation/consignee&productDetails.js";
+import {
+  consignee,
+  forwardername,
+  shippingline,
+  transportername,
+} from "../../models/documentation/consignee&productDetails.js";
 import Organization from "../../models/documentation/organization.js";
 import Shipment from "../../models/documentation/shipment.js";
 
@@ -25,6 +30,26 @@ export const addShipment = async (req, res) => {
   }
 };
 
+const deepMerge = (existingShipment, newShipmentData) => {
+  for (const key of Object.keys(newShipmentData)) {
+    // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
+    if (key === "containers") {
+      continue;
+    }
+    if (
+      newShipmentData[key] &&
+      typeof newShipmentData[key] === "object" &&
+      !Array.isArray(newShipmentData[key])
+    ) {
+      existingShipment[key] = existingShipment[key] || {};
+      deepMerge(existingShipment[key], newShipmentData[key]);
+    } else {
+      existingShipment[key] = newShipmentData[key];
+    }
+  }
+  return existingShipment;
+};
+
 // Controller function to update an existing shipment
 export const updateShipment = async (req, res) => {
   try {
@@ -34,22 +59,22 @@ export const updateShipment = async (req, res) => {
     if (!findShipment) {
       return res.status(404).json({ message: "shipment not found" });
     }
-    const deepMerge = (existingShipment, newShipmentData) => {
-      for (const key of Object.keys(newShipmentData)) {
-        // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
-        if (
-          newShipmentData[key] &&
-          typeof newShipmentData[key] === "object" &&
-          !Array.isArray(newShipmentData[key])
-        ) {
-          existingShipment[key] = existingShipment[key] || {};
-          deepMerge(existingShipment[key], newShipmentData[key]);
-        } else {
-          existingShipment[key] = newShipmentData[key];
-        }
-      }
-      return existingShipment;
-    };
+    // const deepMerge = (existingShipment, newShipmentData) => {
+    //   for (const key of Object.keys(newShipmentData)) {
+    //     // here key is a variable it is storing all the keys of the newshipmentData with the help of object.keys() method where as in for-in loop it directly takes keys of an oject so we dont need to do object.keys() in for-in loop
+    //     if (
+    //       newShipmentData[key] &&
+    //       typeof newShipmentData[key] === "object" &&
+    //       !Array.isArray(newShipmentData[key])
+    //     ) {
+    //       existingShipment[key] = existingShipment[key] || {};
+    //       deepMerge(existingShipment[key], newShipmentData[key]);
+    //     } else {
+    //       existingShipment[key] = newShipmentData[key];
+    //     }
+    //   }
+    //   return existingShipment;
+    // };
 
     const mergedData = deepMerge(findShipment.toObject(), body);
 
@@ -74,17 +99,33 @@ export const addOrUpdateBookingDetails = async (req, res) => {
       return res.status(404).json({ message: "organization not found" });
     }
 
-    const findShipment = await Shipment.findById(shipmentId);
-    if (!findShipment) {
-      return res.status(404).json({ message: "shipment not found" });
-    }
-
     let shipment;
 
     if (shipmentId) {
+      const findShipment = await Shipment.findById(shipmentId);
+      if (!findShipment) {
+        return res.status(404).json({ message: "shipment not found" });
+      }
+
+      // Store a copy of existing containers to avoid reference issues
+      const existingContainers = [
+        ...(findShipment.bookingDetails?.containers || []),
+      ];
+
+      // Exclude containers while merging using rest operator
+      const { containers, ...restBookingDetails } = bookingDetails || {};
+
+      findShipment.bookingDetails = {
+        ...findShipment.bookingDetails,
+        ...restBookingDetails, // Merge everything except containers
+      };
+
+      // Restore the original containers
+      findShipment.bookingDetails.containers = existingContainers;
+
       shipment = await Shipment.findByIdAndUpdate(
         shipmentId,
-        { bookingDetails },
+        { $set: { bookingDetails: findShipment.bookingDetails } },
         { new: true }
       );
     } else {
@@ -181,6 +222,7 @@ export const addOrUpdateShippingBillDetails = async (req, res) => {
   }
 };
 
+// controller function to add or update supplier details for a shipment
 export const addorUpdateSupplierDetails = async (req, res) => {
   try {
     const { shipmentId, supplierDetails, organizationId } = req.body;
@@ -483,7 +525,7 @@ export const updateContainer = async (req, res) => {
     const { shipmentId, containerId } = req.params;
     const updateData = req.body;
 
-    const shipment = await Shipment.findById(shipmentId);
+    const shipment = await Shipment.findById(shipmentId); // this shipment variable has become a mongoose document which means it has special Mongoose functions like .save().
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }
@@ -606,6 +648,238 @@ export const deleteConsignee = async (req, res) => {
     if (!getConsignee) {
       return res.status(404).json({ message: "consignee not found to delete" });
     }
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+// shipmentLine controllers
+export const createShippingLine = async (req, res) => {
+  try {
+    const body = req.body;
+    const newShipmentLine = await shippingline.create(body);
+    res.status(200).json(newShipmentLine);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getShippingLine = async (req, res) => {
+  try {
+    const shipmentLine = await shippingline.find();
+    if (shipmentLine.length < 1) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(shipmentLine);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getSingleShippingLine = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const shipmentLine = await shippingline.findById(id);
+    if (!shipmentLine) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(shipmentLine);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateShippingLine = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const shipmentLine = await shippingline.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    if (!shipmentLine) {
+      return res.status(404).json({ message: "no records found to update" });
+    }
+    res.status(200).json(shipmentLine);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteShippingLine = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findshipingline = await shippingline.findById(id);
+    if (!findshipingline) {
+      return res.status(404).json({ message: "not found" });
+    }
+    await shippingline.findByIdAndDelete(id);
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+// transporter controllers
+export const createTransporter = async (req, res) => {
+  try {
+    const body = req.body;
+    const newTransporter = await transportername.create(body);
+    res.status(200).json(newTransporter);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getTransporter = async (req, res) => {
+  try {
+    const findTransporter = await transportername.find();
+    if (findTransporter.length < 1) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findTransporter);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getSingleTransporter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findTransporter = await transportername.findById(id);
+    if (!findTransporter) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findTransporter);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateTransporter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const updatedTransporter = await transportername.findByIdAndUpdate(
+      id,
+      body,
+      {
+        new: true,
+      }
+    );
+    if (!updatedTransporter) {
+      return res.status(404).json({ message: "no records found to update" });
+    }
+    res.status(200).json(updatedTransporter);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteTransporter = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findTransporter = await transportername.findById(id);
+    if (!findTransporter) {
+      return res.status(404).json({ message: "not found" });
+    }
+    await transportername.findByIdAndDelete(id);
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+// forwarder controllers
+export const createForwarder = async (req, res) => {
+  try {
+    const body = req.body;
+    const newForwarder = await forwardername.create(body);
+    res.status(200).json(newForwarder);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getForwarder = async (req, res) => {
+  try {
+    const findForwarder = await forwardername.find();
+    if (findForwarder.length < 1) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findForwarder);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getSingleForwarder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findForwarder = await forwardername.findById(id);
+    if (!findForwarder) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findForwarder);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateForwarder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const body = req.body;
+    const updatedForwarder = await forwardername.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    if (!updatedForwarder) {
+      return res.status(404).json({ message: "no records found to update" });
+    }
+    res.status(200).json(updatedForwarder);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteForwarder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findForwarder = await forwardername.findById(id);
+    if (!findForwarder) {
+      return res.status(404).json({ message: "not found" });
+    }
+    await forwardername.findByIdAndDelete(id);
     res.status(200).json({ message: "deleted successfully" });
   } catch (err) {
     res
