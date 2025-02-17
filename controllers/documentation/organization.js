@@ -32,12 +32,12 @@ export const addOrganization = async (req, res) => {
 // Controller function to update an existing organization
 export const updateOrganization = async (req, res) => {
   const { id } = req.params;
-  const { name, description, owner, members, address } = req.body;
+  const body = req.body;
 
   try {
     const updatedOrganization = await Organization.findByIdAndUpdate(
       id,
-      { name, description, owner, members, address },
+      body,
       { new: true }
     );
 

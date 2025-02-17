@@ -655,17 +655,36 @@ export const updateLotAddBlocks = async (req, res) => {
       noOfBlocks,
       blocks,
     } = req.body;
+
+    if (markerCost || materialCost || transportCost) {
+      var newMarkerCost =
+        markerCost !== undefined
+          ? existingLot.markerCost + markerCost
+          : existingLot.markerCost;
+
+      var newmaterialCost =
+        materialCost !== undefined
+          ? existingLot.materialCost + materialCost
+          : existingLot.materialCost;
+
+      var newtransportCost =
+        transportCost !== undefined
+          ? existingLot.transportCost + transportCost
+          : existingLot.transportCost;
+    }
+
     const payload = {
       lotName: lotName ?? existingLot.lotName,
       factoryId: factoryId ?? existingLot.factoryId,
       organizationId: organizationId ?? existingLot.organizationId,
       materialType: materialType ?? existingLot.materialType,
-      materialCost: materialCost ?? existingLot.materialCost,
-      markerCost: markerCost ?? existingLot.markerCost,
-      transportCost: transportCost ?? existingLot.transportCost,
+      materialCost: newmaterialCost,
+      markerCost: newMarkerCost,
+      transportCost: newtransportCost,
       markerOperatorName: markerOperatorName ?? existingLot.markerOperatorName,
       noOfBlocks: noOfBlocks ?? existingLot.noOfBlocks,
     };
+
     const updatedLot = await lotInventory.findByIdAndUpdate(id, payload, {
       new: true,
     });
@@ -726,6 +745,11 @@ export const updateBlockCreateSlab = async (req, res) => {
       inStock,
       slabs,
     } = req.body;
+
+    if (!exitstingBlock) {
+      return res.status(404).json({ message: "block not found" });
+    }
+
     const payload = {
       lotId: lotId ?? exitstingBlock.lotId,
       factoryId: factoryId ?? exitstingBlock.factoryId,
@@ -780,6 +804,30 @@ export const updateBlockCreateSlab = async (req, res) => {
       .json({ msg: "updated successfully", updatedBlock, addedSlab: addSlab });
   } catch (err) {
     res.status(500).json({ msg: "Internal Server Error", error: err.message });
+  }
+};
+
+// update multiple slabs and add trim data
+export const AddTrimDataToMultipleSlabs = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    const { trim } = req.body;
+    const findSlabs = await slabInventory.find({ _id: { $in: ids } });
+    if (trim.length === 0) {
+      return res.status(400).json({ message: "trim data not found" });
+    }
+    if (!findSlabs) {
+      return res.status(404).json({ message: "no slabs found" });
+    }
+    await slabInventory.updateMany(
+      { _id: { $in: ids } },
+      { $set: { status: "polished", trim } }
+    );
+    res.status(200).json({ message: "updated successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
   }
 };
 
@@ -931,13 +979,15 @@ export const updateMultipleSlabs = async (req, res) => {
 
 export const updateMultipleSlabsValue = async (req, res) => {
   try {
-    const { slabNumbers, dimensions } = req.body;
-
-    await slabInventory.updateMany(
-      { slabNumber: { $in: slabNumbers } }, // Filtering slabs by slabNumbers array
-      { $set: { dimensions } } // Updating length, height, and status
+    const { slabs } = req.body;
+    slabs.map(
+      async (slab) =>
+        await slabInventory.findOneAndUpdate(
+          { slabNumber: slab.slabNumber },
+          { dimensions: slab.dimensions },
+          { new: true }
+        )
     );
-
     res.status(200).json({ message: "Updated successfully" });
   } catch (err) {
     res
