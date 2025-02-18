@@ -106,3 +106,57 @@ export const deleteEmployee = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+
+
+
+
+
+export const getEmployeeByOrganizationId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findOrg = await Organization.findById(id);
+    if (!findOrg) {
+      return res.status(404).json({ message: "organization not found" });
+    }
+    const employees = await Employee.find({ organizationId: id }).populate(
+      "organizationId"
+    );
+    if (employees.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(employees);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: error.message });
+  }
+};
+
+
+
+export const deleteMultipleEmployees = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "Invalid or empty employee IDs" });
+    }
+    const findEmployee = await Employee.find({ _id: { $in: ids } });
+    if (findEmployee.length === 0) {
+      return res.status(404).json({ message: "No records found to delete" });
+    }
+    const orgIds = findEmployee.map((employee) => employee.organizationId);
+    await Organization.updateMany(
+      { _id: { $in: orgIds } },
+      { $pull: { employee: { $in: ids } } }
+    );
+    const deleteResult = await Employee.deleteMany({ _id: { $in: ids } });
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).json({ message: "No employees were deleted" });
+    }
+
+    res.status(200).json({ message: "Employees deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error", error: err.message });
+  }
+};
