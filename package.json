@@ -21,6 +21,7 @@
     "express": "^4.18.2",
     "fast-two-sms": "^3.0.0",
     "form-data": "^4.0.1",
+    "is-ci": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.3.0",
     "mongoose": "^8.0.2",
