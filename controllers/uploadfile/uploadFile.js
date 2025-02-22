@@ -34,7 +34,7 @@ export const uploadFile = (req, res) => {
       blobStream.on("finish", async () => {
         console.log("File uploaded successfully");
         await blob.makePublic();
-        res.status(200).json({ url: blob.publicUrl() });
+        res.status(200).json({ message: "File uploaded successfully!", url: blob.publicUrl() });
       });
 
       blobStream.on("error", (err) => {

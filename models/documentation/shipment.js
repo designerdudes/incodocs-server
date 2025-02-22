@@ -34,6 +34,7 @@ const containersSchema = new mongoose.Schema({
 });
 
 const bookingDetailsSchema = new mongoose.Schema({
+  review: String,
   bookingNumber: String,
   portOfLoading: String,
   destinationPort: String,
@@ -65,6 +66,7 @@ const forwarderInvoiceSchema = new mongoose.Schema({
 });
 
 const shippingDetailsSchema = new mongoose.Schema({
+  review: String,
   shipmentLineName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "shippingline",
@@ -96,6 +98,7 @@ const shippingBillSchema = new mongoose.Schema({
 });
 
 const shippingBillDetailsSchema = new mongoose.Schema({
+  review: String,
   portCode: { type: String },
   cbName: { type: String },
   cdCode: { type: String },
@@ -125,6 +128,7 @@ const actualSchema = new mongoose.Schema({
 });
 
 const supplierDetailsSchema = new mongoose.Schema({
+  review: String,
   clearance: clearanceSchema,
   actual: actualSchema,
 });
@@ -137,24 +141,30 @@ const commercialInvoiceSchema = new mongoose.Schema({
 });
 
 const saleInvoiceDetailsSchema = new mongoose.Schema({
+  review: String,
   consignee: { type: mongoose.Schema.Types.ObjectId, ref: "consignee" },
   actualBuyer: String,
   commercialInvoices: commercialInvoiceSchema,
 });
 
 const blDetailsSchema = new mongoose.Schema({
+  review: String,
   blNumber: String,
   blDate: Date,
   telexDate: Date,
   uploadBLUrl: String,
 });
 
-const otherDetailsSchema = new mongoose.Schema({
-  certificateOfOriginNumber: String,
-  date: Date,
-  issuerOfCOO: String,
-  uploadCopyOfFumigationCertificate: String,
-});
+const otherDetailsSchema = new mongoose.Schema([
+  {
+    review: String,
+    certificateName: String,
+    certificateNumber: String,
+    date: Date,
+    issuerOfCertificate: String,
+    uploadCopyOfCertificate: String,
+  },
+]);
 
 const shipmentSchema = new mongoose.Schema(
   {
