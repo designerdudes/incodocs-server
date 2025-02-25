@@ -67,7 +67,7 @@ const forwarderInvoiceSchema = new mongoose.Schema({
 
 const shippingDetailsSchema = new mongoose.Schema({
   review: String,
-  shipmentLineName: {
+  shippingLineName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "shippingline",
   },
@@ -106,7 +106,7 @@ const shippingBillDetailsSchema = new mongoose.Schema({
 });
 
 const clearanceSchema = new mongoose.Schema({
-  supplierName: String,
+  supplierName: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
   noOfInvoices: { type: Number },
   invoices: [
     {
@@ -155,16 +155,14 @@ const blDetailsSchema = new mongoose.Schema({
   uploadBLUrl: String,
 });
 
-const otherDetailsSchema = new mongoose.Schema([
-  {
-    review: String,
-    certificateName: String,
-    certificateNumber: String,
-    date: Date,
-    issuerOfCertificate: String,
-    uploadCopyOfCertificate: String,
-  },
-]);
+const otherDetailsSchema = new mongoose.Schema({
+  review: String,
+  certificateName: String,
+  certificateNumber: String,
+  date: Date,
+  issuerOfCertificate: String,
+  uploadCopyOfCertificate: String,
+});
 
 const shipmentSchema = new mongoose.Schema(
   {
@@ -175,7 +173,7 @@ const shipmentSchema = new mongoose.Schema(
     supplierDetails: supplierDetailsSchema,
     saleInvoiceDetails: saleInvoiceDetailsSchema,
     blDetails: blDetailsSchema,
-    otherDetails: otherDetailsSchema,
+    otherDetails: [otherDetailsSchema],
     organizationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Organization",

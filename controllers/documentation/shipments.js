@@ -1,3 +1,4 @@
+import { populate } from "dotenv";
 import {
   consignee,
   forwardername,
@@ -383,7 +384,13 @@ export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
 // Controller function to get all shipments
 export const getAllShipments = async (req, res) => {
   try {
-    const shipments = await Shipment.find().populate("organizationId");
+    const shipments = await Shipment.find()
+      .populate("shippingDetails.transporterName")
+      .populate("shippingDetails.forwarderName")
+      .populate("shippingDetails.shippingLineName")
+      .populate("supplierDetails.clearance.supplierName")
+      .populate("saleInvoiceDetails.consignee")
+      .populate("organizationId")
     if (shipments.length === 0) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -403,9 +410,13 @@ export const getShipmentsByOrganizationId = async (req, res) => {
     if (!findOrg) {
       return res.status(404).json({ message: "organization not found" });
     }
-    const shipments = await Shipment.find({ organizationId: id }).populate(
-      "organizationId"
-    );
+    const shipments = await Shipment.find({ organizationId: id })
+      .populate("shippingDetails.transporterName")
+      .populate("shippingDetails.forwarderName")
+      .populate("shippingDetails.shippingLineName")
+      .populate("supplierDetails.clearance.supplierName")
+      .populate("saleInvoiceDetails.consignee")
+      .populate("organizationId")
     if (shipments.length === 0) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -421,7 +432,13 @@ export const getShipmentsByOrganizationId = async (req, res) => {
 export const getShipmentById = async (req, res) => {
   try {
     const { id } = req.params;
-    const shipment = await Shipment.findById(id).populate("organizationId");
+    const shipment = await Shipment.findById(id)
+      .populate("shippingDetails.transporterName")
+      .populate("shippingDetails.forwarderName")
+      .populate("shippingDetails.shippingLineName")
+      .populate("supplierDetails.clearance.supplierName")
+      .populate("saleInvoiceDetails.consignee")
+      .populate("organizationId")
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }
