@@ -1,4 +1,3 @@
-import { populate } from "dotenv";
 import {
   consignee,
   forwardername,
@@ -7,6 +6,7 @@ import {
 } from "../../models/documentation/consignee&productDetails.js";
 import Organization from "../../models/documentation/organization.js";
 import Shipment from "../../models/documentation/shipment.js";
+import { shipmentSupplier } from "../../models/documentation/shipmentSupplier.js";
 
 // Controller function to add a new shipment
 export const addShipment = async (req, res) => {
@@ -390,7 +390,7 @@ export const getAllShipments = async (req, res) => {
       .populate("shippingDetails.shippingLineName")
       .populate("supplierDetails.clearance.supplierName")
       .populate("saleInvoiceDetails.consignee")
-      .populate("organizationId")
+      .populate("organizationId");
     if (shipments.length === 0) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -416,7 +416,7 @@ export const getShipmentsByOrganizationId = async (req, res) => {
       .populate("shippingDetails.shippingLineName")
       .populate("supplierDetails.clearance.supplierName")
       .populate("saleInvoiceDetails.consignee")
-      .populate("organizationId")
+      .populate("organizationId");
     if (shipments.length === 0) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -438,7 +438,7 @@ export const getShipmentById = async (req, res) => {
       .populate("shippingDetails.shippingLineName")
       .populate("supplierDetails.clearance.supplierName")
       .populate("saleInvoiceDetails.consignee")
-      .populate("organizationId")
+      .populate("organizationId");
     if (!shipment) {
       return res.status(404).json({ message: "Shipment not found" });
     }
@@ -677,6 +677,9 @@ export const deleteConsignee = async (req, res) => {
 export const createShippingLine = async (req, res) => {
   try {
     const body = req.body;
+    const { organizationId } = req.body;
+    if (!organizationId)
+      return res.status(400).json({ message: "organization ID required" });
     const newShipmentLine = await shippingline.create(body);
     res.status(200).json(newShipmentLine);
   } catch (err) {
@@ -686,9 +689,10 @@ export const createShippingLine = async (req, res) => {
   }
 };
 
-export const getShippingLine = async (req, res) => {
+export const getShippingLineByOrg = async (req, res) => {
   try {
-    const shipmentLine = await shippingline.find();
+    const { id } = req.params;
+    const shipmentLine = await shippingline.find({ organizationId: id });
     if (shipmentLine.length < 1) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -753,6 +757,9 @@ export const deleteShippingLine = async (req, res) => {
 export const createTransporter = async (req, res) => {
   try {
     const body = req.body;
+    const { organizationId } = req.body;
+    if (!organizationId)
+      return res.status(400).json({ message: "organization ID required" });
     const newTransporter = await transportername.create(body);
     res.status(200).json(newTransporter);
   } catch (err) {
@@ -762,9 +769,10 @@ export const createTransporter = async (req, res) => {
   }
 };
 
-export const getTransporter = async (req, res) => {
+export const getTransporterByOrg = async (req, res) => {
   try {
-    const findTransporter = await transportername.find();
+    const { id } = req.params;
+    const findTransporter = await transportername.find({ organizationId: id });
     if (findTransporter.length < 1) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -833,6 +841,9 @@ export const deleteTransporter = async (req, res) => {
 export const createForwarder = async (req, res) => {
   try {
     const body = req.body;
+    const { organizationId } = req.body;
+    if (!organizationId)
+      return res.status(400).json({ message: "organization ID required" });
     const newForwarder = await forwardername.create(body);
     res.status(200).json(newForwarder);
   } catch (err) {
@@ -842,9 +853,10 @@ export const createForwarder = async (req, res) => {
   }
 };
 
-export const getForwarder = async (req, res) => {
+export const getForwarderByOrg = async (req, res) => {
   try {
-    const findForwarder = await forwardername.find();
+    const { id } = req.params;
+    const findForwarder = await forwardername.find({ organizationId: id });
     if (findForwarder.length < 1) {
       return res.status(404).json({ message: "no records found" });
     }
@@ -897,6 +909,88 @@ export const deleteForwarder = async (req, res) => {
       return res.status(404).json({ message: "not found" });
     }
     await forwardername.findByIdAndDelete(id);
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+// shipment supplier schema
+export const createShipmentSupplier = async (req, res) => {
+  try {
+    const body = req.body;
+    const { organizationId } = req.body;
+    if (!organizationId)
+      return res.status(400).json({ message: "organization ID required" });
+    const newShipmentSupplier = await shipmentSupplier.create(body);
+    res.status(200).json(newShipmentSupplier);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getShipmentSupplierByOrganizationId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findsupplier = await shipmentSupplier.find({ organizationId: id });
+    if (findsupplier.length === 0) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findsupplier);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const getSingleShipmentSupplier = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findsupplier = await shipmentSupplier.findById(id);
+    if (!findsupplier) {
+      return res.status(404).json({ message: "no records found" });
+    }
+    res.status(200).json(findsupplier);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const updateShipmentSupplier = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findSupplier = await shipmentSupplier.findById(id);
+    if (!findSupplier) {
+      return res.status(404).json({ message: "shipment Supplier not found" });
+    }
+    const updatesupplier = await shipmentSupplier.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatesupplier);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ error: "internal server error", message: err.message });
+  }
+};
+
+export const deleteshipmentSupplier = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const findSupplier = await shipmentSupplier.findById(id);
+    if (!findSupplier) {
+      return res.status(404).json({ message: "no records found to delete" });
+    }
+    await shipmentSupplier.findByIdAndDelete(id);
     res.status(200).json({ message: "deleted successfully" });
   } catch (err) {
     res

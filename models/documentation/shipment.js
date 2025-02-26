@@ -106,7 +106,7 @@ const shippingBillDetailsSchema = new mongoose.Schema({
 });
 
 const clearanceSchema = new mongoose.Schema({
-  supplierName: { type: mongoose.Schema.Types.ObjectId, ref: "supplier" },
+  supplierName: { type: mongoose.Schema.Types.ObjectId, ref: "shipmentsupplier" },
   noOfInvoices: { type: Number },
   invoices: [
     {
@@ -144,7 +144,7 @@ const saleInvoiceDetailsSchema = new mongoose.Schema({
   review: String,
   consignee: { type: mongoose.Schema.Types.ObjectId, ref: "consignee" },
   actualBuyer: String,
-  commercialInvoices: commercialInvoiceSchema,
+  commercialInvoices: [commercialInvoiceSchema],
 });
 
 const blDetailsSchema = new mongoose.Schema({

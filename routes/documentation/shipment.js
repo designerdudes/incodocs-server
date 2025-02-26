@@ -24,20 +24,25 @@ import {
   deleteConsignee,
   updateContainer,
   createShippingLine,
-  getShippingLine,
   getSingleShippingLine,
   updateShippingLine,
   deleteShippingLine,
   createTransporter,
-  getTransporter,
   getSingleTransporter,
   updateTransporter,
   deleteTransporter,
   deleteForwarder,
   updateForwarder,
   getSingleForwarder,
-  getForwarder,
   createForwarder,
+  createShipmentSupplier,
+  getSingleShipmentSupplier,
+  getShipmentSupplierByOrganizationId,
+  updateShipmentSupplier,
+  deleteshipmentSupplier,
+  getForwarderByOrg,
+  getTransporterByOrg,
+  getShippingLineByOrg,
 } from "../../controllers/documentation/shipments.js";
 
 const router = express.Router();
@@ -77,7 +82,7 @@ router.delete("/consignee/delete/:id", deleteConsignee);
 //shipping line routes
 router.post("/shippingline/create", createShippingLine);
 
-router.get("/shippingline/getall", getShippingLine);
+router.get("/shippingline/getbyorg/:id", getShippingLineByOrg);
 router.get("/shippingline/getone/:id", getSingleShippingLine);
 
 router.put("/shippingline/put/:id", updateShippingLine);
@@ -87,7 +92,7 @@ router.delete("/shippingline/delete/:id", deleteShippingLine);
 //transporter line routes
 router.post("/transporter/create", createTransporter);
 
-router.get("/transporter/getall", getTransporter);
+router.get("/transporter/getbyorg/:id", getTransporterByOrg);
 router.get("/transporter/getone/:id", getSingleTransporter);
 
 router.put("/transporter/put/:id", updateTransporter);
@@ -97,10 +102,18 @@ router.delete("/transporter/delete/:id", deleteTransporter);
 //forwarder line routes
 router.post("/forwarder/create", createForwarder);
 
-router.get("/forwarder/getall", getForwarder);
+router.get("/forwarder/getbyorg/:id", getForwarderByOrg);
 router.get("/forwarder/getone/:id", getSingleForwarder);
 
 router.put("/forwarder/put/:id", updateForwarder);
 
 router.delete("/forwarder/delete/:id", deleteForwarder);
+
+// shipment supplier routes
+router.get("/supplier/getbyorg/:id", getShipmentSupplierByOrganizationId);
+router.get("/supplier/getbyid/:id", getSingleShipmentSupplier);
+router.post("/supplier/create", createShipmentSupplier);
+router.put("/supplier/update/:id", updateShipmentSupplier);
+router.delete("/supplier/delete/:id", deleteshipmentSupplier);
+
 export default router;

@@ -26,6 +26,10 @@ const shippingLineSchema = new mongoose.Schema(
     responsiblePerson: { type: String },
     mobileNo: { type: Number },
     email: { type: String },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+    },
   },
   { timestamps: true }
 );
@@ -39,6 +43,10 @@ const forwarderSchema = new mongoose.Schema(
     responsiblePerson: { type: String },
     mobileNo: { type: Number },
     email: { type: String },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+    },
   },
   { timestamps: true }
 );
@@ -52,6 +60,10 @@ const transporterSchema = new mongoose.Schema(
     responsiblePerson: { type: String },
     mobileNo: { type: Number },
     email: { type: String },
+    organizationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+    },
   },
   { timestamps: true }
 );
