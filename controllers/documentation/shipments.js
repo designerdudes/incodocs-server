@@ -342,7 +342,7 @@ export const addOrUpdateBlDetails = async (req, res) => {
 
 export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
   try {
-    const { shipmentId, certificateOfOriginDetails, organizationId } = req.body;
+    const { shipmentId, otherDetails, organizationId } = req.body;
 
     const findOrg = await Organization.findById(organizationId);
     if (!findOrg) {
@@ -351,7 +351,7 @@ export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
 
     const findShipment = await Shipment.findById(shipmentId);
     if (!findShipment) {
-      return res.status(404).json({ message: "shiopment not found" });
+      return res.status(404).json({ message: "shipment not found" });
     }
 
     let shipment;
@@ -359,12 +359,12 @@ export const addOrUpdatecertificateOfOriginDetails = async (req, res) => {
     if (shipmentId) {
       shipment = await Shipment.findByIdAndUpdate(
         shipmentId,
-        { certificateOfOriginDetails },
+        { otherDetails },
         { new: true }
       );
     } else {
       shipment = await Shipment.create({
-        certificateOfOriginDetails,
+        otherDetails,
         organizationId,
       });
       await Organization.findByIdAndUpdate(
