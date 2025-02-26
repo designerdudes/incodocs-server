@@ -54,7 +54,7 @@ router.post("/shipping-bill-details", addOrUpdateShippingBillDetails);
 router.post("/supplier-details", addorUpdateSupplierDetails);
 router.post("/sale-invoice-details", addOrUpdateSaleInvoiceDetails);
 router.post("/bl-details", addOrUpdateBlDetails);
-router.post("coo-details", addOrUpdatecertificateOfOriginDetails);
+router.post("/other-details", addOrUpdatecertificateOfOriginDetails);
 router.post("/addshipping-bills", addShippingBillsInShippingBillDetails);
 router.post("/add-container", addContainer);
 
