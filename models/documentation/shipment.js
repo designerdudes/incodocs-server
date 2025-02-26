@@ -29,7 +29,7 @@ const productDetailsSchema = new mongoose.Schema({
 const containersSchema = new mongoose.Schema({
   containerNumber: { type: String },
   truckNumber: { type: String },
-  trukDriverContactNumber: { type: Number },
+  truckDriverContactNumber: { type: Number },
   addProductDetails: productDetailsSchema,
 });
 
