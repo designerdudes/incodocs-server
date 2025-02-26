@@ -82,7 +82,7 @@ router.delete("/consignee/delete/:id", deleteConsignee);
 //shipping line routes
 router.post("/shippingline/create", createShippingLine);
 
-router.get("/shippingline/getall", getShippingLineByOrg);
+router.get("/shippingline/getbyorg/:id", getShippingLineByOrg);
 router.get("/shippingline/getone/:id", getSingleShippingLine);
 
 router.put("/shippingline/put/:id", updateShippingLine);
@@ -92,7 +92,7 @@ router.delete("/shippingline/delete/:id", deleteShippingLine);
 //transporter line routes
 router.post("/transporter/create", createTransporter);
 
-router.get("/transporter/getall", getTransporterByOrg);
+router.get("/transporter/getbyorg/:id", getTransporterByOrg);
 router.get("/transporter/getone/:id", getSingleTransporter);
 
 router.put("/transporter/put/:id", updateTransporter);
@@ -102,7 +102,7 @@ router.delete("/transporter/delete/:id", deleteTransporter);
 //forwarder line routes
 router.post("/forwarder/create", createForwarder);
 
-router.get("/forwarder/getall", getForwarderByOrg);
+router.get("/forwarder/getbyorg/:id", getForwarderByOrg);
 router.get("/forwarder/getone/:id", getSingleForwarder);
 
 router.put("/forwarder/put/:id", updateForwarder);
